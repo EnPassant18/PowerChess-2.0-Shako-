@@ -3,12 +3,14 @@
 **Team Members:** Brad Bentz, Daniel Kostovetsky, Dain Woods, Katie Normandin
 
 **Team Strengths and Weaknesses:**
+
 Daniel: My strengths are functional programming, data structures and algorithms. I studies these extensively in CS19. My weaknesses are object-oriented design and UI design, since I have relatively little experience in these areas. I never took an object-oriented programming course before. Advanced chess knowledge/experience.
 
 Katie: Relevant courses I have taken include data structures and algorithms. If we pursue an AI element, concepts from deep learning may be relevant. I also have strong organizational skills. My weaknesses include UI/UX since I have no experience beyond what we've learned in 032 (and I'm currently taking cs132). 
 
 **Project Idea(s):** 
-(1) PowerChess: Chess with Powerups that temporarily change the rules of the game (for instance, allowing multiple moves by one player, allowing pawns to move backwards, resurrecting dead pieces, etc.). Accomodating such rule changes would make for an interesting design challenge. We would start by ensuring a person could play against an opponent using the same computer, but we could also add an AI to play against and a feature for playing with friends over the Internet.
+
+(1) PowerChess: Chess with Powerups that temporarily change the rules of the game (for instance, allowing multiple moves by one player, allowing pawns to move backwards, resurrecting dead pieces, etc.). Powerups would randomly spawn on the board and players would be able to capture them the same way they can capture opponent's pieces. Accomodating such rule changes would make for an interesting design challenge. We would start by ensuring a person could play against an opponent using the same computer, but we could also add an AI to play against and a feature for playing with friends over the Internet.
 
 **Mentor TA:** _Put your mentor TA's name and email here once you're assigned one!_
 
