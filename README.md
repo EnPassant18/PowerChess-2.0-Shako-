@@ -10,6 +10,8 @@ Katie: Relevant courses I have taken include data structures and algorithms. If 
 
 Brad: Strengths are in Java, object oriented programming, general software design and algorithms. My biggest weakness is in front-end development.
 
+Dain: My strengths are data structures, algorithms, and game design. My weaknesses would be the front-end development and making my code very abstract.
+
 
 **Project Idea(s):** 
 
