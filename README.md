@@ -1,5 +1,7 @@
 # cs0320 Term Project 2018
 
+Power chess approved by adehovit, consider including a randomized start variant as well
+
 **Team Members:** Brad Bentz, Daniel Kostovetsky, Dain Woods, Katie Normandin
 
 **Team Strengths and Weaknesses:**
