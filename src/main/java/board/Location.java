@@ -19,11 +19,13 @@ public class Location implements BoardLoc {
    *          Row of location on board.
    * @param col
    *          Column of location on board.
+   * @throws IllegalArgumentException
+   *           if passed illegal row and/or column.
    */
-  public Location(int row, int col) {
+  public Location(int row, int col) throws IllegalArgumentException {
     try {
-      assert row <= Board.SIZE && row >= 0;
-      assert col <= Board.SIZE && col >= 0;
+      assert row >= 0 && row < Board.SIZE;
+      assert col >= 0 && col < Board.SIZE;
       this.row = row;
       this.col = col;
     } catch (AssertionError e) {
