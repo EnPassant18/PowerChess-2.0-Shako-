@@ -65,6 +65,7 @@ public class LocationTest {
 
     Location diffLoc = new Location(3, 2);
     assertNotEquals(loc, diffLoc);
+
   }
 
 }
