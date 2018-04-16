@@ -2,6 +2,7 @@ package game;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 
 import board.Board;
 import utility.Pair;
@@ -13,7 +14,7 @@ import utility.Pair;
  *
  */
 public class Game {
-  private List<Pair<Player, Clock>> players;
+  private Map<Color, Pair<Player, Clock>> players;
   private Board board;
   private List<Board> history; // TODO should this be list of strings?
 
