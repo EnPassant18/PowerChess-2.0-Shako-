@@ -71,6 +71,9 @@ public class Board {
     if (!isEmpty(start)) {
       BoardObject obj = spaces.get(start);
       if (obj.move(start, end, spaces)) { // if allowable move
+        // TODO if castle, call move again on rook
+        // TODO if promotion, call promotion method
+        // TODO if En Passant, are we leaving behind a "ghost pawn?"
         BoardObject captured = spaces.remove(end);
         spaces.put(end, obj);
         spaces.put(start, EMPTY_SPACE);
@@ -78,7 +81,7 @@ public class Board {
       } else {
         throw new IllegalMoveException(
             String.format("ERROR: cannot move %s from %s to %s.",
-                obj.getClass(), start, end));
+                obj.getClass().getSimpleName(), start, end));
       }
     }
     return EMPTY_SPACE;
