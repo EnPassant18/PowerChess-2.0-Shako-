@@ -18,7 +18,7 @@ public interface BoardObject {
   boolean canBeJumped();
 
   /**
-   * Check whether move is legal and execute if yes.
+   * Check whether move is legal.
    *
    * @param start
    *          Piece's starting location on the board.

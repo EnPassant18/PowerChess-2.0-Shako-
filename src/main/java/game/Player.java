@@ -30,6 +30,18 @@ public interface Player {
   Pair<Location, Location> getMove();
 
   /**
+   * Check whether player can still castle.
+   *
+   * @return true if player may castle, otherwise false.
+   */
+  boolean canCastle();
+
+  /**
+   * Set indicator that player can no longer castle in current game.
+   */
+  void setCastleOff();
+
+  /**
    * Get player PowerAction selection.
    *
    * @param actions
