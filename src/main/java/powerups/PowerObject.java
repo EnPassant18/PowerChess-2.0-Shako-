@@ -13,37 +13,48 @@ import board.Location;
  * @author knorms
  *
  */
-public interface PowerObject extends BoardObject {
+public class PowerObject implements BoardObject {
+  private Rarity rarity;
 
   /**
-   * Rarity represents the frequency with which a given PowerObject may spawn on
-   * the board.
+   * Rarity represents the frequency with which a given PowerAction will be
+   * offered.
    *
    * @author knorms
    *
    */
-  enum Rarity {
+  public enum Rarity {
     COMMON, RARE, LEGENDARY
   }
 
   /**
-   * Get rarity.
+   * Construct PowerObject of specified rarity.
    *
-   * @return rarity of power object.
+   * @param rarity
+   *          Rarity of PowerObject (Common, Rare, or Legendary).
    */
-  Rarity getRarity();
+  public PowerObject(String rarity) {
+    this.rarity = Rarity.valueOf(rarity);
+  }
 
   /**
    * Get a list of PowerActions allowed upon capturing this PowerObject.
    *
    * @return randomly generated list of 3 PowerActions.
    */
-  List<PowerAction> getPowerActions();
+  List<PowerAction> getPowerActions() {
+    return null;
+  }
 
   @Override
-  default boolean move(Location start, Location end,
+  public boolean move(Location start, Location end,
       Map<Location, BoardObject> spaces) {
     return false; // powerobjects cannot be moved
+  }
+
+  @Override
+  public boolean canBeJumped() {
+    return false;
   }
 
 }

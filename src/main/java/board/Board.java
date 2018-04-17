@@ -68,21 +68,41 @@ public class Board {
       throws IllegalMoveException {
     Location start = move.getLeft();
     Location end = move.getRight();
+    if (isEmpty(start)) {
+      throw new IllegalMoveException(
+          String.format("ERROR: starting location %s is empty.", start));
+    }
+    BoardObject obj = spaces.get(start);
+    if (obj.move(start, end, spaces)) { // if allowable move
+      // TODO if castle, call move again on rook
+      // TODO if promotion, call promotion method
+      // TODO if En Passant, are we leaving behind a "ghost pawn?"
+      return forceMove(move);
+    } else {
+      throw new IllegalMoveException(
+          String.format("ERROR: cannot move %s from %s to %s.",
+              obj.getClass().getSimpleName(), start, end));
+    }
+  }
+
+  /**
+   * Force move a BoardObject from one location, even if piece would not
+   * normally move in this way.
+   *
+   * @param move
+   *          Pair of locations representing the start and ending locations of a
+   *          move.
+   * @return captured board object if any, EMPTY_SPACE otherwise.
+   */
+  public BoardObject forceMove(Pair<Location, Location> move) {
+    Location start = move.getLeft();
+    Location end = move.getRight();
     if (!isEmpty(start)) {
       BoardObject obj = spaces.get(start);
-      if (obj.move(start, end, spaces)) { // if allowable move
-        // TODO if castle, call move again on rook
-        // TODO if promotion, call promotion method
-        // TODO if En Passant, are we leaving behind a "ghost pawn?"
-        BoardObject captured = spaces.remove(end);
-        spaces.put(end, obj);
-        spaces.put(start, EMPTY_SPACE);
-        return captured;
-      } else {
-        throw new IllegalMoveException(
-            String.format("ERROR: cannot move %s from %s to %s.",
-                obj.getClass().getSimpleName(), start, end));
-      }
+      BoardObject captured = spaces.remove(end);
+      spaces.put(end, obj);
+      spaces.put(start, EMPTY_SPACE);
+      return captured;
     }
     return EMPTY_SPACE;
   }
