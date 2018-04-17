@@ -30,16 +30,26 @@ public interface Player {
   Pair<Location, Location> getMove();
 
   /**
+   * Get move by player of piece at a specified location.
+   *
+   * @param start
+   *          Starting location of piece to be moved.
+   * @return pair of locations representing the start and ending locations of
+   *         chosen move.
+   */
+  Pair<Location, Location> getMove(Location start);
+
+  /**
    * Check whether player can still castle.
    *
    * @return true if player may castle, otherwise false.
    */
-  boolean canCastle();
+  boolean getCanCastle();
 
   /**
-   * Set indicator that player can no longer castle in current game.
+   * Set indicator for whether player can castle.
    */
-  void setCastleOff();
+  void setCanCastle();
 
   /**
    * Get player PowerAction selection.
