@@ -8,9 +8,9 @@ import board.BoardObject;
 import board.IllegalMoveException;
 import board.Location;
 import pieces.Piece;
+import players.Player;
 import powerups.PowerAction;
 import powerups.PowerObject;
-import utility.Pair;
 
 /**
  * Game represents a game of chess.
@@ -23,7 +23,7 @@ public class Game {
   private int activePlayerIndex;
   private Board board;
   private boolean gameOver;
-  private List<Pair<Location, Location>> history; // list past moves
+  private List<Move> history; // list past moves
 
   /**
    * Constructs new default game.
@@ -50,7 +50,7 @@ public class Game {
    */
   public void turn() {
     Player player = players.get(activePlayerIndex);
-    Pair<Location, Location> move = player.getMove();
+    Move move = player.getMove();
 
     // ask player for move until they choose a valid move
     while (!makeMove(move)) {
@@ -64,10 +64,10 @@ public class Game {
    *
    * @param color
    *          Color of player.
-   * @return pair of locations representing start and ending locations of
-   *         selected player move.
+   * @return a move (a pair of locations representing start and ending locations
+   *         of selected player move).
    */
-  public Pair<Location, Location> getMove(Color color) {
+  public Move getMove(Color color) {
     return players.get(activePlayerIndex).getMove();
   }
 
@@ -79,10 +79,10 @@ public class Game {
    *          Color of player.
    * @param start
    *          Starting location of piece to be moved.
-   * @return pair of locations representing start and ending locations of
-   *         selected player move.
+   * @return a move (a pair of locations representing start and ending locations
+   *         of selected player move).
    */
-  public Pair<Location, Location> getMove(Color color, Location start) {
+  public Move getMove(Color color, Location start) {
     return players.get(activePlayerIndex).getMove(start);
   }
 
@@ -93,7 +93,7 @@ public class Game {
    *          Move to execute.
    * @return true if move was valid and executed, otherwise false.
    */
-  public boolean makeMove(Pair<Location, Location> move) {
+  public boolean makeMove(Move move) {
     return executeMove(move, false);
   }
 
@@ -103,11 +103,11 @@ public class Game {
    * @param move
    *          Move to execute.
    */
-  public void forceMove(Pair<Location, Location> move) {
+  public void forceMove(Move move) {
     executeMove(move, true);
   }
 
-  private boolean executeMove(Pair<Location, Location> move, boolean force) {
+  private boolean executeMove(Move move, boolean force) {
     try {
       BoardObject captured;
 
@@ -122,7 +122,7 @@ public class Game {
       // add move to history
       history.add(move);
 
-      Location end = move.getRight();
+      Location end = move.getEnd();
 
       // manage captured power-ups or king
       manageCaptured(captured, end);
@@ -201,13 +201,13 @@ public class Game {
    * Check whether a move is a castle.
    *
    * @param move
-   *          pair of locations representing start and ending locations of a
-   *          move.
+   *          A move (a pair of locations representing start and ending
+   *          locations of a move).
    * @return true if the move is a castle.
    */
-  public static boolean isCastle(Pair<Location, Location> move) {
-    Location start = move.getLeft();
-    Location end = move.getRight();
+  public static boolean isCastle(Move move) {
+    Location start = move.getStart();
+    Location end = move.getEnd();
     if (start.equals(CASTLE_START1)
         && (end.equals(CASTLE_END_SHORT1) || end.equals(CASTLE_END_LONG1))) {
       return true;

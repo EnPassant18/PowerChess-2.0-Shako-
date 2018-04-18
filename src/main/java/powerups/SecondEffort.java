@@ -3,8 +3,8 @@ package powerups;
 import board.Location;
 import game.Color;
 import game.Game;
+import game.Move;
 import powerups.PowerObject.Rarity;
-import utility.Pair;
 
 /**
  * SecondEffort allows capturing piece to move again. Rarity: Common.
@@ -25,7 +25,7 @@ public class SecondEffort extends PowerAction {
   public void act(Location whereCaptured, Game game) {
     Color color = game.getColorAt(whereCaptured);
 
-    Pair<Location, Location> move;
+    Move move;
 
     // loop until valid move is executed
     while (true) {
