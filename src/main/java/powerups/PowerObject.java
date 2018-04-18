@@ -42,8 +42,8 @@ public class PowerObject implements BoardObject {
    *
    * @return randomly generated list of 3 PowerActions.
    */
-  List<PowerAction> getPowerActions() {
-    return null;
+  public List<PowerAction> getPowerActions() {
+    return PowerAction.ofRarity(rarity);
   }
 
   @Override
