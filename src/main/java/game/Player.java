@@ -5,7 +5,6 @@ import java.util.List;
 import board.Location;
 import pieces.Piece;
 import powerups.PowerAction;
-import utility.Pair;
 
 /**
  * Player can participate in a game of Chess.
@@ -28,7 +27,7 @@ public interface Player {
    * @return pair of locations representing the starting and ending locations of
    *         a move.
    */
-  Pair<Location, Location> getMove();
+  Move getMove();
 
   /**
    * Get move by player of piece at a specified location.
@@ -38,7 +37,7 @@ public interface Player {
    * @return pair of locations representing the start and ending locations of
    *         chosen move.
    */
-  Pair<Location, Location> getMove(Location start);
+  Move getMove(Location start);
 
   /**
    * Ask player how they would like to promote their pawn.

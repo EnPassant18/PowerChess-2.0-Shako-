@@ -8,9 +8,9 @@ import org.junit.Test;
 
 import board.Location;
 import game.GameDummy;
+import game.Move;
 import pieces.Piece;
 import powerups.PowerObject.Rarity;
-import utility.Pair;
 
 /**
  * Test Adjust PowerAction.
@@ -41,8 +41,7 @@ public class AdjustTest {
     Location end = new Location(3, 4);
 
     // move bishop out of grid-lock
-    game.forceMove(
-        new Pair<Location, Location>(new Location(0, 2), whereCaptured));
+    game.forceMove(new Move(new Location(0, 2), whereCaptured));
     Piece piece = game.getPieceAt(whereCaptured);
     game.setMove(whereCaptured, end);
 

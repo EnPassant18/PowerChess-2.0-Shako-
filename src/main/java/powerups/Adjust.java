@@ -6,8 +6,8 @@ import java.util.List;
 import board.Location;
 import game.Color;
 import game.Game;
+import game.Move;
 import powerups.PowerObject.Rarity;
-import utility.Pair;
 
 /**
  * Adjust allows capturing piece to move to an adjacent vacant square. Rarity:
@@ -54,7 +54,7 @@ public class Adjust extends PowerAction {
       return;
     }
 
-    Pair<Location, Location> move;
+    Move move;
 
     // loop until valid move is executed
     while (true) {
@@ -62,7 +62,7 @@ public class Adjust extends PowerAction {
       move = game.getMove(color, whereCaptured);
 
       // check that attempted move is to an empty adjacent square
-      if (adjacentSquares.contains(move.getRight())) {
+      if (adjacentSquares.contains(move.getEnd())) {
         game.forceMove(move);
         break;
       }
