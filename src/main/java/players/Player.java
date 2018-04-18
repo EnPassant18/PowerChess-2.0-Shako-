@@ -1,25 +1,40 @@
-package game;
+package players;
 
 import java.util.List;
 
 import board.Location;
+import game.Color;
+import game.Move;
 import pieces.Piece;
 import powerups.PowerAction;
 
 /**
- * Player can participate in a game of Chess.
+ * A Player can participate in a game of Chess.
  *
  * @author knorms
  *
  */
-public interface Player {
+public abstract class Player {
+  private final Color color;
 
   /**
-   * Get player piece color.
+   * Constructs player of the specified color.
+   *
+   * @param color
+   *          Color of player's pieces.
+   */
+  public Player(Color color) {
+    this.color = color;
+  }
+
+  /**
+   * Get player color.
    *
    * @return player piece color.
    */
-  Color getColor();
+  public Color getColor() {
+    return this.color;
+  }
 
   /**
    * Get player's next move.
@@ -27,7 +42,7 @@ public interface Player {
    * @return pair of locations representing the starting and ending locations of
    *         a move.
    */
-  Move getMove();
+  public abstract Move getMove();
 
   /**
    * Get move by player of piece at a specified location.
@@ -37,28 +52,28 @@ public interface Player {
    * @return pair of locations representing the start and ending locations of
    *         chosen move.
    */
-  Move getMove(Location start);
+  public abstract Move getMove(Location start);
 
   /**
    * Ask player how they would like to promote their pawn.
    *
    * @return Piece that player would two which player would like to promote.
    */
-  Piece getPromotion();
+  public abstract Piece getPromotion();
 
   /**
    * Check whether player can castle long.
    *
    * @return true if player may castle long, otherwise false.
    */
-  boolean getCanCastleLong();
+  public abstract boolean getCanCastleLong();
 
   /**
    * Check whether player can castle short.
    *
    * @return true if player may castle short, otherwise false.
    */
-  boolean getCanCastleShort();
+  public abstract boolean getCanCastleShort();
 
   /**
    * Set indicator for whether player can castle long.
@@ -66,7 +81,7 @@ public interface Player {
    * @param canCastleLong
    *          Boolean indicating whether player can execute castle long.
    */
-  void setCanCastleLong(boolean canCastleLong);
+  public abstract void setCanCastleLong(boolean canCastleLong);
 
   /**
    * Set indicator for whether player can castle short.
@@ -74,7 +89,7 @@ public interface Player {
    * @param canCastleShort
    *          Boolean indicating whether player can execute castle short.
    */
-  void setCanCastleShort(boolean canCastleShort);
+  public abstract void setCanCastleShort(boolean canCastleShort);
 
   /**
    * Get player PowerAction selection.
@@ -83,6 +98,6 @@ public interface Player {
    *          Set of PowerActions player may choose from.
    * @return selected PowerAction.
    */
-  PowerAction selectPowerAction(List<PowerAction> actions);
+  public abstract PowerAction selectPowerAction(List<PowerAction> actions);
 
 }

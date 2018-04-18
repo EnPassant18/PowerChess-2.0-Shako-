@@ -8,6 +8,7 @@ import board.BoardObject;
 import board.IllegalMoveException;
 import board.Location;
 import pieces.Piece;
+import players.Player;
 import powerups.PowerAction;
 import powerups.PowerObject;
 
