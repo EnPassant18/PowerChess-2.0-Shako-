@@ -1,16 +1,15 @@
 package game;
 
-import java.time.Clock;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import board.Board;
 import board.BoardObject;
 import board.IllegalMoveException;
 import board.Location;
 import pieces.Piece;
+import powerups.PowerAction;
+import powerups.PowerObject;
 import utility.Pair;
 
 /**
@@ -20,9 +19,11 @@ import utility.Pair;
  *
  */
 public class Game {
-  private Map<Color, Pair<Player, Clock>> players;
+  private List<Player> players;
+  private int activePlayerIndex;
   private Board board;
-  private List<Board> history; // TODO should this be list of strings?
+  private boolean gameOver;
+  private List<Pair<Location, Location>> history; // list past moves
 
   /**
    * Constructs new default game.
@@ -30,15 +31,32 @@ public class Game {
   public Game() {
     board = new Board();
     history = new ArrayList<>();
-    players = new HashMap<>();
+    players = new ArrayList<>();
+    gameOver = false;
   }
-  // TODO add constructor(s) that start special game or continue game
 
   /**
-   * Execute next player's turn.
+   * Start the game.
+   */
+  public void start() {
+    while (!gameOver) {
+      turn();
+      activePlayerIndex = (activePlayerIndex + 1) % 2;
+    }
+  }
+
+  /**
+   * Execute active player's turn.
    */
   public void turn() {
-    // TODO implement
+    Player player = players.get(activePlayerIndex);
+    Pair<Location, Location> move = player.getMove();
+
+    // ask player for move until they choose a valid move
+    while (!makeMove(move)) {
+      move = player.getMove();
+    }
+
   }
 
   /**
@@ -50,7 +68,7 @@ public class Game {
    *         selected player move.
    */
   public Pair<Location, Location> getMove(Color color) {
-    return players.get(color).getLeft().getMove();
+    return players.get(activePlayerIndex).getMove();
   }
 
   /**
@@ -65,24 +83,18 @@ public class Game {
    *         selected player move.
    */
   public Pair<Location, Location> getMove(Color color, Location start) {
-    return players.get(color).getLeft().getMove(start);
+    return players.get(activePlayerIndex).getMove(start);
   }
 
   /**
-   * Have board execute move.
+   * Ask board execute move only if move is legal.
    *
    * @param move
    *          Move to execute.
    * @return true if move was valid and executed, otherwise false.
    */
   public boolean makeMove(Pair<Location, Location> move) {
-    try {
-      BoardObject captured = board.move(move);
-      // TODO something with captured piece/powerobject
-      return true;
-    } catch (IllegalMoveException e) {
-      return false;
-    }
+    return executeMove(move, false);
   }
 
   /**
@@ -92,8 +104,47 @@ public class Game {
    *          Move to execute.
    */
   public void forceMove(Pair<Location, Location> move) {
-    BoardObject captured = board.forceMove(move);
-    // TODO something with captured piece/power object
+    executeMove(move, true);
+  }
+
+  private boolean executeMove(Pair<Location, Location> move, boolean force) {
+    try {
+      BoardObject captured;
+
+      if (force) {
+        // force move, even if normally illegal
+        captured = board.forceMove(move);
+      } else {
+        // try to make move (throws error if illegal)
+        captured = board.move(move);
+      }
+
+      // add move to history
+      history.add(move);
+
+      Location end = move.getRight();
+
+      // manage captured power-ups or king
+      manageCaptured(captured, end);
+
+      // TODO check for promotion, call player.getPromotion until legal piece is
+      // chosen, then call board.executePromotion(Location end, Piece piece)
+
+      return true;
+    } catch (IllegalMoveException e) {
+      return false;
+    }
+  }
+
+  private void manageCaptured(BoardObject captured, Location whereCaptured) {
+    if (captured instanceof PowerObject) {
+      List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
+      Player player = players.get(activePlayerIndex);
+      PowerAction powerup = player.selectPowerAction(actions);
+      powerup.act(whereCaptured, this);
+    } else if (captured.getClass().getName().equals("King")) {
+      gameOver = true;
+    }
   }
 
   /**

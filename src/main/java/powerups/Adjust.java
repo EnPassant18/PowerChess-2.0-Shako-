@@ -26,7 +26,7 @@ public class Adjust extends PowerAction {
   }
 
   @Override
-  void act(Location whereCaptured, Game game) {
+  public void act(Location whereCaptured, Game game) {
     Color color = game.getColorAt(whereCaptured);
 
     int row = whereCaptured.getRow();

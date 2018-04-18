@@ -59,8 +59,10 @@ public abstract class PowerAction {
    *          The board location where the PowerObject associated with this
    *          PowerAction was captured (i.e. the location of the capturer
    *          piece).
+   * @param game
+   *          Game that the powerAction will modify
    */
-  abstract void act(Location whereCaptured, Game game);
+  public abstract void act(Location whereCaptured, Game game);
 
   /**
    * @return the rarity
