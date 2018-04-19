@@ -1,0 +1,175 @@
+***********************************************************
+DOCUMENTATION FOR COMMUNICATIONS BETWEEN CLIENTS AND SERVER
+***********************************************************
+********** Comments are surrounded by asterisks ***********
+
+Message format: {
+	type: <TYPE>,
+	gameId: <Unique integer identifier of the game of the player sending/receiving the request>
+	playerId: <Unique integer identifier of the player sending/receiving the request>
+	~info: <INFO>
+}
+
+Message types:
+CREATE_GAME (0)
+ADD_PLAYER (1)
+GAME_OVER (2)
+OFFER_DRAW (3)
+DRAW_OFFERED (4)
+PLAYER_ACTION (5)
+GAME_UPDATE (6)
+ILLEGAL_ACTION (7)
+ERROR (8) 
+**************************************************
+ERROR can be sent by either the client or the server
+upon receiving an improperly formatted or impossible
+request, e.g. a move action while it's the other player's turn
+**************************************************
+
+
+Other enums:
+color: WHITE (0), BLACK (1)
+game end reason: MATE (0), RESIGNATION (1), TIME (2), DRAW_AGREED (3)
+game result: WIN (0), LOSS (1), DRAW (2)
+piece ids: NOTHING (0), <Others to be decided later>
+power rarities: COMMON (0), RARE (1), LEGENDARY (2)
+power ids: <To be decided later>
+
+-----------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+
+Requests (INCLUDE GAMEID, PLAYERID, EVEN THOUGH THEY'RE NOT LISTED):
+
+Creates a game with the given ID: {
+	type: CREATE_GAME (0),
+	<OMIT playerId>
+}
+Response: 200 OK
+
+Adds a player with the given ID and Color to the given game: {
+	type: ADD_PLAYER (1),
+	playerColor: <WHITE(0)/BLACK(1)>
+}
+Response: 200 OK
+
+****************************************************
+A player can offer a draw by pressing the ‘draw’ button.
+When they do so, the other player will be notified via the DRAW_OFFERED message.
+The other player can accept the draw using the same button. It will issue the SAME request (REQUEST_DRAW).
+A draw offer is valid until the offer recipient makes a MOVE (not necessarily a complete turn). 
+When the offer is accepted, both players will be notified via the GAME_OVER message.
+****************************************************
+When a player offers/accepts a draw: {
+	type: REQUEST_DRAW (3),
+}
+Response (if the other player has not requested a draw): 200 OK
+Response to other player (if they have not requested a draw): {
+	type: DRAW_OFFERED (4),
+}
+Response to both players (if both have requested a draw): {
+	type: GAME_OVER (2),
+	reason: DRAW_AGREED (3),
+	result: DRAW (2)
+}
+
+***************************************
+The client guarantees that there is a piece controlled 
+by the moving player on the move start square.
+***************************************
+When a player makes a move: {
+	type: PLAYER_ACTION (5),
+    action: MOVE (1),
+    move: {
+        from: {
+            row: <0…7>,
+            col: <0…7>
+        },
+        to: {
+            row: <0…7>,
+            col: <0…7>
+        }
+    }
+	
+}
+Response (if the move was illegal) {
+    type: ILLEGAL_ACTION (7),
+}
+Response (if the move was legal): {
+	type: GAME_UPDATE (6),
+    updates (if power boxes spawned or the state of certain pieces changed, 
+            e.g. loss of invulnerability or expiration of black hole): [
+        ****************************************************
+        Updates are represented by piece transformations, e.g. 
+        BLACK_HOLE -> NOTHING. Only the new state need be provided. 
+        Also, updates are evaluated AFTER MOVES, so if the moving 
+        piece needs to be updated, update the move-to square.
+        ****************************************************
+        {row: <0…7>, col: <0…7>, newState: <piece id>},
+        ...
+    ]
+    action: <NONE(0)/SELECT_POWER(2)> (what the player has to do next;
+        none indicates it is the opponent's turn),
+    options: (if the player captured a power, i.e. action = SELECT_POWER) {
+        rarity: COMMON(0)/RARE(1)/LEGENDARY(2),
+        id1: <id of the first power option>,
+        followUp1: <NONE(0)/MOVE(1)/SELECT_SQUARE(3)/SELECT_PIECE(4)/MOVE_THIS(5)>,
+        id2: <id of the second power option>,
+        followUp2: <NONE(0)/MOVE(1)/SELECT_SQUARE(3)/SELECT_PIECE(4)/MOVE_THIS(5)>
+        ************************************************************
+        followUp: some powers require the player to make additional
+        choices, e.g. move again or select an enemy piece to destroy.
+        NONE = no further action. SELECT_SQUARE = select empty square.
+        MOVE_THIS = the moving piece must be moved again.
+        ************************************************************
+    }
+}
+Response (to other player, if the move was legal): {
+    type: GAME_UPDATE (6),
+    move: {
+        from: {
+            row: <0…7>,
+            col: <0…7>
+        },
+        to: {
+            row: <0…7>,
+            col: <0…7>
+        }
+    }
+    updates: (see documentation above) [...],
+    action: <NONE(0)/MOVE(1)>
+}
+
+***************************************
+The client guarantees this message will only be sent
+after the acting player had just captured a power box.
+***************************************
+When a player selects a power: {
+    type: PLAYER_ACTION (5),
+    action: SELECT_POWER (2),
+    selection: <boolean> (first=0, second=1),
+    followUp (if applicable): <{row:<0...7>,col:<0...7>}/{from:...,to:...}>
+}
+Response (if the follow up was illegal) {
+    type: ILLEGAL_ACTION (7),
+}
+Response: {
+    type: GAME_UPDATE (6),
+    updates: [...],
+}
+Response to other player: {
+    type: GAME_UPDATE (6),
+    power: <power ID>
+    updates: [...],
+    move (if applicable) {from: ..., to: ...}
+}
+
+When a player resigns or forfeits on time: {
+    type: GAME_OVER (2),
+	reason: <RESIGNATION(1)/TIME(2)>,
+	result: LOSS (1)
+}
+Response to other player: {
+    type: GAME_OVER (2),
+	reason: <RESIGNATION(1)/TIME(2)>,
+	result: WIN (0)
+}
