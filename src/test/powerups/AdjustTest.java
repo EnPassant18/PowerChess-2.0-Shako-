@@ -41,7 +41,7 @@ public class AdjustTest {
     Location end = new Location(3, 4);
 
     // move bishop out of grid-lock
-    game.forceMove(new Move(new Location(0, 2), whereCaptured));
+    game.executeMove(new Move(new Location(0, 2), whereCaptured));
     Piece piece = game.getPieceAt(whereCaptured);
     game.setMove(whereCaptured, end);
 
