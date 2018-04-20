@@ -31,14 +31,12 @@ public class GameDummy extends Game {
   }
 
   @Override
-  public boolean makeMove(Move move) {
-    if (!super.makeMove(move)) {
+  public boolean validMove(Move move) {
+    if (!super.validMove(move)) {
       illegalMovesAttempted++;
     }
-    /*
-     * return true after attempting 3 illegal moves so method can finish
-     * executing
-     */
+
+    // return true after 3 invalid moves so method can finish executing
     return illegalMovesAttempted >= 3;
   }
 

@@ -1,10 +1,10 @@
 package powerups;
 
 import java.util.List;
-import java.util.Map;
 
+import board.Board;
 import board.BoardObject;
-import board.Location;
+import game.Move;
 
 /**
  * PowerObject represents a powerup that can appear on the game board and be
@@ -47,8 +47,7 @@ public class PowerObject implements BoardObject {
   }
 
   @Override
-  public boolean move(Location start, Location end,
-      Map<Location, BoardObject> spaces) {
+  public boolean move(Move move, Board board) {
     return false; // powerobjects cannot be moved
   }
 

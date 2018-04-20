@@ -63,7 +63,7 @@ public class Adjust extends PowerAction {
 
       // check that attempted move is to an empty adjacent square
       if (adjacentSquares.contains(move.getEnd())) {
-        game.forceMove(move);
+        game.executeMove(move);
         break;
       }
     }

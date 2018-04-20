@@ -32,8 +32,9 @@ public class SecondEffort extends PowerAction {
       // make player move the capturing piece
       move = game.getMove(color, whereCaptured);
 
-      // must execute valid move
-      if (game.makeMove(move)) {
+      // execute only if move is valid
+      if (game.validMove(move)) {
+        game.executeMove(move);
         break;
       }
     }
