@@ -16,6 +16,13 @@ public interface BoardObject {
    * @return true if can be jumped, false otherwise.
    */
   boolean canBeJumped();
+  
+  /**
+   * Check whether board object is an empty square or not
+   * 
+   * @return
+   */
+  boolean isEmpty();
 
   /**
    * Check whether move is legal.
