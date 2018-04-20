@@ -1,9 +1,12 @@
 package board;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 import game.Move;
+import pieces.Piece;
 
 /**
  * Board represents the chess board.
@@ -12,7 +15,7 @@ import game.Move;
  *
  */
 public class Board {
-  private Map<Location, BoardObject> spaces;
+  private Multimap<Location, BoardObject> spaces;
   public static final int SIZE = 8;
   private static final EmptySpace EMPTY_SPACE = new EmptySpace();
 
@@ -20,7 +23,7 @@ public class Board {
    * Constructs a board of empty spaces.
    */
   public Board() {
-    spaces = new HashMap<>();
+    spaces = HashMultimap.create();
     for (int i = 0; i < Board.SIZE; i++) {
       for (int j = 0; j < Board.SIZE; j++) {
         spaces.put(new Location(i, j), EMPTY_SPACE);
@@ -31,16 +34,26 @@ public class Board {
 
   // TODO implement constructor that takes boardString to use with db
 
+  // DEPRICATED DUE TO MULTIMAP
+  // public BoardObject getObjectAt(Location loc) {
+  // return spaces.get(loc);
+  // }
+
   /**
-   * Get object at specified location.
+   * Get piece at specified location.
    *
    * @param loc
    *          Board location.
-   * @return Board object at specified location or EMPTY_SPACE if location is
-   *         empty.
+   * @return Piece at specified location or null if location no piece at
+   *         location.
    */
-  public BoardObject getObjectAt(Location loc) {
-    return spaces.get(loc);
+  public Piece getPieceAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece) {
+        return (Piece) obj;
+      }
+    }
+    return null;
   }
 
   /**
@@ -51,7 +64,8 @@ public class Board {
    * @return true if location is empty, otherwise false.
    */
   public boolean isEmpty(Location loc) {
-    return spaces.get(loc).equals(EMPTY_SPACE);
+    Collection<BoardObject> objs = spaces.get(loc);
+    return objs.size() == 1 && objs.contains(EMPTY_SPACE);
   }
 
   /**
@@ -61,19 +75,18 @@ public class Board {
    * @param move
    *          Pair of locations representing the start and ending locations of a
    *          move.
-   * @return captured board object if any, EMPTY_SPACE otherwise.
+   * @return captured board objects if any, Collection containing only an
+   *         EMPTY_SPACE otherwise.
    */
-  public BoardObject move(Move move) {
+  public Collection<BoardObject> move(Move move) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    if (!isEmpty(start)) {
-      BoardObject obj = spaces.get(start);
-      BoardObject captured = spaces.remove(end);
-      spaces.put(end, obj);
-      spaces.put(start, EMPTY_SPACE);
-      return captured;
-    }
-    return EMPTY_SPACE;
+    Collection<BoardObject> captured;
+    Collection<BoardObject> obj = spaces.get(start);
+    captured = spaces.removeAll(end);
+    spaces.putAll(end, obj);
+    spaces.put(start, EMPTY_SPACE);
+    return captured;
   }
 
   /**

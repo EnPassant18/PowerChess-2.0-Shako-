@@ -1,6 +1,7 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import board.Board;
@@ -70,10 +71,10 @@ public class Game {
     if (board.isEmpty(start)) {
       return false;
     }
-    BoardObject obj = board.getObjectAt(start);
+    Piece piece = board.getPieceAt(start);
     // check if is castle, if yes, check if caslte is valid
     // check isCastleValid(neitherHasMove && emptyBetween())
-    return obj.move(move, board);
+    return piece.move(move, board);
   }
 
   /**
@@ -111,7 +112,7 @@ public class Game {
    *          Move to execute.
    */
   public void executeMove(Move move) {
-    BoardObject captured = board.move(move);
+    Collection<BoardObject> captured = board.move(move);
 
     // add move to history
     history.add(move);
@@ -125,16 +126,20 @@ public class Game {
     // chosen, then call board.executePromotion(Location end, Piece piece)
   }
 
-  private void manageCaptured(BoardObject captured, Location whereCaptured) {
-    if (captured instanceof PowerObject) {
-      List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
-      Player player = players.get(activePlayerIndex);
-      PowerAction powerup = player.selectPowerAction(actions);
-      powerup.act(whereCaptured, this);
+  private void manageCaptured(Collection<BoardObject> captured,
+      Location whereCaptured) {
 
-      // TODO instanceof King
-    } else if (captured.getClass().getName().equals("King")) {
-      gameOver = true;
+    for (BoardObject obj : captured) {
+      if (obj instanceof PowerObject) {
+        List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
+        Player player = players.get(activePlayerIndex);
+        PowerAction powerup = player.selectPowerAction(actions);
+        powerup.act(whereCaptured, this);
+
+        // TODO change to obj instanceof King
+      } else if (obj.getClass().getName().equals("King")) {
+        gameOver = true;
+      }
     }
 
   }
@@ -175,7 +180,7 @@ public class Game {
    */
   public Piece getPieceAt(Location loc) {
     try {
-      return ((Piece) board.getObjectAt(loc));
+      return board.getPieceAt(loc);
     } catch (ClassCastException e) {
       return null;
     }
