@@ -3,7 +3,7 @@ package board;
 import java.util.HashMap;
 import java.util.Map;
 
-import utility.Pair;
+import game.Move;
 
 /**
  * Board represents the chess board.
@@ -64,10 +64,9 @@ public class Board {
    * @throws IllegalMoveException
    *           if attempted move was not legal.
    */
-  public BoardObject move(Pair<Location, Location> move)
-      throws IllegalMoveException {
-    Location start = move.getLeft();
-    Location end = move.getRight();
+  public BoardObject move(Move move) throws IllegalMoveException {
+    Location start = move.getStart();
+    Location end = move.getEnd();
     if (isEmpty(start)) {
       throw new IllegalMoveException(
           String.format("ERROR: starting location %s is empty.", start));
@@ -94,9 +93,9 @@ public class Board {
    *          move.
    * @return captured board object if any, EMPTY_SPACE otherwise.
    */
-  public BoardObject forceMove(Pair<Location, Location> move) {
-    Location start = move.getLeft();
-    Location end = move.getRight();
+  public BoardObject forceMove(Move move) {
+    Location start = move.getStart();
+    Location end = move.getEnd();
     if (!isEmpty(start)) {
       BoardObject obj = spaces.get(start);
       BoardObject captured = spaces.remove(end);

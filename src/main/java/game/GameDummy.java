@@ -1,7 +1,6 @@
 package game;
 
 import board.Location;
-import utility.Pair;
 
 /**
  * GameDummy is a game for whose outputs are pre-programmed for testing
@@ -11,7 +10,7 @@ import utility.Pair;
  *
  */
 public class GameDummy extends Game {
-  private Pair<Location, Location> moveToGet;
+  private Move moveToGet;
   private int illegalMovesAttempted = 0;
 
   /**
@@ -23,16 +22,16 @@ public class GameDummy extends Game {
    *          Move ending location.
    */
   public void setMove(Location start, Location end) {
-    this.moveToGet = new Pair<Location, Location>(start, end);
+    this.moveToGet = new Move(start, end);
   }
 
   @Override
-  public Pair<Location, Location> getMove(Color color, Location start) {
+  public Move getMove(Color color, Location start) {
     return moveToGet;
   }
 
   @Override
-  public boolean makeMove(Pair<Location, Location> move) {
+  public boolean makeMove(Move move) {
     if (!super.makeMove(move)) {
       illegalMovesAttempted++;
     }
