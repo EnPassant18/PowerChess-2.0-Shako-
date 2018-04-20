@@ -5,7 +5,6 @@ import java.util.List;
 
 import board.Board;
 import board.BoardObject;
-import board.IllegalMoveException;
 import board.Location;
 import pieces.Piece;
 import players.Player;
@@ -52,11 +51,29 @@ public class Game {
     Player player = players.get(activePlayerIndex);
     Move move = player.getMove();
 
-    // ask player for move until they choose a valid move
-    while (!makeMove(move)) {
+    while (!validMove(move)) {
       move = player.getMove();
     }
+    executeMove(move);
 
+  }
+
+  /**
+   * Check whether specified move is valid.
+   *
+   * @param move
+   *          Move to check.
+   * @return true if valid, false otherwise.
+   */
+  public boolean validMove(Move move) {
+    Location start = move.getStart();
+    if (board.isEmpty(start)) {
+      return false;
+    }
+    BoardObject obj = board.getObjectAt(start);
+    // check if is castle, if yes, check if caslte is valid
+    // check isCastleValid(neitherHasMove && emptyBetween())
+    return obj.move(move, board);
   }
 
   /**
@@ -87,53 +104,25 @@ public class Game {
   }
 
   /**
-   * Ask board execute move only if move is legal.
-   *
-   * @param move
-   *          Move to execute.
-   * @return true if move was valid and executed, otherwise false.
-   */
-  public boolean makeMove(Move move) {
-    return executeMove(move, false);
-  }
-
-  /**
-   * Force board to execute move, even if move would typically be illegal.
+   * Execute a move; does not check for validity. Updates the board and manages
+   * casling and captured pieces/power-ups.
    *
    * @param move
    *          Move to execute.
    */
-  public void forceMove(Move move) {
-    executeMove(move, true);
-  }
+  public void executeMove(Move move) {
+    BoardObject captured = board.move(move);
 
-  private boolean executeMove(Move move, boolean force) {
-    try {
-      BoardObject captured;
+    // add move to history
+    history.add(move);
 
-      if (force) {
-        // force move, even if normally illegal
-        captured = board.forceMove(move);
-      } else {
-        // try to make move (throws error if illegal)
-        captured = board.move(move);
-      }
+    Location end = move.getEnd();
 
-      // add move to history
-      history.add(move);
+    // manage captured power-ups or king
+    manageCaptured(captured, end);
 
-      Location end = move.getEnd();
-
-      // manage captured power-ups or king
-      manageCaptured(captured, end);
-
-      // TODO check for promotion, call player.getPromotion until legal piece is
-      // chosen, then call board.executePromotion(Location end, Piece piece)
-
-      return true;
-    } catch (IllegalMoveException e) {
-      return false;
-    }
+    // TODO check for promotion, call player.getPromotion until legal piece is
+    // chosen, then call board.executePromotion(Location end, Piece piece)
   }
 
   private void manageCaptured(BoardObject captured, Location whereCaptured) {
@@ -142,9 +131,12 @@ public class Game {
       Player player = players.get(activePlayerIndex);
       PowerAction powerup = player.selectPowerAction(actions);
       powerup.act(whereCaptured, this);
+
+      // TODO instanceof King
     } else if (captured.getClass().getName().equals("King")) {
       gameOver = true;
     }
+
   }
 
   /**
