@@ -7,48 +7,28 @@ import board.Location;
 import game.Color;
 
 /**
- * Piece represents a chess piece.
+ * Bishop class that represents the bishop piece.
  *
  * @author knorms
  *
  */
-public class Bishop implements Piece {
+public class Bishop extends Piece {
 
-	private Color color;
-	private boolean moved;
-	
 	public Bishop(Color color) {
-		this.color = color;
-		moved = false;
-	}
-	
-	@Override
-	public boolean canBeJumped() {
-		return true;
+		super(color);
 	}
 	
 	@Override
 	public boolean move(Location start, Location end,
 			Map<Location, BoardObject> spaces) {
-		// TODO Auto-generated method stub
-		return false;
+		if(isSame(start, end)) {
+			return false;
+		}
+		int rowDir = (int) Math.signum(end.getCol() - start.getCol());
+		int colDir = (int) Math.signum(end.getRow() - start.getRow());
+		if(rowDir == 0 || colDir == 0) {
+			return false;
+		}
+		return checkInLine(start, end, spaces, rowDir, colDir);
 	}
-	
-	@Override
-	public Color getColor() {
-		return color;
-	}
-
-	@Override
-	public void setColor(Color color) {
-		this.color = color;
-		
-	}
-
-	@Override
-	public void hasMoved() {
-		moved = true;
-	}
-	
-
 }

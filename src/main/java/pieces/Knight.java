@@ -12,43 +12,24 @@ import game.Color;
  * @author knorms
  *
  */
-public class Knight implements Piece {
+public class Knight extends Piece {
 
-	private Color color;
-	private boolean moved;
-	
 	public Knight(Color color) {
-		this.color = color;
-		moved = false;
-	}
-	
-	@Override
-	public boolean canBeJumped() {
-		return true;
+		super(color);
 	}
 	
 	@Override
 	public boolean move(Location start, Location end,
 			Map<Location, BoardObject> spaces) {
-		// TODO Auto-generated method stub
+		if(isSame(start, end)) {
+			return false;
+		}
+		int colDif = end.getRow() - start.getRow();
+		int rowDif = end.getCol() - start.getCol();
+		//If the knight cannot move from start to end in an L shape, return false.
+		if(!((colDif == 1 && rowDif == 2) || (colDif == 2 && rowDif == 1))) {
+			return false;
+		}
 		return false;
 	}
-	
-	@Override
-	public Color getColor() {
-		return color;
-	}
-
-	@Override
-	public void setColor(Color color) {
-		this.color = color;
-		
-	}
-
-	@Override
-	public void hasMoved() {
-		moved = true;
-	}
-	
-
 }

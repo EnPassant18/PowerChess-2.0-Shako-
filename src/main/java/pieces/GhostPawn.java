@@ -12,16 +12,21 @@ import game.Color;
  * @author knorms
  *
  */
-public class Pawn extends Piece {
+public class GhostPawn extends Piece {
 
-	public Pawn(Color color) {
+	public GhostPawn(Color color) {
 		super(color);
 	}
 	
 	@Override
 	public boolean move(Location start, Location end,
 			Map<Location, BoardObject> spaces) {
-		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
+
 }

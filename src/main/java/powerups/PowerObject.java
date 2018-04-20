@@ -57,4 +57,14 @@ public class PowerObject implements BoardObject {
     return false;
   }
 
+	@Override
+	public boolean isEmpty() {
+		return false;
+	}
+	
+	@Override
+	public boolean isPiece() {
+		return false;
+	}
+
 }

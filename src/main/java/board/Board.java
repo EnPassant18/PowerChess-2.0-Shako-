@@ -126,6 +126,16 @@ public class Board {
         Map<Location, BoardObject> spaces) {
       return false;
     }
+
+	@Override
+	public boolean isEmpty() {
+		return true;
+	}
+
+	@Override
+	public boolean isPiece() {
+		return false;
+	}
   }
 
 }

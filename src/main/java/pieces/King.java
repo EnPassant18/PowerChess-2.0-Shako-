@@ -7,48 +7,29 @@ import board.Location;
 import game.Color;
 
 /**
- * Piece represents a chess piece.
+ * King class that represents the King piece.
  *
  * @author knorms
  *
  */
-public class King implements Piece {
-
-	private Color color;
-	private boolean moved;
+public class King extends Piece {
 	
 	public King(Color color) {
-		this.color = color;
-		moved = false;
-	}
-	
-	@Override
-	public boolean canBeJumped() {
-		return true;
+		super(color);
 	}
 	
 	@Override
 	public boolean move(Location start, Location end,
 			Map<Location, BoardObject> spaces) {
-		// TODO Auto-generated method stub
-		return false;
+		if(isSame(start, end)) {
+			return false;
+		}
+		int rowDir = Math.abs(end.getCol() - start.getCol());
+		int colDir = Math.abs(end.getRow() - start.getRow());
+		if(rowDir > 1 || colDir > 1) {
+			return false;
+		}
+		return isValidEnd(start, end, spaces);
+		//TODO: Add ability to castle
 	}
-	
-	@Override
-	public Color getColor() {
-		return color;
-	}
-
-	@Override
-	public void setColor(Color color) {
-		this.color = color;
-		
-	}
-
-	@Override
-	public void hasMoved() {
-		moved = true;
-	}
-	
-
 }
