@@ -2,9 +2,11 @@ package pieces;
 
 import java.util.Map;
 
+import board.Board;
 import board.BoardObject;
 import board.Location;
 import game.Color;
+import game.Move;
 
 /**
  * Queen class that represents the Queen piece.
@@ -19,13 +21,15 @@ public class Queen extends Piece {
 	}
 	
 	@Override
-	public boolean move(Location start, Location end,
-			Map<Location, BoardObject> spaces) {
+	public boolean move(Move move, Board board) {
+		Location start = move.getStart();
+		Location end = move.getEnd();
+		
 		if(isSame(start, end)) {
 			return false;
 		}
-		int rowDir = (int) Math.signum(end.getCol() - start.getCol());
-		int colDir = (int) Math.signum(end.getRow() - start.getRow());
-		return checkInLine(start, end, spaces, rowDir, colDir);
+		int colDir = (int) Math.signum(end.getCol() - start.getCol());
+		int rowDir = (int) Math.signum(end.getRow() - start.getRow());
+		return checkInLine(start, end, board, rowDir, colDir);
 	}
 }

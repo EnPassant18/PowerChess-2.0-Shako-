@@ -2,9 +2,11 @@ package pieces;
 
 import java.util.Map;
 
+import board.Board;
 import board.BoardObject;
 import board.Location;
 import game.Color;
+import game.Move;
 
 /**
  * Piece represents a chess piece.
@@ -25,16 +27,6 @@ public abstract class Piece implements BoardObject {
 	@Override
 	public boolean canBeJumped() {
 		return true;
-	}
-	
-	@Override
-	public boolean isPiece() {
-		return true;
-	}
-	
-	@Override
-	public boolean isEmpty() {
-		return false;
 	}
 	
 	/**
@@ -73,9 +65,11 @@ public abstract class Piece implements BoardObject {
 		return this.moved;
 	}
 	  
-	protected boolean isValidEnd(Location start, Location end, Map<Location, BoardObject> spaces) {
-		if(spaces.get(end).isPiece() && !(spaces.get(end) instanceof GhostPawn)) {
-			if(((Piece) spaces.get(end)).getColor() == ((Piece) spaces.get(start)).getColor()) {
+	protected boolean isValidEnd(Location start, Location end, Board board) {
+		Piece endP = board.getPieceAt(end);
+		Piece startP = board.getPieceAt(start);
+		if(endP != null && !(endP instanceof GhostPawn)) {
+			if(endP.getColor() == startP.getColor()) {
 				return false;
 			}
 		}
@@ -100,15 +94,15 @@ public abstract class Piece implements BoardObject {
 	 * @return
 	 * 		True if piece can move from start to end. False if it can't.
 	 */
-	protected boolean checkInLine(Location start, Location end, Map<Location, BoardObject> spaces, int rowDir, int colDir) {
+	protected boolean checkInLine(Location start, Location end, Board board, int rowDir, int colDir) {
 		Location check = new Location(start.getRow() + rowDir, start.getCol() + colDir);
-		while(check.getRow() != end.getRow() && check.getCol() != end.getCol()) {
-			if(!spaces.get(check).isEmpty()) {
+		while(!isSame(check, end)) {
+			if(!board.isEmpty(check)) {
 				return false;
 			}
 			check = new Location(check.getRow() + rowDir, check.getCol() + colDir);
 		}
-		return isValidEnd(start, end, spaces);
+		return isValidEnd(start, end, board);
 	}
 	
 	protected boolean isSame(Location start, Location end) {

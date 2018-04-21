@@ -1,10 +1,8 @@
 package pieces;
 
-import java.util.Map;
-
-import board.BoardObject;
-import board.Location;
+import board.Board;
 import game.Color;
+import game.Move;
 
 /**
  * Piece represents a chess piece.
@@ -19,14 +17,7 @@ public class GhostPawn extends Piece {
 	}
 	
 	@Override
-	public boolean move(Location start, Location end,
-			Map<Location, BoardObject> spaces) {
+	public boolean move(Move move, Board board) {
 		return false;
 	}
-	
-	@Override
-	public boolean isEmpty() {
-		return true;
-	}
-
 }

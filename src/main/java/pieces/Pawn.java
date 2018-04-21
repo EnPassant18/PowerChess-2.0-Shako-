@@ -1,10 +1,9 @@
 package pieces;
 
-import java.util.Map;
-
-import board.BoardObject;
+import board.Board;
 import board.Location;
 import game.Color;
+import game.Move;
 
 /**
  * Piece represents a chess piece.
@@ -19,8 +18,9 @@ public class Pawn extends Piece {
 	}
 	
 	@Override
-	public boolean move(Location start, Location end,
-			Map<Location, BoardObject> spaces) {
+	public boolean move(Move move, Board board) {
+		Location start = move.getStart();
+		Location end = move.getEnd();
 		// TODO Auto-generated method stub
 		return false;
 	}

@@ -17,20 +17,6 @@ public interface BoardObject {
    */
   boolean canBeJumped();
   
-  /**
-   * Check whether board object is an empty square or not.
-   * 
-   * @return true if is an empty square.
-   */
-  boolean isEmpty();
-  
-  /**
-   * Check whether board object is a piece or not.
-   * 
-   * @return true if is a piece.
-   */
-  boolean isPiece();
-  
 
   /**
    * Check whether move is legal.

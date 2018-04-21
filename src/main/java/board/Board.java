@@ -6,6 +6,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import game.Move;
+import pieces.GhostPawn;
 import pieces.Piece;
 
 /**
@@ -55,17 +56,24 @@ public class Board {
     }
     return null;
   }
+  
+  public boolean isJumpable(Location loc) {
+	  for(BoardObject obj : spaces.get(loc)) {
+		  return obj.canBeJumped();
+	  }
+	  return false;
+  }
 
   /**
    * Check whether given board location is empty.
    *
    * @param loc
    *          Location to check.
-   * @return true if location is empty, otherwise false.
+   * @return true if location is empty or a ghost pawn, otherwise false.
    */
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
-    return objs.size() == 1 && objs.contains(EMPTY_SPACE);
+    return objs.size() == 1 && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn);
   }
 
   /**
@@ -108,16 +116,6 @@ public class Board {
     public boolean move(Move move, Board board) {
       return false;
     }
-
-	@Override
-	public boolean isEmpty() {
-		return true;
-	}
-
-	@Override
-	public boolean isPiece() {
-		return false;
-	}
   }
 
 }
