@@ -35,8 +35,6 @@ public class Knight extends Piece {
 			return false;
 		}
 		
-		checkMovement(start, end, board, rowDif, colDif);
-		
 		if(checkRowFirst(start, end, board, rowDif, colDif) || checkColFirst(start, end, board, rowDif, colDif)) {
 			return isValidEnd(start, end, board);
 		}
@@ -48,17 +46,19 @@ public class Knight extends Piece {
 		int colDir = (int) Math.signum(colDif);
 		
 		Location check = new Location(start.getRow() + rowDir, start.getCol());
-		
-		
-		return false;
+		if(!board.isJumpable(check)) {
+			return false;
+		}
+		if(rowDif == 2) {
+			check = new Location(check.getRow() + rowDir, check.getCol());
+		}
+		else {
+			check = new Location(check.getRow(), check.getCol() + colDir);
+		}
+		return board.isJumpable(check);
 	}
 	
 	private boolean checkColFirst(Location start, Location end, Board board, int rowDif, int colDif) {
-		return false;
-	}
-	
-	private boolean checkMovement(Location start, Location end, Board board, int rowDif, int colDif) {
-		//Move by row first
 		int rowDir = (int) Math.signum(rowDif);
 		int colDir = (int) Math.signum(colDif);
 		
@@ -66,25 +66,12 @@ public class Knight extends Piece {
 		if(!board.isJumpable(check)) {
 			return false;
 		}
-		if(check.getRow() != end.getRow()) {
-			check = new Location(start.getRow() + rowDir, start.getCol());
-			if(!board.isJumpable(check)) {
-				return false;
-			}
+		if(colDif == 2) {
+			check = new Location(check.getRow(), check.getCol() + colDir);
 		}
-		
-		check = new Location(start.getRow(), start.getCol() + colDir);
-		if(!board.isJumpable(check)) {
-			return false;
+		else {
+			check = new Location(check.getRow() + rowDir, check.getCol());
 		}
-		while()
-		for(int r = 0; r < rowDif; r++) {
-			if(!board.isJumpable(check)) {
-				return false;
-			}
-			check = new Location(check.getRow() + rowDir, check.getCol() + colDir);
-		}
-		
-		return false;
+		return board.isJumpable(check);
 	}
 }

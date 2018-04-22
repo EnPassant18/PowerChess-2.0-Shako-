@@ -7,6 +7,7 @@ import java.util.List;
 import board.Board;
 import board.BoardObject;
 import board.Location;
+import pieces.GhostPawn;
 import pieces.Piece;
 import players.Player;
 import powerups.PowerAction;
@@ -42,6 +43,7 @@ public class Game {
     while (!gameOver) {
       turn();
       activePlayerIndex = (activePlayerIndex + 1) % 2;
+      board.resetGhost(activePlayerIndex);
     }
   }
 
@@ -68,7 +70,8 @@ public class Game {
    */
   public boolean validMove(Move move) {
     Location start = move.getStart();
-    if (board.isEmpty(start)) {
+    Piece p = board.getPieceAt(start);
+    if (!(p instanceof Piece) || p instanceof GhostPawn) {
       return false;
     }
     Piece piece = board.getPieceAt(start);
