@@ -35,45 +35,46 @@ public class ChessProjectHandler extends CommandMap {
 
   private String startNewGame() {
     game = new Game();
-    
+
     whitePlayer = new CliPlayer(Color.WHITE);
     blackPlayer = new CliPlayer(Color.BLACK);
-    
+
     game.addPlayer(whitePlayer);
     game.addPlayer(blackPlayer);
-    
+
     return printBoardState();
   }
 
   private String move(final String startPosition, final String endPosition) {
     String errorString = "ERROR: Invalid start or end positions.";
-    
+
     Location startLocation = ChessProjectUtils.parseMove(startPosition);
     Location endLocation = ChessProjectUtils.parseMove(endPosition);
-    
-    if(startLocation == null || endLocation == null) {
-    	return errorString;
+
+    if (startLocation == null || endLocation == null) {
+      return errorString;
     }
-    
+
     Move move = new Move(startLocation, endLocation);
     CliPlayer player = whiteToMove() ? whitePlayer : blackPlayer;
-    
-    if(!game.validMove(move)) {
-    	return "ERROR: Invalid move.";
+
+    if (!game.validMove(move)) {
+      return "ERROR: Invalid move.";
     }
-    
+
     player.setMove(move);
 
-    System.out.println(String.format("(%d, %d) -> (%d, %d)", startLocation.getRow(), 
-    		startLocation.getCol(), endLocation.getRow(), endLocation.getCol()));
-    
+    System.out.println(String.format("(%d, %d) -> (%d, %d)",
+        startLocation.getRow(), startLocation.getCol(), endLocation.getRow(),
+        endLocation.getCol()));
+
     game.turn();
-    
+
     return printBoardState();
   }
-  
+
   private Boolean whiteToMove() {
-	  return game.getActivePlayerIndex() == 0;
+    return game.getActivePlayerIndex() == 0;
   }
 
   private String printBoardState() {

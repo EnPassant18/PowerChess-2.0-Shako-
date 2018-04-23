@@ -12,7 +12,6 @@ import pieces.Piece;
 import players.Player;
 import powerups.PowerAction;
 import powerups.PowerObject;
-import projects.ChessProjectUtils;
 
 /**
  * Game represents a game of chess.
@@ -45,14 +44,15 @@ public class Game {
       turn();
     }
   }
-  
+
   /**
    * Adds a player to the game.
+   *
    * @param player
-   * 	Player to be added.
+   *          Player to be added.
    */
   public void addPlayer(final Player player) {
-	  players.add(player);
+    players.add(player);
   }
 
   /**
@@ -61,7 +61,7 @@ public class Game {
   public void turn() {
     Player player = players.get(activePlayerIndex);
     Move move = player.getMove();
-    
+
     Piece p = board.getPieceAt(move.getStart());
 
     while (!validMove(move)) {
@@ -71,9 +71,8 @@ public class Game {
 
     activePlayerIndex = (activePlayerIndex + 1) % 2;
     board.resetGhost(activePlayerIndex);
-    
+
   }
-  
 
   /**
    * Check whether specified move is valid.
@@ -231,33 +230,32 @@ public class Game {
     }
     return false;
   }
-  
+
   /**
    * Getter method for board.
-   * @return
-   * 	Current board of the game.
+   *
+   * @return Current board of the game.
    */
   public Board getBoard() {
-	  return board;
+    return board;
   }
-  
-  
+
   /**
    * Getter method for active player index.
-   * @return
-   * 	Current active player.
+   *
+   * @return Current active player.
    */
   public int getActivePlayerIndex() {
-	  return activePlayerIndex;
+    return activePlayerIndex;
   }
-  
+
   /**
    * Checks whether or not the game is over.
-   * @return
-   * 	True if the game is over and false otherwise.
+   *
+   * @return True if the game is over and false otherwise.
    */
   public boolean getGameOverStatus() {
-	  return gameOver;
+    return gameOver;
   }
-  
+
 }
