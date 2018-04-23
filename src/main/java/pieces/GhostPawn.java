@@ -5,19 +5,26 @@ import game.Color;
 import game.Move;
 
 /**
- * Piece represents a chess piece.
+ * A GhostPawn is associated with a normal pawn and is left behind when a pawn
+ * moves 2 spaces on its first move.
  *
- * @author knorms
+ * @author dwoods
  *
  */
 public class GhostPawn extends Piece {
 
-	public GhostPawn(Color color) {
-		super(color);
-	}
-	
-	@Override
-	public boolean move(Move move, Board board) {
-		return false;
-	}
+  /**
+   * Construct GhostPawn of the specified color.
+   *
+   * @param color
+   *          Piece color.
+   */
+  public GhostPawn(Color color) {
+    super(color);
+  }
+
+  @Override
+  public boolean move(Move move, Board board) {
+    return false;
+  }
 }

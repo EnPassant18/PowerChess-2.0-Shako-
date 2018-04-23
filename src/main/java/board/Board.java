@@ -26,6 +26,7 @@ public class Board {
   private Multimap<Location, BoardObject> spaces;
   public static final int SIZE = 8;
   private static final EmptySpace EMPTY_SPACE = new EmptySpace();
+  private static final int LAST_COL = 7;
 
   /**
    * Constructs a board of empty spaces.
@@ -51,38 +52,39 @@ public class Board {
   // }
 
   /**
-   * Fills the non-pawn row with the appropriate pieces according to the color given.
-   * 
+   * Fills the non-pawn row with the appropriate pieces according to the color
+   * given.
+   *
    * @param row
-   * 	The row to fill. Either the first or last row.
+   *          The row to fill. Either the first or last row.
    * @param color
-   * 	The color of the pieces. Either black or white.
+   *          The color of the pieces. Either black or white.
    */
   private void fillRow(int row, Color color) {
-	  spaces.put(new Location(row, 0), new Rook(color));
-	  spaces.put(new Location(row, 1), new Knight(color));
-	  spaces.put(new Location(row, 2), new Bishop(color));
-	  spaces.put(new Location(row, 3), new Queen(color));
-	  spaces.put(new Location(row, 4), new King(color));
-	  spaces.put(new Location(row, 5), new Bishop(color));
-	  spaces.put(new Location(row, 6), new Knight(color));
-	  spaces.put(new Location(row, 7), new Rook(color));
+    spaces.put(new Location(row, 0), new Rook(color));
+    spaces.put(new Location(row, 1), new Knight(color));
+    spaces.put(new Location(row, 2), new Bishop(color));
+    spaces.put(new Location(row, 3), new Queen(color));
+    spaces.put(new Location(row, 4), new King(color));
+    spaces.put(new Location(row, 5), new Bishop(color));
+    spaces.put(new Location(row, 6), new Knight(color));
+    spaces.put(new Location(row, LAST_COL), new Rook(color));
   }
-  
+
   /**
    * Fills the given row with pawns of the given color.
-   * 
+   *
    * @param row
-   * 	The row to fill. Either the second or second to last row.
+   *          The row to fill. Either the second or second to last row.
    * @param color
-   * 	The color of the pawns. Either black or white.
+   *          The color of the pawns. Either black or white.
    */
   private void fillPawns(int row, Color color) {
-	  for(int c = 0 ; c < Board.SIZE; c++) {
-		  spaces.put(new Location(row, c), new Pawn(color));
-	  }
+    for (int c = 0; c < Board.SIZE; c++) {
+      spaces.put(new Location(row, c), new Pawn(color));
+    }
   }
-  
+
   /**
    * Get piece at specified location.
    *
@@ -99,30 +101,53 @@ public class Board {
     }
     return null;
   }
-  
+
+  /**
+   * Check if a location on the board is jumpable.
+   *
+   * @param loc
+   *          Board location.
+   * @return true if can be jumped, false otherwise.
+   */
   public boolean isJumpable(Location loc) {
-	  for(BoardObject obj : spaces.get(loc)) {
-		  return obj.canBeJumped();
-	  }
-	  return false;
+    for (BoardObject obj : spaces.get(loc)) {
+      return obj.canBeJumped();
+    }
+    return false;
   }
 
-  public void resetGhost(int playerIndex) {
-	  Color color;
-	  if(playerIndex == 1) {
-		  color = Color.WHITE;
-	  }
-	  else {
-		  color = Color.BLACK;
-	  }
-	  for(Location loc : spaces.keys()) {
-		  Piece p = getPieceAt(loc);
-		  if(p instanceof GhostPawn && p.getColor() == color) {
-			  spaces.remove(loc, p);
-		  }
-	  }
+  /**
+   * Remove ghost pawn from board for active player.
+   *
+   * @param playerIndex
+   *          Index of player whose ghost pawns should be removed (0 = White, 1
+   *          = Black).
+   * @exception IllegalArgumentException
+   *              if method is passed playerIndex other than 0 (white) or 1
+   *              (black).
+   */
+  public void resetGhost(int playerIndex) throws IllegalArgumentException {
+    Color color;
+    switch (playerIndex) {
+      case 0:
+        color = Color.WHITE;
+        break;
+      case 1:
+        color = Color.BLACK;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "ERROR: Illegal playerIndex; expected 0 (white) or 1 (black).");
+    }
+
+    for (Location loc : spaces.keys()) {
+      Piece p = getPieceAt(loc);
+      if (p instanceof GhostPawn && p.getColor() == color) {
+        spaces.remove(loc, p);
+      }
+    }
   }
-  
+
   /**
    * Check whether given board location is empty.
    *
@@ -132,11 +157,21 @@ public class Board {
    */
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
-    return objs.size() == 1 && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn);
+    return objs.size() == 1
+        && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn);
   }
-  
+
+  /**
+   * Set a Ghost Pawn on the board when player moves pawn 2 spaces for first
+   * pawn move.
+   *
+   * @param loc
+   *          Board location skipped space where ghost pawn will be set.
+   * @param color
+   *          Color of ghost pawn.
+   */
   public void setGhost(Location loc, Color color) {
-	  spaces.put(loc, new GhostPawn(color));
+    spaces.put(loc, new GhostPawn(color));
   }
 
   /**
@@ -152,51 +187,48 @@ public class Board {
   public Collection<BoardObject> move(Move move) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    
+
     Piece startPiece = getPieceAt(start);
     Collection<BoardObject> captured;
-    if(startPiece instanceof King && ((King)startPiece).getChecking()) {
-    	Piece rook;
-    	Location rookLocStart;
-    	Location rookLocEnd;
-    	if(end.getCol() == 1) {
-    		rookLocStart = new Location(end.getRow(), end.getCol() - 1);
-    		rook = getPieceAt(rookLocStart);
-    		rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
-    		spaces.put(end, startPiece);
-    		
-    	}
-    	else {
-    		rookLocStart = new Location(end.getRow(), end.getCol() + 1);
-    		rook = getPieceAt(rookLocStart);
-    		rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
-    	}
-    	Collection<BoardObject> obj1 = spaces.get(start);
-    	captured = spaces.removeAll(end);
-    	spaces.putAll(end, obj1);
-    	spaces.put(start, EMPTY_SPACE);
-    	Collection<BoardObject> obj2 = spaces.get(rookLocStart);
-    	spaces.removeAll(rookLocEnd);
-    	spaces.putAll(rookLocEnd, obj2);
-    	spaces.put(rookLocStart, EMPTY_SPACE);
-    	((King)startPiece).resetChecking();
-    }
-    else {
-    	if(startPiece instanceof Pawn && ((Pawn)startPiece).getGhost()) {
-    		Piece p = getPieceAt(end);
-        	int direction;
-        	if(p.getColor() == Color.WHITE) {
-        		direction = 1;
-        	}
-        	else {
-        		direction = -1;
-        	}
-        	spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
-    	}
-	    Collection<BoardObject> obj = spaces.get(start);
-	    captured = spaces.removeAll(end);
-	    spaces.putAll(end, obj);
-	    spaces.put(start, EMPTY_SPACE);
+    if (startPiece instanceof King && ((King) startPiece).getChecking()) {
+      Piece rook;
+      Location rookLocStart;
+      Location rookLocEnd;
+      if (end.getCol() == 1) {
+        rookLocStart = new Location(end.getRow(), end.getCol() - 1);
+        rook = getPieceAt(rookLocStart);
+        rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
+        spaces.put(end, startPiece);
+
+      } else {
+        rookLocStart = new Location(end.getRow(), end.getCol() + 1);
+        rook = getPieceAt(rookLocStart);
+        rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
+      }
+      Collection<BoardObject> obj1 = spaces.get(start);
+      captured = spaces.removeAll(end);
+      spaces.putAll(end, obj1);
+      spaces.put(start, EMPTY_SPACE);
+      Collection<BoardObject> obj2 = spaces.get(rookLocStart);
+      spaces.removeAll(rookLocEnd);
+      spaces.putAll(rookLocEnd, obj2);
+      spaces.put(rookLocStart, EMPTY_SPACE);
+      ((King) startPiece).resetChecking();
+    } else {
+      if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
+        Piece p = getPieceAt(end);
+        int direction;
+        if (p.getColor() == Color.WHITE) {
+          direction = 1;
+        } else {
+          direction = -1;
+        }
+        spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
+      }
+      Collection<BoardObject> obj = spaces.get(start);
+      captured = spaces.removeAll(end);
+      spaces.putAll(end, obj);
+      spaces.put(start, EMPTY_SPACE);
     }
     startPiece.setMoved();
     return captured;

@@ -16,7 +16,6 @@ public interface BoardObject {
    * @return true if can be jumped, false otherwise.
    */
   boolean canBeJumped();
-  
 
   /**
    * Check whether move is legal.
