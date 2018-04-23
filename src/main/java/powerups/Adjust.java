@@ -3,6 +3,7 @@ package powerups;
 import java.util.ArrayList;
 import java.util.List;
 
+import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Game;
@@ -59,7 +60,14 @@ public class Adjust extends PowerAction {
     // loop until valid move is executed
     while (true) {
       // make player move the capturing piece
-      move = game.getMove(color, whereCaptured);
+      while (true) {
+        try {
+          move = game.getMove(color, whereCaptured);
+          break;
+        } catch (IllegalMoveException e) {
+          System.out.println(e.getMessage());
+        }
+      }
 
       // check that attempted move is to an empty adjacent square
       if (adjacentSquares.contains(move.getEnd())) {

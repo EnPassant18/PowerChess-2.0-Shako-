@@ -2,6 +2,7 @@ package players;
 
 import java.util.List;
 
+import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Move;
@@ -29,6 +30,12 @@ public class CliPlayer extends Player {
     super(color);
   }
 
+  /**
+   * Set the player's next move.
+   *
+   * @param move
+   *          Next move to be executed by player.
+   */
   public void setMove(final Move move) {
     nextMove = move;
   }
@@ -45,9 +52,13 @@ public class CliPlayer extends Player {
   }
 
   @Override
-  public Move getMove(Location start) {
-    // TODO Auto-generated method stub
-    return null;
+  public Move getMove(Location start) throws IllegalMoveException {
+    if (!nextMove.getStart().equals(start)) {
+      throw new IllegalMoveException(
+          String.format("ERROR: Player must move %s next.", start.toString()));
+    }
+    nextMove = null;
+    return nextMove;
   }
 
   @Override
@@ -60,30 +71,6 @@ public class CliPlayer extends Player {
   public PowerAction selectPowerAction(List<PowerAction> actions) {
     // TODO Auto-generated method stub
     return null;
-  }
-
-  @Override
-  public boolean getCanCastleLong() {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public boolean getCanCastleShort() {
-    // TODO Auto-generated method stub
-    return false;
-  }
-
-  @Override
-  public void setCanCastleLong(boolean canCastleLong) {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
-  public void setCanCastleShort(boolean canCastleShort) {
-    // TODO Auto-generated method stub
-
   }
 
 }
