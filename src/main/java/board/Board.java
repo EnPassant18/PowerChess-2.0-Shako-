@@ -98,6 +98,44 @@ public class Board {
   }
 
   /**
+   * Add an object to the board (usually a PowerObject or a PowerUp); note this
+   * method does check whether a space is empty.
+   *
+   * @param loc
+   *          Location to put object.
+   * @param obj
+   *          BoardObject to place on the board.
+   */
+  public void addBoardObject(Location loc, BoardObject obj) {
+    spaces.put(loc, obj);
+  }
+
+  /**
+   * Replace the the piece at a specified board location with given new piece.
+   *
+   * @param loc
+   *          Location of piece to be replaced.
+   * @param newPiece
+   *          New piece to place.
+   * @throws IllegalMoveException
+   *           If location does not already house a piece of the same color.
+   */
+  public void replacePiece(Location loc, Piece newPiece)
+      throws IllegalMoveException {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece
+          && ((Piece) obj).getColor() == newPiece.getColor()) {
+        spaces.remove(loc, obj);
+        spaces.put(loc, newPiece);
+        return;
+      }
+    }
+    throw new IllegalMoveException(
+        String.format("ERROR: %s does not have a piece at %s.",
+            newPiece.getColor(), loc.toString()));
+  }
+
+  /**
    * Check if a location on the board is jumpable.
    *
    * @param loc

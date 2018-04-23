@@ -5,6 +5,7 @@ import java.util.List;
 import board.IllegalMoveException;
 import board.Location;
 import game.Color;
+import game.IllegalPromotionException;
 import game.Move;
 import pieces.Piece;
 import poweractions.PowerAction;
@@ -62,8 +63,10 @@ public abstract class Player {
    * Ask player how they would like to promote their pawn.
    *
    * @return Piece that player would two which player would like to promote.
+   * @throws IllegalPromotionException
+   *           If player chooses illegal promotion piece type (Pawn or King).
    */
-  public abstract Piece getPromotion();
+  public abstract Piece getPromotion() throws IllegalPromotionException;
 
   /**
    * Get player PowerAction selection.
