@@ -1,4 +1,4 @@
-package powerups;
+package poweractions;
 
 import java.util.ArrayList;
 import java.util.Collections;

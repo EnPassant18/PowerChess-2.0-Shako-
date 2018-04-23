@@ -1,4 +1,4 @@
-package projects;
+package repl;
 
 import java.util.StringJoiner;
 
@@ -14,13 +14,13 @@ import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
 
-public final class ChessProjectUtils {
+public final class ChessReplUtils {
 
   public static final int SIZE = 8;
   public static final Character EMPTY_SPACE_CHAR = 'x';
   public static final Character POWER_UP_CHAR = 'W';
 
-  private ChessProjectUtils() {
+  private ChessReplUtils() {
 
   }
 

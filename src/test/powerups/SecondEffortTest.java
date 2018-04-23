@@ -9,6 +9,7 @@ import org.junit.Test;
 import board.Location;
 import game.GameDummy;
 import pieces.Piece;
+import poweractions.SecondEffort;
 import powerups.PowerObject.Rarity;
 
 /**

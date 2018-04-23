@@ -7,7 +7,7 @@ import board.Location;
 import game.Color;
 import game.Move;
 import pieces.Piece;
-import powerups.PowerAction;
+import poweractions.PowerAction;
 
 /**
  * A Player that can play a game of chess via interaction with the command line
@@ -53,7 +53,10 @@ public class CliPlayer extends Player {
 
   @Override
   public Move getMove(Location start) throws IllegalMoveException {
-    if (!nextMove.getStart().equals(start)) {
+    if (nextMove == null) {
+      throw new IllegalStateException(
+          "ERROR: called getMove() before setMove() in CliPlayer.");
+    } else if (!nextMove.getStart().equals(start)) {
       throw new IllegalMoveException(
           String.format("ERROR: Player must move %s next.", start.toString()));
     }

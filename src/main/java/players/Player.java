@@ -7,7 +7,7 @@ import board.Location;
 import game.Color;
 import game.Move;
 import pieces.Piece;
-import powerups.PowerAction;
+import poweractions.PowerAction;
 
 /**
  * A Player can participate in a game of Chess.

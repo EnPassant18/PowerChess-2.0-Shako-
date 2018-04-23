@@ -5,6 +5,7 @@ import java.util.List;
 import board.Board;
 import board.BoardObject;
 import game.Move;
+import poweractions.PowerAction;
 
 /**
  * PowerObject represents a powerup that can appear on the game board and be
