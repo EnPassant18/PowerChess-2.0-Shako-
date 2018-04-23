@@ -14,7 +14,7 @@ import game.Move;
 public class King extends Piece {
   private static final int CASTLE_DIST = -3;
 
-  private boolean checking;
+  private boolean castling;
 
   /**
    * Construct King of the specified color.
@@ -24,7 +24,7 @@ public class King extends Piece {
    */
   public King(Color color) {
     super(color);
-    checking = false;
+    castling = false;
   }
 
   @Override
@@ -47,7 +47,7 @@ public class King extends Piece {
       return false;
     }
     return isValidEnd(start, end, board);
-    // TODO: Add ability to castle
+
   }
 
   private boolean checkCastleLong(Location start, Location end, Board board) {
@@ -61,7 +61,7 @@ public class King extends Piece {
     Location check1 = new Location(start.getRow(), start.getCol() + 1);
     Location check2 = new Location(check1.getRow(), check1.getCol() + 1);
     if (board.isEmpty(check1) && board.isEmpty(check2)) {
-      checking = true;
+      castling = true;
       return true;
     }
     return false;
@@ -80,7 +80,7 @@ public class King extends Piece {
     Location check3 = new Location(check2.getRow(), check2.getCol() - 1);
     if (board.isEmpty(check1) && board.isEmpty(check2)
         && board.isEmpty(check3)) {
-      checking = true;
+      castling = true;
       return true;
     }
     return false;
@@ -93,14 +93,14 @@ public class King extends Piece {
    * @return true if latest castle move that was checked is allowed, false
    *         otherwise.
    */
-  public boolean getChecking() {
-    return this.checking;
+  public boolean getCastling() {
+    return this.castling;
   }
 
   /**
    * Reset indicator for whether can castle.
    */
-  public void resetChecking() {
-    this.checking = false;
+  public void resetCastling() {
+    this.castling = false;
   }
 }

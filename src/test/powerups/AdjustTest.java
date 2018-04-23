@@ -10,6 +10,7 @@ import board.Location;
 import game.GameDummy;
 import game.Move;
 import pieces.Piece;
+import poweractions.Adjust;
 import powerups.PowerObject.Rarity;
 
 /**

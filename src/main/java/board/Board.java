@@ -46,11 +46,6 @@ public class Board {
 
   // TODO implement constructor that takes boardString to use with db
 
-  // DEPRICATED DUE TO MULTIMAP
-  // public BoardObject getObjectAt(Location loc) {
-  // return spaces.get(loc);
-  // }
-
   /**
    * Fills the non-pawn row with the appropriate pieces according to the color
    * given.
@@ -190,7 +185,7 @@ public class Board {
 
     Piece startPiece = getPieceAt(start);
     Collection<BoardObject> captured;
-    if (startPiece instanceof King && ((King) startPiece).getChecking()) {
+    if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Piece rook;
       Location rookLocStart;
       Location rookLocEnd;
@@ -213,7 +208,7 @@ public class Board {
       spaces.removeAll(rookLocEnd);
       spaces.putAll(rookLocEnd, obj2);
       spaces.put(rookLocStart, EMPTY_SPACE);
-      ((King) startPiece).resetChecking();
+      ((King) startPiece).resetCastling();
     } else {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
         Piece p = getPieceAt(end);

@@ -1,11 +1,11 @@
-package projects;
+package repl;
 
+import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Game;
 import game.Move;
 import players.CliPlayer;
-import repl.CommandMap;
 
 /**
  * Handler for chess project.
@@ -48,8 +48,8 @@ public class ChessProjectHandler extends CommandMap {
   private String move(final String startPosition, final String endPosition) {
     String errorString = "ERROR: Invalid start or end positions.";
 
-    Location startLocation = ChessProjectUtils.parseMove(startPosition);
-    Location endLocation = ChessProjectUtils.parseMove(endPosition);
+    Location startLocation = ChessReplUtils.parseMove(startPosition);
+    Location endLocation = ChessReplUtils.parseMove(endPosition);
 
     if (startLocation == null || endLocation == null) {
       return errorString;
@@ -68,7 +68,11 @@ public class ChessProjectHandler extends CommandMap {
         startLocation.getRow(), startLocation.getCol(), endLocation.getRow(),
         endLocation.getCol()));
 
-    game.turn();
+    try {
+      game.turn();
+    } catch (IllegalMoveException e) {
+      return e.getMessage();
+    }
 
     return printBoardState();
   }
@@ -79,7 +83,7 @@ public class ChessProjectHandler extends CommandMap {
 
   private String printBoardState() {
     String header = whiteToMove() ? "White to move.\n" : "Black to move.\n";
-    String boardString = ChessProjectUtils.getBoardString(game.getBoard());
+    String boardString = ChessReplUtils.getBoardString(game.getBoard());
     return "\n" + header + boardString + "\n";
   }
 

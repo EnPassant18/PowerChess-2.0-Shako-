@@ -11,7 +11,7 @@ import board.Location;
 import pieces.GhostPawn;
 import pieces.Piece;
 import players.Player;
-import powerups.PowerAction;
+import poweractions.PowerAction;
 import powerups.PowerObject;
 
 /**
@@ -42,7 +42,11 @@ public class Game {
    */
   public void start() {
     while (!gameOver) {
-      turn();
+      try {
+        turn();
+      } catch (IllegalMoveException e) {
+        continue;
+      }
     }
   }
 
@@ -58,12 +62,28 @@ public class Game {
 
   /**
    * Execute active player's turn.
+   *
+   * @throws IllegalMoveException
+   *           If player attempts to move an empty space or ghost pawn or if
+   *           other player's turn.
    */
-  public void turn() {
+  public void turn() throws IllegalMoveException {
     Player player = players.get(activePlayerIndex);
     Move move = player.getMove();
 
     Piece p = board.getPieceAt(move.getStart());
+
+    // check there is a piece to move at specified square
+    if (p == null || p instanceof GhostPawn) {
+      throw new IllegalMoveException(
+          String.format("ERROR: No piece available to move at %s.",
+              move.getStart().toString()));
+
+      // check that piece belongs to active player
+    } else if (p.getColor() != player.getColor()) {
+      throw new IllegalMoveException(String.format(
+          "ERROR: Wrong turn, currently %s to move.", player.getColor()));
+    }
 
     while (!validMove(move)) {
       move = player.getMove();
@@ -204,35 +224,6 @@ public class Game {
     } catch (ClassCastException e) {
       return null;
     }
-  }
-
-  private static final Location CASTLE_START1 = new Location(0, 4);
-  private static final Location CASTLE_END_SHORT1 = new Location(0, 6);
-  private static final Location CASTLE_END_LONG1 = new Location(0, 2);
-
-  private static final Location CASTLE_START2 = new Location(7, 4);
-  private static final Location CASTLE_END_SHORT2 = new Location(7, 6);
-  private static final Location CASTLE_END_LONG2 = new Location(7, 2);
-
-  /**
-   * Check whether a move is a castle.
-   *
-   * @param move
-   *          A move (a pair of locations representing start and ending
-   *          locations of a move).
-   * @return true if the move is a castle.
-   */
-  public static boolean isCastle(Move move) {
-    Location start = move.getStart();
-    Location end = move.getEnd();
-    if (start.equals(CASTLE_START1)
-        && (end.equals(CASTLE_END_SHORT1) || end.equals(CASTLE_END_LONG1))) {
-      return true;
-    } else if (start.equals(CASTLE_START2)
-        && (end.equals(CASTLE_END_SHORT2) || end.equals(CASTLE_END_LONG2))) {
-      return true;
-    }
-    return false;
   }
 
   /**
