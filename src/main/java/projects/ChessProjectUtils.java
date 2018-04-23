@@ -26,7 +26,7 @@ public final class ChessProjectUtils {
 
   /**
    * Parses chess coordinates to a location. Example a1 -> (0,0) or e4 -> (4,3).
-   * 
+   *
    * @param str
    *          String representation of a location in algebraic chess
    *          coordinates.
@@ -50,7 +50,7 @@ public final class ChessProjectUtils {
   /**
    * Gets a string representation of a board. (Note: Not meant to be
    * toString()).
-   * 
+   *
    * @param board
    *          Board to find the string representation of.
    * @return String representation of the board.
@@ -87,7 +87,7 @@ public final class ChessProjectUtils {
 
   /**
    * Returns a character representing the type of chess pieces.
-   * 
+   *
    * @param piece
    *          Chess piece to get the character representation of.
    * @return Character representation of the chess piece.

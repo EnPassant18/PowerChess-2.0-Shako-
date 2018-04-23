@@ -2,6 +2,7 @@ package players;
 
 import java.util.List;
 
+import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Move;
@@ -51,8 +52,11 @@ public abstract class Player {
    *          Starting location of piece to be moved.
    * @return pair of locations representing the start and ending locations of
    *         chosen move.
+   * @throws IllegalMoveException
+   *           If player attempts to move a different piece than the one at teh
+   *           starting location.
    */
-  public abstract Move getMove(Location start);
+  public abstract Move getMove(Location start) throws IllegalMoveException;
 
   /**
    * Ask player how they would like to promote their pawn.
@@ -60,36 +64,6 @@ public abstract class Player {
    * @return Piece that player would two which player would like to promote.
    */
   public abstract Piece getPromotion();
-
-  /**
-   * Check whether player can castle long.
-   *
-   * @return true if player may castle long, otherwise false.
-   */
-  public abstract boolean getCanCastleLong();
-
-  /**
-   * Check whether player can castle short.
-   *
-   * @return true if player may castle short, otherwise false.
-   */
-  public abstract boolean getCanCastleShort();
-
-  /**
-   * Set indicator for whether player can castle long.
-   *
-   * @param canCastleLong
-   *          Boolean indicating whether player can execute castle long.
-   */
-  public abstract void setCanCastleLong(boolean canCastleLong);
-
-  /**
-   * Set indicator for whether player can castle short.
-   *
-   * @param canCastleShort
-   *          Boolean indicating whether player can execute castle short.
-   */
-  public abstract void setCanCastleShort(boolean canCastleShort);
 
   /**
    * Get player PowerAction selection.

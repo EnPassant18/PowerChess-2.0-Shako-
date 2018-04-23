@@ -6,6 +6,7 @@ import java.util.List;
 
 import board.Board;
 import board.BoardObject;
+import board.IllegalMoveException;
 import board.Location;
 import pieces.GhostPawn;
 import pieces.Piece;
@@ -115,8 +116,11 @@ public class Game {
    *          Starting location of piece to be moved.
    * @return a move (a pair of locations representing start and ending locations
    *         of selected player move).
+   * @throws IllegalMoveException
+   *           If player attempts to move piece other than piece at the
+   *           specified starting location.
    */
-  public Move getMove(Color color, Location start) {
+  public Move getMove(Color color, Location start) throws IllegalMoveException {
     return players.get(activePlayerIndex).getMove(start);
   }
 
