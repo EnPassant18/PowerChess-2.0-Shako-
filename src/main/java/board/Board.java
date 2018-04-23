@@ -39,8 +39,8 @@ public class Board {
         spaces.put(new Location(i, j), EMPTY_SPACE);
       }
     }
-    fillRow(Board.SIZE - 2, Color.BLACK);
-    fillPawns(Board.SIZE - 1, Color.BLACK);
+    fillRow(Board.SIZE - 1, Color.BLACK);
+    fillPawns(Board.SIZE - 2, Color.BLACK);
   }
 
   // TODO implement constructor that takes boardString to use with db

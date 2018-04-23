@@ -16,6 +16,8 @@ import powerups.PowerAction;
  *
  */
 public class CliPlayer extends Player {
+	
+	private Move nextMove;
 
   /**
    * Constructs command line interface player of specified color.
@@ -26,11 +28,19 @@ public class CliPlayer extends Player {
   public CliPlayer(Color color) {
     super(color);
   }
+  
+  public void setMove(final Move move) {
+	  nextMove = move;
+  }
 
   @Override
   public Move getMove() {
-    // TODO Auto-generated method stub
-    return null;
+    if(nextMove == null) {
+    	throw new IllegalStateException("ERROR: called getMove() before setMove() in CliPlayer.");
+    }
+    Move output = nextMove;
+    nextMove = null;
+    return output;
   }
 
   @Override
