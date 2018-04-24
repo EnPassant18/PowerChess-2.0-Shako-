@@ -62,11 +62,16 @@ public final class ChessReplUtils {
 
     for (int i = SIZE - 1; i >= 0; i--) {
       line = new StringBuilder();
+      line.append(i + 1);
+      line.append(" |");
       for (int j = 0; j < SIZE; j++) {
         line.append(boardSpaceToChar(i, j, board));
       }
       output.add(line);
     }
+    
+    output.add("   ________");
+    output.add("   abcdefgh");
 
     return output.toString();
 
