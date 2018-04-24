@@ -31,7 +31,7 @@ public class Rook extends Piece {
     if (start.getRow() != end.getRow() && start.getCol() != end.getCol()) {
       return false;
     }
-    if (isSame(start, end)) {
+    if (start.equals(end)) {
       return false;
     }
     int colDir = (int) Math.signum(end.getCol() - start.getCol());

@@ -63,7 +63,7 @@ public class Location implements BoardLoc {
 
   @Override
   public String toString() {
-    return String.format("%c%d", (char) (col + ALPHA_START), row);
+    return String.format("%c%d", (char) (col + ALPHA_START), row + 1);
   }
 
 }
