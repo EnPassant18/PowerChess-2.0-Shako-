@@ -55,4 +55,9 @@ public class Move {
     this.end = end;
   }
 
+  @Override
+  public String toString() {
+    return String.format("%s -> %s", start, end);
+  }
+
 }

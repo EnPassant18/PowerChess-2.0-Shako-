@@ -30,7 +30,7 @@ public class Pawn extends Piece {
   public boolean move(Move move, Board board) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    if (isSame(start, end)) {
+    if (start.equals(end)) {
       return false;
     }
 
@@ -93,18 +93,16 @@ public class Pawn extends Piece {
   }
 
   /**
-   * Check whether this pawn has a ghost pawn that it would have left behind
-   * when moving 2 spaces on its first move.
+   * Check whether this pawn has captured a GhostPawn.
    *
-   * @return true if ghost pawn, false otherwise.
+   * @return true if catpured a GhostPawn.
    */
   public boolean getGhost() {
     return this.ghost;
   }
 
   /**
-   * Reset the indicator that this pawn has a ghost pawn to false, i.e. the
-   * corresponding ghost pawn has been removed from the board.
+   * Reset indicator for captured GhostPawn; called when turn ends.
    */
   public void resetGhost() {
     this.ghost = false;

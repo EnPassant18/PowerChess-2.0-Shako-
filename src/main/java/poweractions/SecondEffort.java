@@ -1,4 +1,4 @@
-package powerups;
+package poweractions;
 
 import board.IllegalMoveException;
 import board.Location;

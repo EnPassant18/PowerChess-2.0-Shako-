@@ -67,10 +67,23 @@ public abstract class Piece implements BoardObject {
     return this.moved;
   }
 
-  protected boolean isValidEnd(Location start, Location end, Board board) {
+  /**
+   * Check whether end location is valid for given piece (i.e. must be empty or
+   * contain piece of opposite color).
+   *
+   * @param start
+   *          Start location.
+   * @param end
+   *          End location.
+   * @param board
+   *          Board.
+   * @return true if end location is valid for piece at starting location,
+   *         otherwise false.
+   */
+  public static boolean isValidEnd(Location start, Location end, Board board) {
     Piece endP = board.getPieceAt(end);
     Piece startP = board.getPieceAt(start);
-    if (endP != null && !(endP instanceof GhostPawn)) {
+    if (endP != null && startP != null && !(endP instanceof GhostPawn)) {
       if (endP.getColor() == startP.getColor()) {
         return false;
       }
@@ -86,22 +99,22 @@ public abstract class Piece implements BoardObject {
    * the start location.
    *
    * @param start
-   *          Location of the piece being moved
+   *          Location of the piece being moved.
    * @param end
-   *          Location the piece wants to move to
-   * @param spaces
-   *          Map of the all the pieces on the board
+   *          Location the piece wants to move to.
+   * @param board
+   *          Game board.
    * @param rowDir
    *          Direction to move in rows. Either -1, 0, or 1.
    * @param colDir
    *          Direction to move in columns. Either -1, 0, or 1.
    * @return True if piece can move from start to end. False if it can't.
    */
-  protected boolean checkInLine(Location start, Location end, Board board,
+  public static boolean checkInLine(Location start, Location end, Board board,
       int rowDir, int colDir) {
     Location check =
         new Location(start.getRow() + rowDir, start.getCol() + colDir);
-    while (!isSame(check, end)) {
+    while (!check.equals(end)) {
       if (!board.isEmpty(check)) {
         return false;
       }
@@ -110,10 +123,4 @@ public abstract class Piece implements BoardObject {
     return isValidEnd(start, end, board);
   }
 
-  protected boolean isSame(Location start, Location end) {
-    if (start.getRow() == end.getRow() && start.getCol() == end.getCol()) {
-      return true;
-    }
-    return false;
-  }
 }

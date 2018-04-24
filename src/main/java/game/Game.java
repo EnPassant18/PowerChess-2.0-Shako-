@@ -3,16 +3,20 @@ package game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 import board.Board;
 import board.BoardObject;
 import board.IllegalMoveException;
 import board.Location;
 import pieces.GhostPawn;
+import pieces.King;
+import pieces.Pawn;
 import pieces.Piece;
 import players.Player;
-import powerups.PowerAction;
+import poweractions.PowerAction;
 import powerups.PowerObject;
+import randutils.RandomCollection;
 
 /**
  * Game represents a game of chess.
@@ -26,6 +30,43 @@ public class Game {
   private Board board;
   private boolean gameOver;
   private List<Move> history; // list past moves
+  private int tilNextPowerup;
+  private Random rand = new java.util.Random();
+  private final int lastRow = 7;
+  private Location toPromote;
+
+  private static RandomCollection<Location> spawnLocations;
+  private static final int INNER_ROW_FREQ = 50;
+  private static final int INNER_COL_FREQ = 20;
+  private static final int OUTTER_ROW_FREQ = 30;
+  private static final int OUTTER_COL_FREQ = 10;
+
+  static {
+    spawnLocations = new RandomCollection<>();
+    int spawnFreq = 0;
+
+    for (int row = 2; row < 6; row++) {
+      for (int col = 0; col < Board.SIZE; col++) {
+
+        // weight inner rows more highly for spawning frequency
+        if (row == 2 || row == 5) {
+          spawnFreq += OUTTER_ROW_FREQ;
+        } else {
+          spawnFreq += INNER_ROW_FREQ;
+        }
+
+        // weight inner columns slightly more highly for spawning frequency
+        if (col < 2 || col > 5) {
+          spawnFreq += OUTTER_COL_FREQ;
+        } else {
+          spawnFreq += INNER_COL_FREQ;
+        }
+
+        spawnLocations.add(spawnFreq, new Location(row, col));
+        spawnFreq = 0;
+      }
+    }
+  }
 
   /**
    * Constructs new default game.
@@ -35,6 +76,8 @@ public class Game {
     history = new ArrayList<>();
     players = new ArrayList<>();
     gameOver = false;
+    updateTilNextPowerUp();
+    toPromote = null;
   }
 
   /**
@@ -42,7 +85,20 @@ public class Game {
    */
   public void start() {
     while (!gameOver) {
-      turn();
+      try {
+        turn();
+      } catch (IllegalMoveException e) {
+        continue;
+      }
+
+      while (toPromote != null) {
+        try {
+          executePromotion(toPromote);
+          toPromote = null;
+        } catch (IllegalPromotionException e) {
+          continue;
+        }
+      }
     }
   }
 
@@ -58,21 +114,90 @@ public class Game {
 
   /**
    * Execute active player's turn.
+   *
+   * @throws IllegalMoveException
+   *           If player attempts to move an empty space or ghost pawn or if
+   *           other player's turn.
+   * @throws IllegalPromotionException
+   *           If player has not selected promotion or attempts to promote to
+   *           Pawn or King.
    */
-  public void turn() {
+  public void turn() throws IllegalMoveException {
     Player player = players.get(activePlayerIndex);
     Move move = player.getMove();
 
     Piece p = board.getPieceAt(move.getStart());
+
+    // check there is a piece to move at specified square
+    if (p == null || p instanceof GhostPawn) {
+      throw new IllegalMoveException(
+          String.format("ERROR: No piece available to move at %s.",
+              move.getStart().toString()));
+
+      // check that piece belongs to active player
+    } else if (p.getColor() != player.getColor()) {
+      throw new IllegalMoveException(String.format(
+          "ERROR: Wrong turn, currently %s to move.", player.getColor()));
+    }
 
     while (!validMove(move)) {
       move = player.getMove();
     }
     executeMove(move);
 
+    // after move, check if new PowerObject should spawn
+    if (tilNextPowerup == 0) {
+      spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
+      updateTilNextPowerUp();
+    }
+
+    // update active player and reset GhostPawns
     activePlayerIndex = (activePlayerIndex + 1) % 2;
     board.resetGhost(activePlayerIndex);
 
+    // if promotion, execute
+    Location end = move.getEnd();
+    if ((end.getRow() == lastRow || end.getRow() == 0)
+        && board.getPieceAt(end) instanceof Pawn) {
+      toPromote = end;
+    }
+
+  }
+
+  /**
+   * Updates the number of turns until the next PowerObject will spawn; usually
+   * uniformly random between 3 and 5 (inclusive).
+   */
+  private void updateTilNextPowerUp() {
+    tilNextPowerup = rand.nextInt(3) + 2;
+  }
+
+  /**
+   * Randomly select a board location on which to spawn a PowerObject; allowable
+   * board locations range from rows 2 to 5 (inclusive) and includes all
+   * columns. Inner columns, 2 through 5 (inclusive), and inner rows, 3 and 4,
+   * are weighted more highly.
+   *
+   * @return Empty board location where power-up can be spawned.
+   */
+  private Location getSpawnLoc() {
+    Location selection = spawnLocations.next();
+    while (!board.isEmpty(selection)) {
+      selection = spawnLocations.next();
+    }
+    return selection;
+  }
+
+  /**
+   * Spawn capturable PowerObject on the board at specified location.
+   *
+   * @param loc
+   *          Location where to place PowerObject.
+   * @param powerObj
+   *          PowerObject to add to board.
+   */
+  public void spawnPowerObject(Location loc, PowerObject powerObj) {
+    board.addBoardObject(loc, powerObj);
   }
 
   /**
@@ -89,8 +214,7 @@ public class Game {
       return false;
     }
     Piece piece = board.getPieceAt(start);
-    // check if is castle, if yes, check if castle is valid
-    // check isCastleValid(neitherHasMove && emptyBetween())
+
     return piece.move(move, board);
   }
 
@@ -142,8 +266,23 @@ public class Game {
     // manage captured power-ups or king
     manageCaptured(captured, end);
 
-    // TODO check for promotion, call player.getPromotion until legal piece is
-    // chosen, then call board.executePromotion(Location end, Piece piece)
+  }
+
+  /**
+   * Execute promotion.
+   *
+   * @param loc
+   *          Location of piece to promote.
+   * @throws IllegalPromotionException
+   *           If player tries to promote to Pawn or King.
+   */
+  public void executePromotion(Location loc) throws IllegalPromotionException {
+    Piece newPiece = players.get(activePlayerIndex).getPromotion();
+    try {
+      board.replacePiece(loc, newPiece);
+    } catch (IllegalMoveException e) {
+      throw new IllegalPromotionException(e.getMessage());
+    }
   }
 
   private void manageCaptured(Collection<BoardObject> captured,
@@ -156,8 +295,7 @@ public class Game {
         PowerAction powerup = player.selectPowerAction(actions);
         powerup.act(whereCaptured, this);
 
-        // TODO change to obj instanceof King
-      } else if (obj.getClass().getName().equals("King")) {
+      } else if (obj instanceof King) {
         gameOver = true;
       }
     }
@@ -199,40 +337,7 @@ public class Game {
    * @return Piece at location or null if no piece at specified location.
    */
   public Piece getPieceAt(Location loc) {
-    try {
-      return board.getPieceAt(loc);
-    } catch (ClassCastException e) {
-      return null;
-    }
-  }
-
-  private static final Location CASTLE_START1 = new Location(0, 4);
-  private static final Location CASTLE_END_SHORT1 = new Location(0, 6);
-  private static final Location CASTLE_END_LONG1 = new Location(0, 2);
-
-  private static final Location CASTLE_START2 = new Location(7, 4);
-  private static final Location CASTLE_END_SHORT2 = new Location(7, 6);
-  private static final Location CASTLE_END_LONG2 = new Location(7, 2);
-
-  /**
-   * Check whether a move is a castle.
-   *
-   * @param move
-   *          A move (a pair of locations representing start and ending
-   *          locations of a move).
-   * @return true if the move is a castle.
-   */
-  public static boolean isCastle(Move move) {
-    Location start = move.getStart();
-    Location end = move.getEnd();
-    if (start.equals(CASTLE_START1)
-        && (end.equals(CASTLE_END_SHORT1) || end.equals(CASTLE_END_LONG1))) {
-      return true;
-    } else if (start.equals(CASTLE_START2)
-        && (end.equals(CASTLE_END_SHORT2) || end.equals(CASTLE_END_LONG2))) {
-      return true;
-    }
-    return false;
+    return board.getPieceAt(loc);
   }
 
   /**
