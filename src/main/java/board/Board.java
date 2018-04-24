@@ -224,18 +224,15 @@ public class Board {
     Piece startPiece = getPieceAt(start);
     Collection<BoardObject> captured;
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
-      Piece rook;
       Location rookLocStart;
       Location rookLocEnd;
       if (end.getCol() == 1) {
         rookLocStart = new Location(end.getRow(), end.getCol() - 1);
-        rook = getPieceAt(rookLocStart);
         rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
         spaces.put(end, startPiece);
 
       } else {
         rookLocStart = new Location(end.getRow(), end.getCol() + 1);
-        rook = getPieceAt(rookLocStart);
         rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
       }
       Collection<BoardObject> obj1 = spaces.get(start);
@@ -258,9 +255,9 @@ public class Board {
         }
         spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
       }
-      Collection<BoardObject> obj = spaces.get(start);
+      Collection<BoardObject> startObjs = spaces.removeAll(start);
       captured = spaces.removeAll(end);
-      spaces.putAll(end, obj);
+      spaces.putAll(end, startObjs);
       spaces.put(start, EMPTY_SPACE);
     }
     startPiece.setMoved();
@@ -286,6 +283,17 @@ public class Board {
     public boolean move(Move move, Board board) {
       return false;
     }
+  }
+
+  /**
+   * Get all objects at a specified board location.
+   *
+   * @param loc
+   *          Board location.
+   * @return collection of objects at board location.
+   */
+  public Collection<BoardObject> getObjsAt(Location loc) {
+    return spaces.get(loc);
   }
 
 }

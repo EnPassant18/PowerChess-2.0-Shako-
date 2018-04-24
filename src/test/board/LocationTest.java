@@ -69,4 +69,21 @@ public class LocationTest {
 
   }
 
+  /**
+   * Test toString method.
+   */
+  @Test
+  public void toStringTest() {
+    Location loc = new Location(2, 3);
+    assertEquals("D3", loc.toString());
+
+    // test extremes
+    loc = new Location(0, 0);
+    assertEquals("A1", loc.toString());
+
+    loc = new Location(BEYOND_BOARD - 1, BEYOND_BOARD - 1);
+    assertEquals("H8", loc.toString());
+
+  }
+
 }
