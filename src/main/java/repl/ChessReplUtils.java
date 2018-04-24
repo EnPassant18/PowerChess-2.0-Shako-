@@ -42,7 +42,7 @@ public final class ChessReplUtils {
     int row, col;
 
     col = str.charAt(0) - 'a';
-    row = SIZE - Character.getNumericValue(str.charAt(1));
+    row = Character.getNumericValue(str.charAt(1)) - 1;
 
     return new Location(row, col);
   }
