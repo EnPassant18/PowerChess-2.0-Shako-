@@ -123,7 +123,7 @@ public class Game {
    *           Pawn or King.
    */
   public void turn() throws IllegalMoveException {
-    Player player = players.get(activePlayerIndex);
+    Player player = getActivePlayer();
     Move move = player.getMove();
 
     Piece p = board.getPieceAt(move.getStart());
@@ -227,7 +227,16 @@ public class Game {
    *         of selected player move).
    */
   public Move getMove(Color color) {
-    return players.get(activePlayerIndex).getMove();
+    return getActivePlayer().getMove();
+  }
+
+  /**
+   * Get active player.
+   *
+   * @return the player whose turn it is.
+   */
+  public Player getActivePlayer() {
+    return players.get(activePlayerIndex);
   }
 
   /**
@@ -245,7 +254,7 @@ public class Game {
    *           specified starting location.
    */
   public Move getMove(Color color, Location start) throws IllegalMoveException {
-    return players.get(activePlayerIndex).getMove(start);
+    return getActivePlayer().getMove(start);
   }
 
   /**
@@ -277,7 +286,7 @@ public class Game {
    *           If player tries to promote to Pawn or King.
    */
   public void executePromotion(Location loc) throws IllegalPromotionException {
-    Piece newPiece = players.get(activePlayerIndex).getPromotion();
+    Piece newPiece = getActivePlayer().getPromotion();
     try {
       board.replacePiece(loc, newPiece);
     } catch (IllegalMoveException e) {
@@ -291,7 +300,7 @@ public class Game {
     for (BoardObject obj : captured) {
       if (obj instanceof PowerObject) {
         List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
-        Player player = players.get(activePlayerIndex);
+        Player player = getActivePlayer();
         PowerAction powerup = player.selectPowerAction(actions);
         powerup.act(whereCaptured, this);
 
@@ -338,6 +347,17 @@ public class Game {
    */
   public Piece getPieceAt(Location loc) {
     return board.getPieceAt(loc);
+  }
+
+  /**
+   * Get all objects at a specified board location.
+   *
+   * @param loc
+   *          Board location.
+   * @return collection of objects at board location.
+   */
+  public Collection<BoardObject> getObjsAt(Location loc) {
+    return board.getObjsAt(loc);
   }
 
   /**

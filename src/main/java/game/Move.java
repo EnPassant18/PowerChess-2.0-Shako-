@@ -56,6 +56,21 @@ public class Move {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    try {
+      return start.equals(((Move) obj).getStart())
+          && end.equals(((Move) obj).getEnd());
+    } catch (ClassCastException e) {
+      return false;
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return start.hashCode() + end.hashCode();
+  }
+
+  @Override
   public String toString() {
     return String.format("%s -> %s", start, end);
   }

@@ -62,6 +62,15 @@ public class PowerObject implements BoardObject {
   }
 
   /**
+   * Get rarity of PowerObject.
+   *
+   * @return PowerObject rarity.
+   */
+  public Rarity getRarity() {
+    return this.rarity;
+  }
+
+  /**
    * Get a list of PowerActions allowed upon capturing this PowerObject.
    *
    * @return randomly generated list of 3 PowerActions.
