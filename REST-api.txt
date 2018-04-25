@@ -28,10 +28,10 @@ request, e.g. a move action while it's the other player's turn
 
 
 Other enums:
-color: WHITE (0), BLACK (1)
+color: WHITE (true), BLACK (false)
 game end reason: MATE (0), RESIGNATION (1), TIME (2), DRAW_AGREED (3)
 game result: WIN (0), LOSS (1), DRAW (2)
-piece ids: NOTHING (0), <Others to be decided later>
+piece ids: NOTHING (0), KING (1), QUEEN (2), ROOK (3), BISHOP (4), KNIGHT (5), PAWN (6), <Others to be decided later>
 power rarities: COMMON (0), RARE (1), LEGENDARY (2)
 power ids: <To be decided later>
 
@@ -48,7 +48,7 @@ Response: 200 OK
 
 Adds a player with the given ID and Color to the given game: {
 	type: ADD_PLAYER (1),
-	playerColor: <WHITE(0)/BLACK(1)>
+	playerColor: <WHITE(true)/BLACK(false)>
 }
 Response: 200 OK
 
@@ -104,7 +104,7 @@ Response (if the move was legal): {
         Also, updates are evaluated AFTER MOVES, so if the moving 
         piece needs to be updated, update the move-to square.
         ****************************************************
-        {row: <0…7>, col: <0…7>, newState: <piece id>},
+        {row: <0…7>, col: <0…7>, newState: <piece id>, newColor: <WHITE(true)/BLACK(false)>},
         ...
     ]
     action: <NONE(0)/SELECT_POWER(2)> (what the player has to do next;

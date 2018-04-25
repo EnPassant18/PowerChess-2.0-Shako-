@@ -2,9 +2,34 @@
   <head>
     <meta charset="utf-8">
     <title>PowerChess</title>
+    <link rel="stylesheet" href="css/game.css"> 
     <script src="js/jquery-3.1.1.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/enums.js"></script>
+    <script src="js/game-setup.js"></script>
+    <script src="js/game-dragging.js"></script>
   </head>
   <body>
-     <script src="js/game.js"></script>
+    <div id="container">
+      <div id="board">
+        <div id="pieces"></div>
+      </div>
+      <div id="sidebar">
+        <div id="opponent">
+          <div id="opponentName" class="name">Opponent</div>
+          <div id="opponentClock" class="clock">10:00</div>
+        </div>
+        <div id="log"></div>
+        <div id="selection" hidden></div>
+        <div id="controls">
+            <button id="draw">Draw</button>
+            <button id="resign">Resign</button>
+        </div>
+        <div id="player">
+          <div id="playerClock" class="clock">10:00</div>
+          <div id="playerName" class="name">Player</div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
