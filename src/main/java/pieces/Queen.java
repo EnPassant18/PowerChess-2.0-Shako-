@@ -28,7 +28,7 @@ public class Queen extends Piece {
     Location start = move.getStart();
     Location end = move.getEnd();
 
-    if (isSame(start, end)) {
+    if (start.equals(end)) {
       return false;
     }
     int colDir = (int) Math.signum(end.getCol() - start.getCol());

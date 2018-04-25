@@ -59,6 +59,7 @@ public class Adjust extends PowerAction {
 
     // loop until valid move is executed
     while (true) {
+
       // make player move the capturing piece
       while (true) {
         try {

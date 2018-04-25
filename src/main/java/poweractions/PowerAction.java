@@ -49,7 +49,11 @@ public abstract class PowerAction {
     List<PowerAction> availableActions =
         new ArrayList<>(POWER_ACTIONS.get(rarity));
     Collections.shuffle(availableActions);
-    return availableActions.subList(0, 3);
+    if (availableActions.size() >= 3) {
+      return availableActions.subList(0, 3);
+    } else {
+      return availableActions;
+    }
   }
 
   /**

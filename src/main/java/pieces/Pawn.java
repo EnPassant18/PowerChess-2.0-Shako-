@@ -30,7 +30,7 @@ public class Pawn extends Piece {
   public boolean move(Move move, Board board) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    if (isSame(start, end)) {
+    if (start.equals(end)) {
       return false;
     }
 

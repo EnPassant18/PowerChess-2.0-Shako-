@@ -32,7 +32,7 @@ public class King extends Piece {
     Location start = move.getStart();
     Location end = move.getEnd();
 
-    if (isSame(start, end)) {
+    if (start.equals(end)) {
       return false;
     }
     int colDif = end.getCol() - start.getCol();

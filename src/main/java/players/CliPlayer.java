@@ -2,11 +2,7 @@ package players;
 
 import java.util.List;
 
-import board.IllegalMoveException;
-import board.Location;
 import game.Color;
-import game.Move;
-import pieces.Piece;
 import poweractions.PowerAction;
 
 /**
@@ -18,8 +14,6 @@ import poweractions.PowerAction;
  */
 public class CliPlayer extends Player {
 
-  private Move nextMove;
-
   /**
    * Constructs command line interface player of specified color.
    *
@@ -28,46 +22,6 @@ public class CliPlayer extends Player {
    */
   public CliPlayer(Color color) {
     super(color);
-  }
-
-  /**
-   * Set the player's next move.
-   *
-   * @param move
-   *          Next move to be executed by player.
-   */
-  public void setMove(final Move move) {
-    nextMove = move;
-  }
-
-  @Override
-  public Move getMove() {
-    if (nextMove == null) {
-      throw new IllegalStateException(
-          "ERROR: called getMove() before setMove() in CliPlayer.");
-    }
-    Move output = nextMove;
-    nextMove = null;
-    return output;
-  }
-
-  @Override
-  public Move getMove(Location start) throws IllegalMoveException {
-    if (nextMove == null) {
-      throw new IllegalStateException(
-          "ERROR: called getMove() before setMove() in CliPlayer.");
-    } else if (!nextMove.getStart().equals(start)) {
-      throw new IllegalMoveException(
-          String.format("ERROR: Player must move %s next.", start.toString()));
-    }
-    nextMove = null;
-    return nextMove;
-  }
-
-  @Override
-  public Piece getPromotion() {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   @Override

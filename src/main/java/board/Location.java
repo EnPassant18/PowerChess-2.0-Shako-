@@ -12,6 +12,8 @@ public class Location implements BoardLoc {
   private final int row;
   private final int col;
 
+  private static final int ALPHA_START = 65;
+
   /**
    * Constructs a board location with the specified row and column.
    *
@@ -61,7 +63,7 @@ public class Location implements BoardLoc {
 
   @Override
   public String toString() {
-    return String.format("(%d, %d)", row, col);
+    return String.format("%c%d", (char) (col + ALPHA_START), row + 1);
   }
 
 }
