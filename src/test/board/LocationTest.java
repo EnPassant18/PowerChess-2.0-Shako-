@@ -14,6 +14,7 @@ import org.junit.Test;
  *
  */
 public class LocationTest {
+  private static final int BEYOND_BOARD = 8;
 
   /**
    * Test constructor.
@@ -32,7 +33,7 @@ public class LocationTest {
     }
 
     try { // row max
-      loc = new Location(8, 0);
+      loc = new Location(BEYOND_BOARD, 0);
       fail(loc.toString());
     } catch (IllegalArgumentException e) {
       assertTrue(e.getMessage().contains("ERROR: illegal board location"));
@@ -46,7 +47,7 @@ public class LocationTest {
     }
 
     try { // col max
-      loc = new Location(0, 8);
+      loc = new Location(0, BEYOND_BOARD);
       fail(loc.toString());
     } catch (IllegalArgumentException e) {
       assertTrue(e.getMessage().contains("ERROR: illegal board location"));
@@ -65,6 +66,23 @@ public class LocationTest {
 
     Location diffLoc = new Location(3, 2);
     assertNotEquals(loc, diffLoc);
+
+  }
+
+  /**
+   * Test toString method.
+   */
+  @Test
+  public void toStringTest() {
+    Location loc = new Location(2, 3);
+    assertEquals("D3", loc.toString());
+
+    // test extremes
+    loc = new Location(0, 0);
+    assertEquals("A1", loc.toString());
+
+    loc = new Location(BEYOND_BOARD - 1, BEYOND_BOARD - 1);
+    assertEquals("H8", loc.toString());
 
   }
 

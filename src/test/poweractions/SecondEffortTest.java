@@ -1,4 +1,4 @@
-package powerups;
+package poweractions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -7,9 +7,13 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import board.Location;
+import game.Color;
 import game.GameDummy;
+import game.Move;
 import pieces.Piece;
+import players.DummyPlayer;
 import powerups.PowerObject.Rarity;
+import repl.ChessReplUtils;
 
 /**
  * Test SecondEffort PowerAction.
@@ -30,32 +34,48 @@ public class SecondEffortTest {
   }
 
   /**
-   * Test execution of SecondEffort power action.
+   * Test execution of power action.
    */
   @Test
   public void actTest() {
     GameDummy game = new GameDummy();
+    DummyPlayer whitePlayer = new DummyPlayer(Color.WHITE);
+    DummyPlayer blackPlayer = new DummyPlayer(Color.BLACK);
+
+    game.addPlayer(whitePlayer);
+    game.addPlayer(blackPlayer);
+
     SecondEffort s = new SecondEffort();
+
+    // knight "captured" SecondEffort at starting location
     Location whereCaptured = new Location(0, 1);
     Location end = new Location(2, 2);
     Piece piece = game.getPieceAt(whereCaptured);
-    game.setMove(whereCaptured, end);
+    whitePlayer.setMove(new Move(whereCaptured, end));
 
-    // try to move knight from starting position
+    // Move knight "again"
     s.act(whereCaptured, game);
     assertTrue(game.isEmpty(whereCaptured));
     assertEquals(piece, game.getPieceAt(end));
 
-    // try to move rook to illegal loc through pawn
+    // Make rook try illegal move on Second Effort
     whereCaptured = new Location(0, 0);
     end = new Location(4, 0);
     piece = game.getPieceAt(whereCaptured);
-    game.setMove(whereCaptured, end);
-    game.resetIllegalMovesAttempted();
+    whitePlayer.setMove(new Move(whereCaptured, end));
+    Location trueEnd = new Location(0, 1);
+
+    // then execute legal move, right to empty knight space
+    game.setNextLegalMove(new Move(whereCaptured, trueEnd));
+
+    // Move rook "again" (try illegal move, should fail then execute legal move)
     s.act(whereCaptured, game);
-    assertEquals(3, game.getIllegalMovesAttempted());
+    System.out.println(ChessReplUtils.getBoardString(game.getBoard()));
+
+    assertEquals(1, game.getIllegalMovesAttempted());
     assertTrue(game.isEmpty(end));
-    assertEquals(piece, game.getPieceAt(whereCaptured));
+    assertTrue(game.isEmpty(whereCaptured));
+    assertEquals(piece, game.getPieceAt(trueEnd));
 
   }
 

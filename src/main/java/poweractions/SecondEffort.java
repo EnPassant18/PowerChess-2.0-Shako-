@@ -1,5 +1,6 @@
-package powerups;
+package poweractions;
 
+import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Game;
@@ -30,10 +31,18 @@ public class SecondEffort extends PowerAction {
     // loop until valid move is executed
     while (true) {
       // make player move the capturing piece
-      move = game.getMove(color, whereCaptured);
+      while (true) {
+        try {
+          move = game.getMove(color, whereCaptured);
+          break;
+        } catch (IllegalMoveException e) {
+          System.out.println(e.getMessage());
+        }
+      }
 
-      // must execute valid move
-      if (game.makeMove(move)) {
+      // execute only if move is valid
+      if (game.validMove(move)) {
+        game.executeMove(move);
         break;
       }
     }

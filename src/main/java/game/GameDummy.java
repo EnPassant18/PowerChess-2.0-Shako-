@@ -1,6 +1,6 @@
 package game;
 
-import board.Location;
+import board.IllegalMoveException;
 
 /**
  * GameDummy is a game for whose outputs are pre-programmed for testing
@@ -10,36 +10,39 @@ import board.Location;
  *
  */
 public class GameDummy extends Game {
-  private Move moveToGet;
+  private Move nextMove;
   private int illegalMovesAttempted = 0;
 
   /**
-   * Set output of game getMove method.
+   * Set the active player's next move.
    *
-   * @param start
-   *          Move starting location.
-   * @param end
-   *          Move ending location.
+   * @param move
+   *          Move to set for active player.
    */
-  public void setMove(Location start, Location end) {
-    this.moveToGet = new Move(start, end);
+  private void setMove(Move move) {
+    getActivePlayer().setMove(move);
+  }
+
+  /**
+   * Set next move legal to execute if an illegal move is attempted.
+   *
+   * @param move
+   *          Next legal move.
+   */
+  public void setNextLegalMove(Move move) {
+    nextMove = move;
   }
 
   @Override
-  public Move getMove(Color color, Location start) {
-    return moveToGet;
-  }
-
-  @Override
-  public boolean makeMove(Move move) {
-    if (!super.makeMove(move)) {
+  public boolean validMove(Move move) throws IllegalMoveException {
+    if (!super.validMove(move) && nextMove != null) {
       illegalMovesAttempted++;
+      setMove(nextMove);
+      nextMove = null;
+      return false;
     }
-    /*
-     * return true after attempting 3 illegal moves so method can finish
-     * executing
-     */
-    return illegalMovesAttempted >= 3;
+
+    return true;
   }
 
   /**

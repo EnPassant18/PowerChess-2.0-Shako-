@@ -1,9 +1,20 @@
 package board;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
+
+import game.Color;
 import game.Move;
+import pieces.Bishop;
+import pieces.GhostPawn;
+import pieces.King;
+import pieces.Knight;
+import pieces.Pawn;
+import pieces.Piece;
+import pieces.Queen;
+import pieces.Rook;
 
 /**
  * Board represents the chess board.
@@ -12,35 +23,162 @@ import game.Move;
  *
  */
 public class Board {
-  private Map<Location, BoardObject> spaces;
+  private Multimap<Location, BoardObject> spaces;
   public static final int SIZE = 8;
   private static final EmptySpace EMPTY_SPACE = new EmptySpace();
+  private static final int LAST_COL = 7;
 
   /**
    * Constructs a board of empty spaces.
    */
   public Board() {
-    spaces = new HashMap<>();
-    for (int i = 0; i < Board.SIZE; i++) {
+    spaces = HashMultimap.create();
+    fillRow(0, Color.WHITE);
+    fillPawns(1, Color.WHITE);
+    for (int i = 2; i < Board.SIZE - 2; i++) {
       for (int j = 0; j < Board.SIZE; j++) {
         spaces.put(new Location(i, j), EMPTY_SPACE);
       }
     }
-    // TODO change to construct a board with all pieces at starting locations
+    fillRow(Board.SIZE - 1, Color.BLACK);
+    fillPawns(Board.SIZE - 2, Color.BLACK);
   }
 
   // TODO implement constructor that takes boardString to use with db
 
   /**
-   * Get object at specified location.
+   * Fills the non-pawn row with the appropriate pieces according to the color
+   * given.
+   *
+   * @param row
+   *          The row to fill. Either the first or last row.
+   * @param color
+   *          The color of the pieces. Either black or white.
+   */
+  private void fillRow(int row, Color color) {
+    spaces.put(new Location(row, 0), new Rook(color));
+    spaces.put(new Location(row, 1), new Knight(color));
+    spaces.put(new Location(row, 2), new Bishop(color));
+    spaces.put(new Location(row, 3), new Queen(color));
+    spaces.put(new Location(row, 4), new King(color));
+    spaces.put(new Location(row, 5), new Bishop(color));
+    spaces.put(new Location(row, 6), new Knight(color));
+    spaces.put(new Location(row, LAST_COL), new Rook(color));
+  }
+
+  /**
+   * Fills the given row with pawns of the given color.
+   *
+   * @param row
+   *          The row to fill. Either the second or second to last row.
+   * @param color
+   *          The color of the pawns. Either black or white.
+   */
+  private void fillPawns(int row, Color color) {
+    for (int c = 0; c < Board.SIZE; c++) {
+      spaces.put(new Location(row, c), new Pawn(color));
+    }
+  }
+
+  /**
+   * Get piece at specified location.
    *
    * @param loc
    *          Board location.
-   * @return Board object at specified location or EMPTY_SPACE if location is
-   *         empty.
+   * @return Piece at specified location or null if location no piece at
+   *         location.
    */
-  public BoardObject getObjectAt(Location loc) {
-    return spaces.get(loc);
+  public Piece getPieceAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece) {
+        return (Piece) obj;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Add an object to the board (usually a PowerObject or a PowerUp); note this
+   * method does check whether a space is empty.
+   *
+   * @param loc
+   *          Location to put object.
+   * @param obj
+   *          BoardObject to place on the board.
+   */
+  public void addBoardObject(Location loc, BoardObject obj) {
+    spaces.put(loc, obj);
+  }
+
+  /**
+   * Replace the the piece at a specified board location with given new piece.
+   *
+   * @param loc
+   *          Location of piece to be replaced.
+   * @param newPiece
+   *          New piece to place.
+   * @throws IllegalMoveException
+   *           If location does not already house a piece of the same color.
+   */
+  public void replacePiece(Location loc, Piece newPiece)
+      throws IllegalMoveException {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece
+          && ((Piece) obj).getColor() == newPiece.getColor()) {
+        spaces.remove(loc, obj);
+        spaces.put(loc, newPiece);
+        return;
+      }
+    }
+    throw new IllegalMoveException(
+        String.format("ERROR: %s does not have a piece at %s.",
+            newPiece.getColor(), loc.toString()));
+  }
+
+  /**
+   * Check if a location on the board is jumpable.
+   *
+   * @param loc
+   *          Board location.
+   * @return true if can be jumped, false otherwise.
+   */
+  public boolean isJumpable(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      return obj.canBeJumped();
+    }
+    return false;
+  }
+
+  /**
+   * Remove ghost pawn from board for active player.
+   *
+   * @param playerIndex
+   *          Index of player whose ghost pawns should be removed (0 = White, 1
+   *          = Black).
+   * @exception IllegalArgumentException
+   *              if method is passed playerIndex other than 0 (white) or 1
+   *              (black).
+   */
+  public void resetGhost(int playerIndex) throws IllegalArgumentException {
+    Color color;
+    switch (playerIndex) {
+      case 0:
+        color = Color.WHITE;
+        break;
+      case 1:
+        color = Color.BLACK;
+        break;
+      default:
+        throw new IllegalArgumentException(
+            "ERROR: Illegal playerIndex; expected 0 (white) or 1 (black).");
+    }
+
+    for (Location loc : spaces.keySet()) {
+      Piece p = getPieceAt(loc);
+      if (p instanceof GhostPawn && p.getColor() == color) {
+        spaces.remove(loc, p);
+      }
+    }
   }
 
   /**
@@ -48,62 +186,83 @@ public class Board {
    *
    * @param loc
    *          Location to check.
-   * @return true if location is empty, otherwise false.
+   * @return true if location is empty or a ghost pawn, otherwise false.
    */
   public boolean isEmpty(Location loc) {
-    return spaces.get(loc).equals(EMPTY_SPACE);
+    Collection<BoardObject> objs = spaces.get(loc);
+    return objs.size() == 1
+        && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn);
   }
 
   /**
-   * Move a BoardObject from one location.
+   * Set a Ghost Pawn on the board when player moves pawn 2 spaces for first
+   * pawn move.
+   *
+   * @param loc
+   *          Board location skipped space where ghost pawn will be set.
+   * @param color
+   *          Color of ghost pawn.
+   */
+  public void setGhost(Location loc, Color color) {
+    spaces.put(loc, new GhostPawn(color));
+  }
+
+  /**
+   * Move a BoardObject from one location to another; does not check move
+   * validity.
    *
    * @param move
    *          Pair of locations representing the start and ending locations of a
    *          move.
-   * @return captured board object if any, EMPTY_SPACE otherwise.
-   * @throws IllegalMoveException
-   *           if attempted move was not legal.
+   * @return captured board objects if any, Collection containing only an
+   *         EMPTY_SPACE otherwise.
    */
-  public BoardObject move(Move move) throws IllegalMoveException {
+  public Collection<BoardObject> move(Move move) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    if (isEmpty(start)) {
-      throw new IllegalMoveException(
-          String.format("ERROR: starting location %s is empty.", start));
-    }
-    BoardObject obj = spaces.get(start);
-    if (obj.move(start, end, spaces)) { // if allowable move
-      // TODO if castle, call move again on rook
-      // TODO if promotion, call promotion method
-      // TODO if En Passant, are we leaving behind a "ghost pawn?"
-      return forceMove(move);
-    } else {
-      throw new IllegalMoveException(
-          String.format("ERROR: cannot move %s from %s to %s.",
-              obj.getClass().getSimpleName(), start, end));
-    }
-  }
 
-  /**
-   * Force move a BoardObject from one location, even if piece would not
-   * normally move in this way.
-   *
-   * @param move
-   *          Pair of locations representing the start and ending locations of a
-   *          move.
-   * @return captured board object if any, EMPTY_SPACE otherwise.
-   */
-  public BoardObject forceMove(Move move) {
-    Location start = move.getStart();
-    Location end = move.getEnd();
-    if (!isEmpty(start)) {
-      BoardObject obj = spaces.get(start);
-      BoardObject captured = spaces.remove(end);
-      spaces.put(end, obj);
+    Piece startPiece = getPieceAt(start);
+    Collection<BoardObject> captured;
+    if (startPiece instanceof King && ((King) startPiece).getCastling()) {
+      Location rookLocStart;
+      Location rookLocEnd;
+      if (end.getCol() == 1) {
+        rookLocStart = new Location(end.getRow(), end.getCol() - 1);
+        rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
+        spaces.put(end, startPiece);
+
+      } else {
+        rookLocStart = new Location(end.getRow(), end.getCol() + 1);
+        rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
+      }
+      Collection<BoardObject> obj1 = spaces.get(start);
+      captured = spaces.removeAll(end);
+      spaces.putAll(end, obj1);
       spaces.put(start, EMPTY_SPACE);
-      return captured;
+      Collection<BoardObject> obj2 = spaces.get(rookLocStart);
+      spaces.removeAll(rookLocEnd);
+      spaces.putAll(rookLocEnd, obj2);
+      spaces.put(rookLocStart, EMPTY_SPACE);
+      ((King) startPiece).resetCastling();
+    } else {
+      if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
+        Piece p = getPieceAt(end); // FIXME got null pointer
+        int direction;
+        // TODO should be startpiece?
+        if (startPiece.getColor() == Color.WHITE) {
+          direction = 1;
+        } else {
+          direction = -1;
+        }
+        spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
+      }
+      Collection<BoardObject> startObjs = spaces.removeAll(start);
+      captured = spaces.removeAll(end);
+      spaces.putAll(end, startObjs);
+      spaces.put(start, EMPTY_SPACE);
     }
-    return EMPTY_SPACE;
+    startPiece.setMoved();
+    return captured;
   }
 
   /**
@@ -122,10 +281,20 @@ public class Board {
     }
 
     @Override
-    public boolean move(Location start, Location end,
-        Map<Location, BoardObject> spaces) {
+    public boolean move(Move move, Board board) {
       return false;
     }
+  }
+
+  /**
+   * Get all objects at a specified board location.
+   *
+   * @param loc
+   *          Board location.
+   * @return collection of objects at board location.
+   */
+  public Collection<BoardObject> getObjsAt(Location loc) {
+    return spaces.get(loc);
   }
 
 }
