@@ -59,17 +59,13 @@ public class ChessProjectHandler extends CommandMap {
     CliPlayer player = whiteToMove() ? whitePlayer : blackPlayer;
 
     System.out.println(String.format("(%d, %d) -> (%d, %d)",
-            startLocation.getRow(), startLocation.getCol(), endLocation.getRow(),
-            endLocation.getCol()));
-    
-    if (!game.validMove(move)) {
-      return "ERROR: Invalid move.";
-    }
+        startLocation.getRow(), startLocation.getCol(), endLocation.getRow(),
+        endLocation.getCol()));
 
     player.setMove(move);
 
     try {
-      game.turn();
+      game.turn(); // checks if valid before executing move
     } catch (IllegalMoveException e) {
       return e.getMessage();
     }

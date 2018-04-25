@@ -47,8 +47,10 @@ public abstract class Player {
    *
    * @return pair of locations representing the starting and ending locations of
    *         a move.
+   * @throws IllegalStateException
+   *           If getMove was called before player move was set using setMove.
    */
-  public Move getMove() {
+  public Move getMove() throws IllegalStateException {
     if (move == null) {
       throw new IllegalStateException(
           "ERROR: called getMove() before setMove() in Player.");

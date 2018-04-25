@@ -121,8 +121,10 @@ public class Game {
    * @throws IllegalPromotionException
    *           If player has not selected promotion or attempts to promote to
    *           Pawn or King.
+   * @throws IllegalStateException
+   *           If attempted to get player move before it has been set.
    */
-  public void turn() throws IllegalMoveException {
+  public void turn() throws IllegalMoveException, IllegalStateException {
     Player player = getActivePlayer();
     Move move = player.getMove();
 
@@ -137,11 +139,12 @@ public class Game {
       // check that piece belongs to active player
     } else if (p.getColor() != player.getColor()) {
       throw new IllegalMoveException(String.format(
-          "ERROR: Wrong turn, currently %s to move.", player.getColor()));
+          "ERROR: Wrong player, currently %s to move.", player.getColor()));
     }
 
     while (!validMove(move)) {
-      move = player.getMove();
+      throw new IllegalMoveException(String.format(
+          "ERROR: Move is invalid for %s", p.getClass().getSimpleName()));
     }
     executeMove(move);
 
@@ -206,13 +209,19 @@ public class Game {
    * @param move
    *          Move to check.
    * @return true if valid, false otherwise.
+   * @throws IllegalMoveException
+   *           If no piece or only GhostPawn at move starting location.
    */
-  public boolean validMove(Move move) {
+  public boolean validMove(Move move) throws IllegalMoveException {
     Location start = move.getStart();
     Piece p = board.getPieceAt(start);
-    if (!(p instanceof Piece) || p instanceof GhostPawn) {
-      return false;
+    if (!(p instanceof Piece)) {
+      throw new IllegalMoveException(String
+          .format("ERROR: No piece to move at starting location %s", start));
+    } else if (p instanceof GhostPawn) {
+      throw new IllegalMoveException("ERROR: Cannot move ghost pawn");
     }
+
     Piece piece = board.getPieceAt(start);
 
     return piece.move(move, board);

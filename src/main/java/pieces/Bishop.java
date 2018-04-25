@@ -27,14 +27,20 @@ public class Bishop extends Piece {
   public boolean move(Move move, Board board) {
     Location start = move.getStart();
     Location end = move.getEnd();
-    if (start.getRow() == end.getRow() || start.getCol() == end.getCol()) {
+
+    int colDif = end.getCol() - start.getCol();
+    int rowDif = end.getRow() - start.getRow();
+
+    if (Math.abs(rowDif) != Math.abs(colDif)) {
       return false;
     }
-    int colDir = (int) Math.signum(end.getCol() - start.getCol());
-    int rowDir = (int) Math.signum(end.getRow() - start.getRow());
+
+    int colDir = (int) Math.signum(colDif);
+    int rowDir = (int) Math.signum(rowDif);
     if (rowDir == 0 || colDir == 0) {
       return false;
     }
+
     return checkInLine(start, end, board, rowDir, colDir);
   }
 }

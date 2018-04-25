@@ -173,7 +173,7 @@ public class Board {
             "ERROR: Illegal playerIndex; expected 0 (white) or 1 (black).");
     }
 
-    for (Location loc : spaces.keys()) {
+    for (Location loc : spaces.keySet()) {
       Piece p = getPieceAt(loc);
       if (p instanceof GhostPawn && p.getColor() == color) {
         spaces.remove(loc, p);
@@ -246,9 +246,10 @@ public class Board {
       ((King) startPiece).resetCastling();
     } else {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
-        Piece p = getPieceAt(end);
+        Piece p = getPieceAt(end); // FIXME got null pointer
         int direction;
-        if (p.getColor() == Color.WHITE) {
+        // TODO should be startpiece?
+        if (startPiece.getColor() == Color.WHITE) {
           direction = 1;
         } else {
           direction = -1;

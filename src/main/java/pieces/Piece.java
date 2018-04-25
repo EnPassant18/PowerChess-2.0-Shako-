@@ -112,15 +112,20 @@ public abstract class Piece implements BoardObject {
    */
   public static boolean checkInLine(Location start, Location end, Board board,
       int rowDir, int colDir) {
-    Location check =
-        new Location(start.getRow() + rowDir, start.getCol() + colDir);
-    while (!check.equals(end)) {
-      if (!board.isEmpty(check)) {
-        return false;
+    try {
+      Location check =
+          new Location(start.getRow() + rowDir, start.getCol() + colDir);
+      while (!check.equals(end)) {
+        if (!board.isEmpty(check)) {
+          return false;
+        }
+        check = new Location(check.getRow() + rowDir, check.getCol() + colDir);
       }
-      check = new Location(check.getRow() + rowDir, check.getCol() + colDir);
+      return isValidEnd(start, end, board);
+
+    } catch (IllegalArgumentException e) {
+      return false; // if end not in line, return false
     }
-    return isValidEnd(start, end, board);
   }
 
 }
