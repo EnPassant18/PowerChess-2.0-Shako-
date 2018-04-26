@@ -2,9 +2,76 @@
   <head>
     <meta charset="utf-8">
     <title>PowerChess</title>
-    <script src="jquery-3.1.1.js"></script>
+    <link rel="stylesheet" href="css/home.css">
+    <script src="js/jquery-3.1.1.js"></script>
+    <script src="js/home.js"></script>
+    <script src="js/enums.js"></script>
   </head>
   <body>
-     <script src="js/home.js"></script>
+    <div id="container">
+     <div id="left">
+       <div id="logo">Logo</div>
+       <br>
+       <div id="form">
+          <div id="header">Create Game</div>
+          <form>
+            <br>
+            <input type="text" name="name" placeholder="Your name">
+            <br>
+            <br>
+            <br>
+            <input type="radio" name="time" value="Quick" id="Quick" hidden>
+            <label for="Quick">Quick</label>
+            <input type="radio" name="time" value="Standard" id="Standard" hidden checked>
+            <label for="Standard">Standard</label>
+            <input type="radio" name="time" value="Slow" id="Slow" hidden>
+            <label for="Slow">Slow</label>
+            <br>
+            <br>
+            <br>
+            <input type="radio" name="color" value="White" id="White" hidden>
+            <label for="White">White</label>
+            <input type="radio" name="color" value="Random" id="Random" hidden checked>
+            <label for="Random">Random</label>
+            <input type="radio" name="color" value="Black" id="Black" hidden>
+            <label for="Black">Black</label>
+            <br>
+            <br>
+            <br>
+            <input type="radio" name="privacy" value="Private" id="Private" hidden>
+            <label for="Private">Private</label>
+            <input type="radio" name="privacy" value="Public" id="Public" hidden checked>
+            <label for="Public">Public</label>
+            <br>
+            <br>
+            <br>
+            <button type="submit">Play</button>
+          </form>
+       </div>
+     </div>
+     <table id="right">
+      <tr>
+        <th>Opponent</th>
+        <th>Time Control</th>
+        <th>Color</th>
+        <th>Join</th>
+      </tr>
+      <tr>
+        <td colspan="4">No available public games</td>
+      </tr>
+      <tr>
+        <td>checkmate123</td>
+        <td>Standard</td>
+        <td>Random</td>
+        <td><button class="join">Join</button></td>
+      </tr>
+      <tr>
+        <td>iamgreatatchess</td>
+        <td>Slow</td>
+        <td>Black</td>
+        <td><button class="join">Join</button></td>
+      </tr>
+     </table>
+    </div>
   </body>
 </html>
