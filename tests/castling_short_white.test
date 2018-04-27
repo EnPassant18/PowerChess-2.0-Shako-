@@ -1,0 +1,22 @@
+INPUT
+new game
+move g2 -> g3
+move a7 -> a6
+move g1 -> h3
+move a6- > a5
+move f1 -> g2
+move a5 -> a4
+move e1 -> g1
+print board
+OUTPUT
+8 |RNBQKBNR
+7 |xPPPPPPP
+6 |xxxxxxxx
+5 |xxxxxxxx
+4 |Pxxxxxxx
+3 |xxxxxxpn
+2 |ppppppbp
+1 |rnbqxrkx
+   ________
+   abcdefgh
+END
