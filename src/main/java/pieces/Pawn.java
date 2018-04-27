@@ -67,7 +67,6 @@ public class Pawn extends Piece {
         Location ghostPos =
             new Location(start.getRow() + direction, start.getCol());
         board.setGhost(ghostPos, getColor());
-        this.ghost = true;
         return true;
       }
       return false;
