@@ -5,11 +5,7 @@ import java.util.List;
 import board.IllegalMoveException;
 import board.Location;
 import game.Color;
-import game.IllegalPromotionException;
 import game.Move;
-import pieces.King;
-import pieces.Pawn;
-import pieces.GhostPawn;
 import pieces.Piece;
 import poweractions.PowerAction;
 
@@ -110,7 +106,7 @@ public abstract class Player {
    *
    * @return Piece that player would two which player would like to promote.
    */
-  public Piece getPromotion(){
+  public Piece getPromotion() {
     Piece rtn = newPiece;
     newPiece = null;
     return rtn;

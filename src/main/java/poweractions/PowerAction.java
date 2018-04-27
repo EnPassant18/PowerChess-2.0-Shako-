@@ -39,18 +39,18 @@ public abstract class PowerAction {
   }
 
   /**
-   * Return list of 3 PowerActions at specified rarity.
+   * Return list of 2 PowerActions at specified rarity.
    *
    * @param rarity
    *          Rarity of PowerActions to return.
-   * @return List of 3 PowerActions.
+   * @return List of 2 PowerActions.
    */
   public static List<PowerAction> ofRarity(Rarity rarity) {
     List<PowerAction> availableActions =
         new ArrayList<>(POWER_ACTIONS.get(rarity));
     Collections.shuffle(availableActions);
-    if (availableActions.size() >= 3) {
-      return availableActions.subList(0, 3);
+    if (availableActions.size() >= 2) {
+      return availableActions.subList(0, 2);
     } else {
       return availableActions;
     }

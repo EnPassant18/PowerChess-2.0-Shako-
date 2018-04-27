@@ -1,7 +1,5 @@
 package game;
 
-import board.IllegalMoveException;
-
 /**
  * GameDummy is a game for whose outputs are pre-programmed for testing
  * purposes.
@@ -34,7 +32,7 @@ public class GameDummy extends Game {
   }
 
   @Override
-  public boolean validMove(Move move) throws IllegalMoveException {
+  public boolean validMove(Move move) {
     if (!super.validMove(move) && nextMove != null) {
       illegalMovesAttempted++;
       setMove(nextMove);

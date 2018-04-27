@@ -41,7 +41,7 @@ public class King extends Piece {
       return checkCastleShort(start, end, board);
     }
     if (colDif == CASTLE_DIST && rowDif == 0) {
-    	System.out.println("check long");
+      System.out.println("check long");
       return checkCastleLong(start, end, board);
     }
     if (Math.abs(rowDif) > 1 || Math.abs(colDif) > 1) {
@@ -62,7 +62,8 @@ public class King extends Piece {
     Location check1 = new Location(start.getRow(), start.getCol() - 1);
     Location check2 = new Location(check1.getRow(), check1.getCol() - 1);
     Location check3 = new Location(check2.getRow(), check2.getCol() - 1);
-    if (board.isEmpty(check1) && board.isEmpty(check2) && board.isEmpty(check3)) {
+    if (board.isEmpty(check1) && board.isEmpty(check2)
+        && board.isEmpty(check3)) {
       castling = true;
       return true;
     }

@@ -136,8 +136,8 @@ public class Board {
   }
 
   /**
-   * Removes a piece at a given location (if one exists)
-   * 
+   * Removes a piece at a given location (if one exists).
+   *
    * @param loc
    *          Location to remove the piece from.
    */
@@ -151,7 +151,7 @@ public class Board {
 
   /**
    * Places a piece at a given location, replacing any existing piece.
-   * 
+   *
    * @param loc
    *          Location to place the piece.
    * @param piece
@@ -179,8 +179,8 @@ public class Board {
   /**
    * Remove ghost pawn from board for active player.
    *
-   * @param player
-   *          Player to remove ghost pawns of.
+   * @param color
+   *          Color of ghost pawn to remove ghost.
    */
   public void resetGhost(final Color color) {
     for (Location loc : spaces.keySet()) {
@@ -256,7 +256,7 @@ public class Board {
       ((King) startPiece).resetCastling();
     } else {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
-        Piece p = getPieceAt(end); // FIXME got null pointer
+        Piece p = getPieceAt(end);
         int direction;
         if (p.getColor() == Color.WHITE) {
           direction = 1;

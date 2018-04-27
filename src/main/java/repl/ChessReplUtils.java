@@ -5,7 +5,6 @@ import java.util.StringJoiner;
 import board.Board;
 import board.Location;
 import game.Color;
-import powerups.PowerObject;
 import pieces.Bishop;
 import pieces.GhostPawn;
 import pieces.King;
@@ -15,6 +14,13 @@ import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
 
+/**
+ * Utility class for REPL; includes methods to parse a move, piece to char,
+ * board space to char.
+ *
+ * @author bbentz
+ *
+ */
 public final class ChessReplUtils {
 
   public static final int SIZE = 8;
@@ -70,29 +76,28 @@ public final class ChessReplUtils {
       }
       output.add(line);
     }
-    
+
     output.add("   ________");
     output.add("   abcdefgh");
 
     return output.toString();
 
   }
-  
-  public static PowerObject.Rarity rarityFromString(final String str){
-    if(str.equalsIgnoreCase("COMMON")) {
-      return PowerObject.Rarity.COMMON;
-    } else if (str.equalsIgnoreCase("RARE")) {
-      return PowerObject.Rarity.RARE;
-    } else if (str.equalsIgnoreCase("LEGENDARY")) {
-      return PowerObject.Rarity.LEGENDARY;
-    } else {
-      return null;
-    }
-  }
 
-  public static Character boardSpaceToChar(final int i, final int j,
+  /**
+   * Convert a board space to a character representation.
+   *
+   * @param row
+   *          Row location.
+   * @param col
+   *          Column location.
+   * @param board
+   *          Board to represent.
+   * @return Character representing the object at a specified row and column.
+   */
+  public static Character boardSpaceToChar(final int row, final int col,
       final Board board) {
-    Location location = new Location(i, j);
+    Location location = new Location(row, col);
     if (board.isEmpty(location)) {
       return EMPTY_SPACE_CHAR;
     } else if (board.getPieceAt(location) == null) {

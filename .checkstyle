@@ -11,7 +11,7 @@
     <additional-data name="protect-config-file" value="false"/>
   </local-check-config>
   <local-check-config name="cs32" location="internal_config_1524817817730.xml" type="internal" description=""/>
-  <fileset name="all" enabled="true" check-config-name="cs32" local="true">
+  <fileset name="all" enabled="true" check-config-name="checkstyle_uploaded" local="true">
     <file-match-pattern match-pattern="." include-pattern="true"/>
   </fileset>
 </fileset-config>

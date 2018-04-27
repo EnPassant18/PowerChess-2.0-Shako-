@@ -31,15 +31,16 @@ public abstract class Piece implements BoardObject {
   public boolean canBeJumped() {
     return true;
   }
-  
+
   /**
-   * Returns true if a pawn can promote to the desired piece and
-   * false otherwise. Defaults to false.
-   * @return
-   * 	True if the pawn can promote to the desired piece and false otherwise.
+   * Returns true if a pawn can promote to the desired piece and false
+   * otherwise. Defaults to false.
+   *
+   * @return True if the pawn can promote to the desired piece and false
+   *         otherwise.
    */
   public boolean canBePromotedTo() {
-	  return false;
+    return false;
   }
 
   /**

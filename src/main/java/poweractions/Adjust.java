@@ -78,4 +78,10 @@ public class Adjust extends PowerAction {
     }
   }
 
+  @Override
+  public String toString() {
+    return "Adjust: You may move the capturing "
+        + "piece to an adjacent vacant square. Rarity: Common";
+  }
+
 }

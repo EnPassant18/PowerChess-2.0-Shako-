@@ -35,12 +35,22 @@ public class Game {
   private List<Move> history; // list past moves
 
   private int tilNextPowerup;
+  private List<PowerAction> availablePowerActions;
+  private Location whereCaptured; // where latest PowerObject was captured
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
   private Location toPromote;
 
+  /**
+   * GameState enumerates the various states of a game (e.g. waiting for a
+   * player to make a move).
+   *
+   * @author bbentz
+   *
+   */
   public enum GameState {
-    WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE, GAME_OVER
+    WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE,
+    WAITING_FOR_POWERUP_EXEC, GAME_OVER
   }
 
   private GameState gameState;
@@ -223,7 +233,7 @@ public class Game {
    *          Move to check.
    * @return true if valid, false otherwise.
    */
-  public boolean validMove(Move move) throws IllegalMoveException {
+  public boolean validMove(Move move) {
     Location start = move.getStart();
     Piece piece = board.getPieceAt(start);
     if (piece == null) {
@@ -314,21 +324,43 @@ public class Game {
     whiteToMove = !whiteToMove;
   }
 
-  private void manageCaptured(Collection<BoardObject> captured,
-      Location whereCaptured) {
+  private void manageCaptured(Collection<BoardObject> captured, Location end) {
 
     for (BoardObject obj : captured) {
       if (obj instanceof PowerObject) {
-        List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
-        Player player = getActivePlayer();
-        PowerAction powerup = player.selectPowerAction(actions);
-        powerup.act(whereCaptured, this);
+        gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
+        availablePowerActions = ((PowerObject) captured).getPowerActions();
+        whereCaptured = end;
+        whiteToMove = !whiteToMove;
 
       } else if (obj instanceof King) {
         gameOver = true;
       }
     }
 
+  }
+
+  /**
+   * Get the list of available power actions active player may choose from.
+   *
+   * @return List of 2 power actions.
+   */
+  public List<PowerAction> getAvailablePowerActions() {
+    return availablePowerActions;
+  }
+
+  /**
+   * Execute specified power action.
+   *
+   * @param p
+   *          powerAction to be executed.
+   */
+  public void executePowerAction(PowerAction p) {
+    p.act(whereCaptured, this);
+    availablePowerActions.clear();
+    whereCaptured = null;
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = !whiteToMove;
   }
 
   /**
@@ -409,7 +441,7 @@ public class Game {
 
   /**
    * Returns the current state of the game.
-   * 
+   *
    * @return The current state of the game.
    */
   public GameState getGameState() {
