@@ -4,6 +4,14 @@ Power chess approved by adehovit, consider including a randomized start variant 
 
 **Team Members:** Brad Bentz, Daniel Kostovetsky, Dain Woods, Katie Normandin
 
+**REPL Commands**
+
+
+- `new game` start a new game
+- `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
+- `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
+
+
 **Team Strengths and Weaknesses:**
 
 Daniel: My strengths are functional programming, data structures and algorithms. I studies these extensively in CS19. My weaknesses are object-oriented design and UI design, since I have relatively little experience in these areas. I never took an object-oriented programming course before. Advanced chess knowledge/experience.
