@@ -52,6 +52,17 @@ public class PowerObject implements BoardObject {
   }
 
   /**
+   * Generate a new PowerObject of a specified rarity.
+   *
+   * @param rarity
+   *          Rarity of PowerObject.
+   * @return a PowerObject of the specified rarity.
+   */
+  public static PowerObject ofRarity(Rarity rarity) {
+    return new PowerObject(rarity);
+  }
+
+  /**
    * Construct PowerObject of specified rarity.
    *
    * @param rarity

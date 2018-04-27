@@ -28,21 +28,21 @@ public class Game {
   private Player whitePlayer;
   private Player blackPlayer;
   private boolean whiteToMove;
-  
+
   private Board board;
   private boolean gameOver;
-  
+
   private List<Move> history; // list past moves
-  
+
   private int tilNextPowerup;
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
   private Location toPromote;
-  
+
   public enum GameState {
-	  WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE, GAME_OVER
+    WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE, GAME_OVER
   }
-  
+
   private GameState gameState;
 
   private static RandomCollection<Location> spawnLocations;
@@ -116,11 +116,11 @@ public class Game {
    *          Player to be added.
    */
   public void addPlayer(final Player player) {
-	if(player.getColor() == Color.WHITE) {
-		whitePlayer = player;
-	} else {
-		blackPlayer = player;
-	}
+    if (player.getColor() == Color.WHITE) {
+      whitePlayer = player;
+    } else {
+      blackPlayer = player;
+    }
   }
 
   /**
@@ -175,7 +175,7 @@ public class Game {
         && board.getPieceAt(end) instanceof Pawn) {
       toPromote = end;
       gameState = GameState.WAITING_FOR_PROMOTE;
-      whiteToMove = !whiteToMove; //Change move back to previous turn 
+      whiteToMove = !whiteToMove; // Change move back to previous turn
     }
 
   }
@@ -223,11 +223,11 @@ public class Game {
    *          Move to check.
    * @return true if valid, false otherwise.
    */
-  public boolean validMove(Move move) throws IllegalMoveException{
+  public boolean validMove(Move move) throws IllegalMoveException {
     Location start = move.getStart();
     Piece piece = board.getPieceAt(start);
-    if(piece == null) {
-    	return false;
+    if (piece == null) {
+      return false;
     }
 
     return piece.move(move, board);
@@ -251,8 +251,8 @@ public class Game {
    * @return the player whose turn it is.
    */
   public Player getActivePlayer() {
-    return whiteToMove? whitePlayer : blackPlayer;
-  } 
+    return whiteToMove ? whitePlayer : blackPlayer;
+  }
 
   /**
    * Get next move by player of specified color of whatever piece sits at
@@ -291,7 +291,7 @@ public class Game {
     manageCaptured(captured, end);
 
   }
-  
+
   /**
    * Executes a promotion at the toPromote location.
    */
@@ -308,10 +308,10 @@ public class Game {
    *           If player tries to promote to Pawn or King.
    */
   public void executePromotion(Location loc) {
-	Piece newPiece = getActivePlayer().getPromotion();
-	board.placePiece(loc, newPiece);
-	gameState = GameState.WAITING_FOR_MOVE;
-	whiteToMove = !whiteToMove;
+    Piece newPiece = getActivePlayer().getPromotion();
+    board.placePiece(loc, newPiece);
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = !whiteToMove;
   }
 
   private void manageCaptured(Collection<BoardObject> captured,
@@ -397,7 +397,6 @@ public class Game {
   public boolean whiteToMove() {
     return whiteToMove;
   }
-  
 
   /**
    * Checks whether or not the game is over.
@@ -407,11 +406,11 @@ public class Game {
   public boolean getGameOverStatus() {
     return gameOver;
   }
-  
+
   /**
    * Returns the current state of the game.
-   * @return
-   *    The current state of the game.
+   * 
+   * @return The current state of the game.
    */
   public GameState getGameState() {
     return gameState;

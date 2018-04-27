@@ -120,7 +120,8 @@ public class Board {
    * @throws IllegalMoveException
    *           If location does not already house a piece of the same color.
    */
-  public void replacePiece(Location loc, Piece newPiece) throws IllegalMoveException {
+  public void replacePiece(Location loc, Piece newPiece)
+      throws IllegalMoveException {
     for (BoardObject obj : spaces.get(loc)) {
       if (obj instanceof Piece
           && ((Piece) obj).getColor() == newPiece.getColor()) {
@@ -133,30 +134,32 @@ public class Board {
         String.format("ERROR: %s does not have a piece at %s.",
             newPiece.getColor(), loc.toString()));
   }
-  
+
   /**
    * Removes a piece at a given location (if one exists)
+   * 
    * @param loc
-   * 	Location to remove the piece from.
+   *          Location to remove the piece from.
    */
   public void removePieceAt(final Location loc) {
-	  for(BoardObject obj : spaces.get(loc)) {
-		  if(obj instanceof Piece) {
-			  spaces.remove(loc, obj);
-		  }
-	  }
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece) {
+        spaces.remove(loc, obj);
+      }
+    }
   }
-  
+
   /**
    * Places a piece at a given location, replacing any existing piece.
+   * 
    * @param loc
-   * 	Location to place the piece.
+   *          Location to place the piece.
    * @param piece
-   * 	Piece to be placed.
+   *          Piece to be placed.
    */
   public void placePiece(final Location loc, final Piece piece) {
-	  removePieceAt(loc);
-	  spaces.put(loc, piece);
+    removePieceAt(loc);
+    spaces.put(loc, piece);
   }
 
   /**
@@ -168,7 +171,7 @@ public class Board {
    */
   public boolean isJumpable(Location loc) {
     for (BoardObject obj : spaces.get(loc)) {
-      return obj.canBeJumped(); //what
+      return obj.canBeJumped(); // what
     }
     return false;
   }
@@ -177,9 +180,9 @@ public class Board {
    * Remove ghost pawn from board for active player.
    *
    * @param player
-   * 	Player to remove ghost pawns of.
+   *          Player to remove ghost pawns of.
    */
-  public void resetGhost(final Color color){
+  public void resetGhost(final Color color) {
     for (Location loc : spaces.keySet()) {
       Piece p = getPieceAt(loc);
       if (p instanceof GhostPawn && p.getColor() == color) {
@@ -255,15 +258,14 @@ public class Board {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
         Piece p = getPieceAt(end); // FIXME got null pointer
         int direction;
-        // TODO should be startpiece?
-        //If the ghost pawn is white, its pawn is in the 1 direction.
         if (p.getColor() == Color.WHITE) {
           direction = 1;
         } else {
           direction = -1;
         }
-        ((Pawn)startPiece).resetGhost();
-        Location enemyPawn = new Location(end.getRow() + direction, end.getCol());
+        ((Pawn) startPiece).resetGhost();
+        Location enemyPawn =
+            new Location(end.getRow() + direction, end.getCol());
         spaces.removeAll(enemyPawn);
         spaces.put(enemyPawn, EMPTY_SPACE);
       }
