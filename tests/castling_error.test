@@ -1,0 +1,20 @@
+INPUT
+new game
+move g2 -> g3
+move a7 -> a6
+move e1 -> g1
+move g1 -> h3
+move a6- > a5
+move e1 -> g1
+move f1 -> g2
+move a5 -> a4
+move h1 -> g1
+move a4 -> a3
+move g1 -> h1
+move b7 -> b6
+move e1 -> g1
+OUTPUT
+ERROR:
+ERROR:
+ERROR:
+END

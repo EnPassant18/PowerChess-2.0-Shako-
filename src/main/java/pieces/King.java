@@ -12,7 +12,7 @@ import game.Move;
  *
  */
 public class King extends Piece {
-  private static final int CASTLE_DIST = -3;
+  private static final int CASTLE_DIST = -2;
 
   private boolean castling;
 
@@ -37,10 +37,11 @@ public class King extends Piece {
     }
     int colDif = end.getCol() - start.getCol();
     int rowDif = end.getRow() - start.getRow();
-    if (colDif == 0 && rowDif == 2) {
+    if (colDif == 2 && rowDif == 0) {
       return checkCastleShort(start, end, board);
     }
-    if (colDif == 0 && rowDif == CASTLE_DIST) {
+    if (colDif == CASTLE_DIST && rowDif == 0) {
+    	System.out.println("check long");
       return checkCastleLong(start, end, board);
     }
     if (Math.abs(rowDif) > 1 || Math.abs(colDif) > 1) {
@@ -54,13 +55,14 @@ public class King extends Piece {
     if (getMoved()) {
       return false;
     }
-    Piece p = board.getPieceAt(new Location(end.getRow(), end.getCol() + 1));
+    Piece p = board.getPieceAt(new Location(end.getRow(), end.getCol() - 2));
     if (p == null || p.getMoved() || !(p instanceof Rook)) {
       return false;
     }
-    Location check1 = new Location(start.getRow(), start.getCol() + 1);
-    Location check2 = new Location(check1.getRow(), check1.getCol() + 1);
-    if (board.isEmpty(check1) && board.isEmpty(check2)) {
+    Location check1 = new Location(start.getRow(), start.getCol() - 1);
+    Location check2 = new Location(check1.getRow(), check1.getCol() - 1);
+    Location check3 = new Location(check2.getRow(), check2.getCol() - 1);
+    if (board.isEmpty(check1) && board.isEmpty(check2) && board.isEmpty(check3)) {
       castling = true;
       return true;
     }
@@ -71,15 +73,13 @@ public class King extends Piece {
     if (getMoved()) {
       return false;
     }
-    Piece p = board.getPieceAt(new Location(end.getRow(), end.getCol() - 1));
+    Piece p = board.getPieceAt(new Location(end.getRow(), end.getCol() + 1));
     if (p == null || p.getMoved() || !(p instanceof Rook)) {
       return false;
     }
-    Location check1 = new Location(start.getRow(), start.getCol() - 1);
-    Location check2 = new Location(check1.getRow(), check1.getCol() - 1);
-    Location check3 = new Location(check2.getRow(), check2.getCol() - 1);
-    if (board.isEmpty(check1) && board.isEmpty(check2)
-        && board.isEmpty(check3)) {
+    Location check1 = new Location(start.getRow(), start.getCol() + 1);
+    Location check2 = new Location(check1.getRow(), check1.getCol() + 1);
+    if (board.isEmpty(check1) && board.isEmpty(check2)) {
       castling = true;
       return true;
     }

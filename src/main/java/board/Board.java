@@ -233,22 +233,22 @@ public class Board {
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Location rookLocStart;
       Location rookLocEnd;
-      if (end.getCol() == 1) {
-        rookLocStart = new Location(end.getRow(), end.getCol() - 1);
+      if (end.getCol() == 2) {
+        rookLocStart = new Location(end.getRow(), end.getCol() - 2);
         rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
-        spaces.put(end, startPiece);
 
       } else {
         rookLocStart = new Location(end.getRow(), end.getCol() + 1);
         rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
       }
-      Collection<BoardObject> obj1 = spaces.get(start);
+      Collection<BoardObject> obj1 = spaces.removeAll(start);
       captured = spaces.removeAll(end);
       spaces.putAll(end, obj1);
       spaces.put(start, EMPTY_SPACE);
       Collection<BoardObject> obj2 = spaces.get(rookLocStart);
       spaces.removeAll(rookLocEnd);
       spaces.putAll(rookLocEnd, obj2);
+      spaces.removeAll(rookLocStart);
       spaces.put(rookLocStart, EMPTY_SPACE);
       ((King) startPiece).resetCastling();
     } else {
@@ -256,12 +256,16 @@ public class Board {
         Piece p = getPieceAt(end); // FIXME got null pointer
         int direction;
         // TODO should be startpiece?
-        if (startPiece.getColor() == Color.WHITE) {
+        //If the ghost pawn is white, its pawn is in the 1 direction.
+        if (p.getColor() == Color.WHITE) {
           direction = 1;
         } else {
           direction = -1;
         }
-        spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
+        ((Pawn)startPiece).resetGhost();
+        Location enemyPawn = new Location(end.getRow() + direction, end.getCol());
+        spaces.removeAll(enemyPawn);
+        spaces.put(enemyPawn, EMPTY_SPACE);
       }
       Collection<BoardObject> startObjs = spaces.removeAll(start);
       captured = spaces.removeAll(end);

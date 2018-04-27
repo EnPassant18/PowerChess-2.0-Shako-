@@ -1,0 +1,114 @@
+body {
+    background-color: #312e2b;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    align-content: center;
+}
+
+#container {
+    margin-top: 25px;
+    margin-right: auto;
+    margin-left: auto;
+    width: 1200px;
+}
+
+#left {
+    position: relative;
+    float: left;
+    margin-right: 30px;
+}
+
+#logo {
+    width: auto;
+    height: 100px;
+    background-color: white;
+}
+
+/* Create game form style */
+
+#form {
+    background-color: rgb(241, 241, 241);
+    border-radius: 3px;
+    text-align: center;
+    overflow: hidden;
+}
+
+form {
+    padding: 20px;
+}
+
+#header {
+    font-size: 30px;
+    background-color: rgb(226, 226, 226);
+    color: rgb(95, 95, 95);
+    padding: 8px;
+}
+
+button, label { 
+    font-size: 20px;
+    padding-top: 10px; 
+    padding-bottom: 10px; 
+    border-radius: 3px;
+    border: none;
+    width: 100px;
+    display: inline-block;
+}
+
+label {
+    background-color: rgb(226, 226, 226);
+    color: rgb(95, 95, 95);
+    box-shadow: 0px 1px 2px;
+}
+
+label:hover, input[type="radio"]:checked+label {
+    background-color: rgb(188, 188, 188);
+}
+
+button {
+    background-color: rgb(255, 96, 96);
+    color: white;
+    box-shadow: 0px 1px 2px rgb(95, 95, 95);
+}
+
+button:hover {
+    background-color: rgb(178, 60, 60);
+}
+
+input[type="text"] {
+    font-size: 20px;
+    padding: 10px; 
+    text-align: center;
+    border-radius: 3px;
+    border: 1px solid rgb(188, 188, 188);
+    color: rgb(95, 95, 95);
+}
+
+/* Game table style */
+
+#right {
+    width: 750px;
+    border-radius: 3px;
+    border-collapse: collapse;
+    overflow: hidden;
+    border-style: hidden;
+}
+
+#right th, td {
+    font-size: 20px;
+    color: rgb(95, 95, 95);
+    height: 60px;
+    text-align: center;
+    border: 1px solid rgb(188, 188, 188);
+}
+
+#right td {
+    background-color: rgb(241, 241, 241);
+}
+
+#right th {
+    background-color: rgb(226, 226, 226);
+}
+
+.join {
+    padding-top: 7px; 
+    padding-bottom: 7px; 
+}
