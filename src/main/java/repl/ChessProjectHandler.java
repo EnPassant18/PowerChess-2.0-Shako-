@@ -111,7 +111,6 @@ public class ChessProjectHandler extends CommandMap {
       return "ERROR: Invalid rarity.";
     }
     
-
     PowerObject powerObject = PowerObject.ofRarity(rarity);
     game.spawnPowerObject(location, powerObject);
     
@@ -127,6 +126,7 @@ public class ChessProjectHandler extends CommandMap {
 	  Color color = player.getColor();
 	  Piece p;
 	  
+	  //todo: put stuff in repl utils
 	  if(piece.equalsIgnoreCase("Queen") || piece.equalsIgnoreCase("Q")) {
 		  p = new Queen(color);
 	  } else if (piece.equalsIgnoreCase("Bishop") || piece.equalsIgnoreCase("B")) {
@@ -154,12 +154,15 @@ public class ChessProjectHandler extends CommandMap {
 	  
 	  Game.GameState gameState = game.getGameState();
 	  
-	  switch(gameState) {
+	  switch(gameState) { //todo: reformat
     	  case WAITING_FOR_MOVE:
     	    header = game.whiteToMove() ? "White to move.\n" : "Black to move.\n";
     	    break;
     	  case WAITING_FOR_PROMOTE:
     	    header = game.whiteToMove() ? "White to promote.\n" : "Black to promote.\n";
+    	    break;
+    	  case WAITING_FOR_POWERUP_CHOICE:
+    	    header = game.whiteToMove() ? "White to choose powerup.\n" : "Black to choose powerup.\n";
     	    break;
     	  default:
     	    header = gameState.toString() + "\n";

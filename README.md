@@ -8,9 +8,13 @@ Power chess approved by adehovit, consider including a randomized start variant 
 
 
 - `new game` start a new game
+- `print board` print current board state
+- `print on` turn on printing of board after each command (default: on)
+- `print off` turn off printing of board after each command
 - `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
 - `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
-
+- `promote [piece name]` promotes pawn to specified pieec name
+- `quit` to exit the program completely
 
 **Team Strengths and Weaknesses:**
 
