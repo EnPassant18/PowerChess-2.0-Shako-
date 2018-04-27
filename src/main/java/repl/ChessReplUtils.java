@@ -5,6 +5,7 @@ import java.util.StringJoiner;
 import board.Board;
 import board.Location;
 import game.Color;
+import powerups.PowerObject;
 import pieces.Bishop;
 import pieces.GhostPawn;
 import pieces.King;
@@ -75,6 +76,18 @@ public final class ChessReplUtils {
 
     return output.toString();
 
+  }
+  
+  public static PowerObject.Rarity rarityFromString(final String str){
+    if(str.equalsIgnoreCase("COMMON")) {
+      return PowerObject.Rarity.COMMON;
+    } else if (str.equalsIgnoreCase("RARE")) {
+      return PowerObject.Rarity.RARE;
+    } else if (str.equalsIgnoreCase("LEGENDARY")) {
+      return PowerObject.Rarity.LEGENDARY;
+    } else {
+      return null;
+    }
   }
 
   public static Character boardSpaceToChar(final int i, final int j,

@@ -6,6 +6,7 @@ import pieces.*;
 import game.Color;
 import game.Game;
 import game.Move;
+import powerups.PowerObject;
 import players.Player;
 import players.CliPlayer;
 
@@ -20,6 +21,7 @@ public class ChessProjectHandler extends CommandMap {
   private boolean whiteToMove;
   private Game game;
   private CliPlayer whitePlayer, blackPlayer;
+  private boolean printBoard = true;
   private static final int SIZE = 8;
 
   /**
@@ -34,8 +36,16 @@ public class ChessProjectHandler extends CommandMap {
     add("move", "move %s %s", s -> move(s.get(1), s.get(2)));
     add("move", "move %s -> %s", s -> move(s.get(1), s.get(3)));
     
+    // Handles printing
+    add("print", "print board", s -> ChessReplUtils.getBoardString(game.getBoard()));
+    add("print", "print on", s -> printOn());
+    add("print", "print off", s -> printOff());
+    
     // Handles pawn promotion
     add("promote", "promote %s", s -> promote(s.get(1)));
+    
+    // Handles spawning powerups
+    add("spawn", "spawn %s %s", s -> spawn(s.get(1), s.get(2)));
   }
 
   private String startNewGame() {
@@ -47,7 +57,7 @@ public class ChessProjectHandler extends CommandMap {
     game.addPlayer(whitePlayer);
     game.addPlayer(blackPlayer);
 
-    return printBoardState();
+    return print();
   }
 
   private String move(final String startPosition, final String endPosition) {
@@ -55,7 +65,6 @@ public class ChessProjectHandler extends CommandMap {
     if(game.getGameState() != Game.GameState.WAITING_FOR_MOVE) {
       return "ERROR: Not able to move.";
     }
-    
     
     String errorString = "ERROR: Invalid start or end positions.";
 
@@ -75,8 +84,38 @@ public class ChessProjectHandler extends CommandMap {
     } catch (IllegalMoveException e) {
       return e.getMessage();
     }
+    
+    return print();
+  }
+  
+  private String printOn() {
+    printBoard = true;
+    return "";
+  }
+  
+  private String printOff() {
+    printBoard = false;
+    return "";
+  }
+  
+  private String spawn(final String locationString, final String rarityString) {
+    
+    Location location = ChessReplUtils.parseMove(locationString);
+    PowerObject.Rarity rarity = ChessReplUtils.rarityFromString(rarityString);
+    
+    if(location == null) {
+      return "ERROR: Invalid location.";
+    }
+    
+    if(rarity == null) {
+      return "ERROR: Invalid rarity.";
+    }
+    
 
-    return printBoardState();
+    PowerObject powerObject = PowerObject.ofRarity(rarity);
+    game.spawnPowerObject(location, powerObject);
+    
+    return print();
   }
   
   private String promote(final String piece) {
@@ -103,7 +142,11 @@ public class ChessProjectHandler extends CommandMap {
 	  player.setPromotion(p);
 	  game.executePromotion();
 	  
-	  return printBoardState();
+	  return print();
+  }
+  
+  private String print() {
+    return printBoard ? printBoardState() : "";
   }
 
   private String printBoardState() {
@@ -128,6 +171,9 @@ public class ChessProjectHandler extends CommandMap {
   
   private String printBoardState(final String header) {
 	String boardString = ChessReplUtils.getBoardString(game.getBoard());
+	if(header.equals("")) {
+	  return boardString;
+	}
 	return "\n" + header + boardString + "\n";
   }
 
