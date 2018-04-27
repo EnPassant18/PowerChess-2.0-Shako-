@@ -67,7 +67,7 @@ public class Pawn extends Piece {
         Location ghostPos =
             new Location(start.getRow() + direction, start.getCol());
         board.setGhost(ghostPos, getColor());
-        this.ghost = true;
+        ghost = true;
         return true;
       }
       return false;
@@ -87,7 +87,7 @@ public class Pawn extends Piece {
       return false;
     }
     if (p instanceof GhostPawn) {
-      this.ghost = true;
+      ghost = true;
     }
     return true;
   }
@@ -98,13 +98,13 @@ public class Pawn extends Piece {
    * @return true if catpured a GhostPawn.
    */
   public boolean getGhost() {
-    return this.ghost;
+    return ghost;
   }
 
   /**
    * Reset indicator for captured GhostPawn; called when turn ends.
    */
   public void resetGhost() {
-    this.ghost = false;
+    ghost = false;
   }
 }

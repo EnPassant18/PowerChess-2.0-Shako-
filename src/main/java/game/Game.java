@@ -25,15 +25,25 @@ import randutils.RandomCollection;
  *
  */
 public class Game {
-  private List<Player> players;
-  private int activePlayerIndex;
+  private Player whitePlayer;
+  private Player blackPlayer;
+  private boolean whiteToMove;
+  
   private Board board;
   private boolean gameOver;
+  
   private List<Move> history; // list past moves
+  
   private int tilNextPowerup;
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
   private Location toPromote;
+  
+  public enum GameState {
+	  WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE, GAME_OVER
+  }
+  
+  private GameState gameState;
 
   private static RandomCollection<Location> spawnLocations;
   private static final int INNER_ROW_FREQ = 50;
@@ -74,10 +84,11 @@ public class Game {
   public Game() {
     board = new Board();
     history = new ArrayList<>();
-    players = new ArrayList<>();
     gameOver = false;
     updateTilNextPowerUp();
     toPromote = null;
+    whiteToMove = true;
+    gameState = GameState.WAITING_FOR_MOVE;
   }
 
   /**
@@ -92,12 +103,8 @@ public class Game {
       }
 
       while (toPromote != null) {
-        try {
-          executePromotion(toPromote);
-          toPromote = null;
-        } catch (IllegalPromotionException e) {
-          continue;
-        }
+        executePromotion(toPromote);
+        toPromote = null;
       }
     }
   }
@@ -109,7 +116,11 @@ public class Game {
    *          Player to be added.
    */
   public void addPlayer(final Player player) {
-    players.add(player);
+	if(player.getColor() == Color.WHITE) {
+		whitePlayer = player;
+	} else {
+		blackPlayer = player;
+	}
   }
 
   /**
@@ -142,7 +153,7 @@ public class Game {
           "ERROR: Wrong player, currently %s to move.", player.getColor()));
     }
 
-    while (!validMove(move)) {
+    if (!validMove(move)) {
       throw new IllegalMoveException(String.format(
           "ERROR: Move is invalid for %s", p.getClass().getSimpleName()));
     }
@@ -155,14 +166,16 @@ public class Game {
     }
 
     // update active player and reset GhostPawns
-    activePlayerIndex = (activePlayerIndex + 1) % 2;
-    board.resetGhost(activePlayerIndex);
+    whiteToMove = !whiteToMove;
+    board.resetGhost(getActivePlayer().getColor());
 
     // if promotion, execute
     Location end = move.getEnd();
     if ((end.getRow() == lastRow || end.getRow() == 0)
         && board.getPieceAt(end) instanceof Pawn) {
       toPromote = end;
+      gameState = GameState.WAITING_FOR_PROMOTE;
+      whiteToMove = !whiteToMove; //Change move back to previous turn 
     }
 
   }
@@ -209,20 +222,13 @@ public class Game {
    * @param move
    *          Move to check.
    * @return true if valid, false otherwise.
-   * @throws IllegalMoveException
-   *           If no piece or only GhostPawn at move starting location.
    */
-  public boolean validMove(Move move) throws IllegalMoveException {
+  public boolean validMove(Move move) throws IllegalMoveException{
     Location start = move.getStart();
-    Piece p = board.getPieceAt(start);
-    if (!(p instanceof Piece)) {
-      throw new IllegalMoveException(String
-          .format("ERROR: No piece to move at starting location %s", start));
-    } else if (p instanceof GhostPawn) {
-      throw new IllegalMoveException("ERROR: Cannot move ghost pawn");
-    }
-
     Piece piece = board.getPieceAt(start);
+    if(piece == null) {
+    	return false;
+    }
 
     return piece.move(move, board);
   }
@@ -245,8 +251,8 @@ public class Game {
    * @return the player whose turn it is.
    */
   public Player getActivePlayer() {
-    return players.get(activePlayerIndex);
-  }
+    return whiteToMove? whitePlayer : blackPlayer;
+  } 
 
   /**
    * Get next move by player of specified color of whatever piece sits at
@@ -285,6 +291,13 @@ public class Game {
     manageCaptured(captured, end);
 
   }
+  
+  /**
+   * Executes a promotion at the toPromote location.
+   */
+  public void executePromotion() {
+    executePromotion(toPromote);
+  }
 
   /**
    * Execute promotion.
@@ -294,13 +307,11 @@ public class Game {
    * @throws IllegalPromotionException
    *           If player tries to promote to Pawn or King.
    */
-  public void executePromotion(Location loc) throws IllegalPromotionException {
-    Piece newPiece = getActivePlayer().getPromotion();
-    try {
-      board.replacePiece(loc, newPiece);
-    } catch (IllegalMoveException e) {
-      throw new IllegalPromotionException(e.getMessage());
-    }
+  public void executePromotion(Location loc) {
+	Piece newPiece = getActivePlayer().getPromotion();
+	board.placePiece(loc, newPiece);
+	gameState = GameState.WAITING_FOR_MOVE;
+	whiteToMove = !whiteToMove;
   }
 
   private void manageCaptured(Collection<BoardObject> captured,
@@ -383,9 +394,10 @@ public class Game {
    *
    * @return Current active player.
    */
-  public int getActivePlayerIndex() {
-    return activePlayerIndex;
+  public boolean whiteToMove() {
+    return whiteToMove;
   }
+  
 
   /**
    * Checks whether or not the game is over.
@@ -394,6 +406,15 @@ public class Game {
    */
   public boolean getGameOverStatus() {
     return gameOver;
+  }
+  
+  /**
+   * Returns the current state of the game.
+   * @return
+   *    The current state of the game.
+   */
+  public GameState getGameState() {
+    return gameState;
   }
 
 }

@@ -22,6 +22,11 @@ public class Knight extends Piece {
   public Knight(Color color) {
     super(color);
   }
+  
+  @Override
+  public boolean canBePromotedTo() {
+	  return true;
+  }
 
   @Override
   public boolean move(Move move, Board board) {

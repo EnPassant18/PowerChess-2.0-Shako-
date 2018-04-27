@@ -22,6 +22,12 @@ public class Queen extends Piece {
   public Queen(Color color) {
     super(color);
   }
+  
+  @Override
+  public boolean canBePromotedTo() {
+	  return true;
+  }
+
 
   @Override
   public boolean move(Move move, Board board) {

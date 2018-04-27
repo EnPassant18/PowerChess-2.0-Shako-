@@ -9,6 +9,7 @@ import game.IllegalPromotionException;
 import game.Move;
 import pieces.King;
 import pieces.Pawn;
+import pieces.GhostPawn;
 import pieces.Piece;
 import poweractions.PowerAction;
 
@@ -39,7 +40,7 @@ public abstract class Player {
    * @return player piece color.
    */
   public Color getColor() {
-    return this.color;
+    return color;
   }
 
   /**
@@ -99,15 +100,8 @@ public abstract class Player {
    *
    * @param promotion
    *          Piece to promote to.
-   * @throws IllegalPromotionException
-   *           If player chooses illegal piece (i.e. Pawn or King).
    */
-  public void setPromotion(Piece promotion) throws IllegalPromotionException {
-    if (promotion instanceof Pawn || promotion instanceof King) {
-      throw new IllegalPromotionException(
-          String.format("ERROR: Cannot promote to %s.",
-              promotion.getClass().getSimpleName()));
-    }
+  public void setPromotion(Piece promotion) {
     newPiece = promotion;
   }
 
@@ -115,14 +109,8 @@ public abstract class Player {
    * Ask player how they would like to promote their pawn.
    *
    * @return Piece that player would two which player would like to promote.
-   * @throws IllegalPromotionException
-   *           If player chooses illegal promotion piece type (Pawn or King).
    */
-  public Piece getPromotion() throws IllegalPromotionException {
-    if (newPiece == null) {
-      throw new IllegalPromotionException(
-          "ERROR: called getPromotion() before setPromotion in CliPlayer.");
-    }
+  public Piece getPromotion(){
     Piece rtn = newPiece;
     newPiece = null;
     return rtn;

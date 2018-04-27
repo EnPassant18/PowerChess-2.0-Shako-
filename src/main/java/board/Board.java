@@ -120,8 +120,7 @@ public class Board {
    * @throws IllegalMoveException
    *           If location does not already house a piece of the same color.
    */
-  public void replacePiece(Location loc, Piece newPiece)
-      throws IllegalMoveException {
+  public void replacePiece(Location loc, Piece newPiece) throws IllegalMoveException {
     for (BoardObject obj : spaces.get(loc)) {
       if (obj instanceof Piece
           && ((Piece) obj).getColor() == newPiece.getColor()) {
@@ -134,6 +133,31 @@ public class Board {
         String.format("ERROR: %s does not have a piece at %s.",
             newPiece.getColor(), loc.toString()));
   }
+  
+  /**
+   * Removes a piece at a given location (if one exists)
+   * @param loc
+   * 	Location to remove the piece from.
+   */
+  public void removePieceAt(final Location loc) {
+	  for(BoardObject obj : spaces.get(loc)) {
+		  if(obj instanceof Piece) {
+			  spaces.remove(loc, obj);
+		  }
+	  }
+  }
+  
+  /**
+   * Places a piece at a given location, replacing any existing piece.
+   * @param loc
+   * 	Location to place the piece.
+   * @param piece
+   * 	Piece to be placed.
+   */
+  public void placePiece(final Location loc, final Piece piece) {
+	  removePieceAt(loc);
+	  spaces.put(loc, piece);
+  }
 
   /**
    * Check if a location on the board is jumpable.
@@ -144,7 +168,7 @@ public class Board {
    */
   public boolean isJumpable(Location loc) {
     for (BoardObject obj : spaces.get(loc)) {
-      return obj.canBeJumped();
+      return obj.canBeJumped(); //what
     }
     return false;
   }
@@ -152,27 +176,10 @@ public class Board {
   /**
    * Remove ghost pawn from board for active player.
    *
-   * @param playerIndex
-   *          Index of player whose ghost pawns should be removed (0 = White, 1
-   *          = Black).
-   * @exception IllegalArgumentException
-   *              if method is passed playerIndex other than 0 (white) or 1
-   *              (black).
+   * @param player
+   * 	Player to remove ghost pawns of.
    */
-  public void resetGhost(int playerIndex) throws IllegalArgumentException {
-    Color color;
-    switch (playerIndex) {
-      case 0:
-        color = Color.WHITE;
-        break;
-      case 1:
-        color = Color.BLACK;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "ERROR: Illegal playerIndex; expected 0 (white) or 1 (black).");
-    }
-
+  public void resetGhost(final Color color){
     for (Location loc : spaces.keySet()) {
       Piece p = getPieceAt(loc);
       if (p instanceof GhostPawn && p.getColor() == color) {

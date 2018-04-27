@@ -23,7 +23,7 @@ public class SecondEffort extends PowerAction {
   }
 
   @Override
-  public void act(Location whereCaptured, Game game) {
+  public void act(Location whereCaptured, Game game){
     Color color = game.getColorAt(whereCaptured);
 
     Move move;
@@ -41,9 +41,13 @@ public class SecondEffort extends PowerAction {
       }
 
       // execute only if move is valid
-      if (game.validMove(move)) {
-        game.executeMove(move);
-        break;
+      try {
+	      if (game.validMove(move)) {
+	        game.executeMove(move);
+	        break;
+	      }
+      } catch (IllegalMoveException e) {
+    	  System.out.println(e.getMessage());
       }
     }
 
