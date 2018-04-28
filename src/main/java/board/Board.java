@@ -1,6 +1,7 @@
 package board;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -15,6 +16,8 @@ import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
+import powerups.PowerObject;
+import powerups.PowerUp;
 
 /**
  * Board represents the chess board.
@@ -92,6 +95,40 @@ public class Board {
     for (BoardObject obj : spaces.get(loc)) {
       if (obj instanceof Piece) {
         return (Piece) obj;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get PowerObject at specified location.
+   *
+   * @param loc
+   *          Board location.
+   * @return PowerObject at specified location or null if location no
+   *         PowerObject at location.
+   */
+  public PowerObject getPowerObjectAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof PowerObject) {
+        return (PowerObject) obj;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get PowerUp at specified location.
+   *
+   * @param loc
+   *          Board location.
+   * @return PowerUp at specified location or null if location no PowerUp at
+   *         location.
+   */
+  public PowerUp getPowerUpAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof PowerUp) {
+        return (PowerUp) obj;
       }
     }
     return null;
@@ -232,6 +269,9 @@ public class Board {
     Location end = move.getEnd();
 
     Piece startPiece = getPieceAt(start);
+    if (startPiece == null) {
+      return Collections.emptyList();
+    }
     Collection<BoardObject> captured;
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Location rookLocStart;

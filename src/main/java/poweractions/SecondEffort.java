@@ -1,8 +1,6 @@
 package poweractions;
 
-import board.IllegalMoveException;
 import board.Location;
-import game.Color;
 import game.Game;
 import game.Move;
 import powerups.PowerObject.Rarity;
@@ -16,38 +14,32 @@ import powerups.PowerObject.Rarity;
 public class SecondEffort extends PowerAction {
 
   /**
-   * Default constructor.
+   * Constructor takes a game object and the location where the PowerAction was
+   * captured.
+   *
+   * @param game
+   *          Game to be affected by PowerAction.
+   * @param whereCaptured
+   *          Location where PowerAction was captured.
    */
-  public SecondEffort() {
-    super(Rarity.COMMON);
+  public SecondEffort(Game game, Location whereCaptured) {
+    super(Rarity.COMMON, game, whereCaptured);
   }
 
   @Override
-  public void act(Location whereCaptured, Game game) {
-    Color color = game.getColorAt(whereCaptured);
+  public String inputFormat() {
+    return "[a-h][1-8] ending location of legal move";
+  }
 
-    Move move;
+  @Override
+  public boolean validInput(Object input) {
+    return input instanceof Location
+        && getGame().validMove(new Move(getWhereCaptured(), (Location) input));
+  }
 
-    // loop until valid move is executed
-    while (true) {
-      // make player move the capturing piece
-      while (true) {
-        try {
-          move = game.getMove(color, whereCaptured);
-          break;
-        } catch (IllegalMoveException e) {
-          System.out.println(e.getMessage());
-        }
-      }
-
-      // execute only if move is valid
-      if (game.validMove(move)) {
-        game.executeMove(move);
-        break;
-      }
-
-    }
-
+  @Override
+  public void act(Object input) {
+    getGame().executeMove(new Move(getWhereCaptured(), (Location) input));
   }
 
   @Override

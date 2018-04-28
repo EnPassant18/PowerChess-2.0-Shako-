@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import board.Location;
+import game.Game;
 import powerups.PowerObject.Rarity;
 
 /**
@@ -22,22 +24,26 @@ public class PowerActionTest {
    */
   @Test
   public void ofRarityTest() {
+    Game game = new Game();
+    Location whereCaptured = new Location(1, 1);
+
     // common
-    List<PowerAction> actions = PowerAction.ofRarity(Rarity.COMMON);
+    List<PowerAction> actions =
+        PowerAction.ofRarity(Rarity.COMMON, game, whereCaptured);
 
     for (PowerAction action : actions) {
       assertEquals(Rarity.COMMON, action.getRarity());
     }
 
     // rare
-    actions = PowerAction.ofRarity(Rarity.RARE);
+    actions = PowerAction.ofRarity(Rarity.RARE, game, whereCaptured);
 
     for (PowerAction action : actions) {
       assertEquals(Rarity.RARE, action.getRarity());
     }
 
     // legendary
-    actions = PowerAction.ofRarity(Rarity.LEGENDARY);
+    actions = PowerAction.ofRarity(Rarity.LEGENDARY, game, whereCaptured);
 
     for (PowerAction action : actions) {
       assertEquals(Rarity.LEGENDARY, action.getRarity());

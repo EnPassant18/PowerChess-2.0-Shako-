@@ -35,8 +35,7 @@ public class Game {
   private List<Move> history; // list past moves
 
   private int tilNextPowerup;
-  private List<PowerAction> availablePowerActions;
-  private Location whereCaptured; // where latest PowerObject was captured
+  private List<PowerAction> actionOptions;
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
   private Location toPromote;
@@ -329,8 +328,7 @@ public class Game {
     for (BoardObject obj : captured) {
       if (obj instanceof PowerObject) {
         gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
-        availablePowerActions = ((PowerObject) captured).getPowerActions();
-        whereCaptured = end;
+        actionOptions = ((PowerObject) obj).getPowerActions(this, end);
         whiteToMove = !whiteToMove;
 
       } else if (obj instanceof King) {
@@ -341,24 +339,46 @@ public class Game {
   }
 
   /**
-   * Get the list of available power actions active player may choose from.
+   * Get the list of available power action options active player may choose
+   * from.
    *
-   * @return List of 2 power actions.
+   * @return List of up to 2 power actions.
    */
-  public List<PowerAction> getAvailablePowerActions() {
-    return availablePowerActions;
+  public List<PowerAction> getActionOptions() {
+    return actionOptions;
+  }
+
+  /**
+   * Check whether input is valid for active player's power action.
+   *
+   * @param input
+   *          Input for PowerAction.
+   * @return true if valid input, otherwise false.
+   */
+  public boolean validActionInput(Object input) {
+    return getActivePlayer().validActionInput(input);
+  }
+
+  /**
+   * Get the desired input format to execute active player's selected
+   * PowerAction.
+   *
+   * @return the desired input format to execute active player's selected
+   *         PowerAction.
+   */
+  public String getActionInputFormat() {
+    return getActivePlayer().getActionInputFormat();
   }
 
   /**
    * Execute specified power action.
    *
-   * @param p
-   *          powerAction to be executed.
+   * @param input
+   *          Object that is the required input to execute the PowerAction.
    */
-  public void executePowerAction(PowerAction p) {
-    p.act(whereCaptured, this);
-    availablePowerActions.clear();
-    whereCaptured = null;
+  public void executePowerAction(Object input) {
+    getActivePlayer().executeAction(input);
+    actionOptions.clear();
     gameState = GameState.WAITING_FOR_MOVE;
     whiteToMove = !whiteToMove;
   }
@@ -446,6 +466,16 @@ public class Game {
    */
   public GameState getGameState() {
     return gameState;
+  }
+
+  /**
+   * Set the current state of the game.
+   *
+   * @param gameState
+   *          The current stat of the game to set.
+   */
+  public void setGameState(GameState gameState) {
+    this.gameState = gameState;
   }
 
 }

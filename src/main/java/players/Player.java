@@ -1,7 +1,5 @@
 package players;
 
-import java.util.List;
-
 import board.IllegalMoveException;
 import board.Location;
 import game.Color;
@@ -19,6 +17,7 @@ public abstract class Player {
   private final Color color;
   private Move move;
   private Piece newPiece; // for promotion
+  private PowerAction action;
 
   /**
    * Constructs player of the specified color.
@@ -81,7 +80,7 @@ public abstract class Player {
   public Move getMove(Location start) throws IllegalMoveException {
     if (move == null) {
       throw new IllegalStateException(
-          "ERROR: called getMove() before setMove() in CliPlayer.");
+          "ERROR: called getMove() before setMove() in Player.");
     } else if (!move.getStart().equals(start)) {
       throw new IllegalMoveException(
           String.format("ERROR: Player must move %s next.", start.toString()));
@@ -113,12 +112,67 @@ public abstract class Player {
   }
 
   /**
+   * Set player PowerAction selection.
+   *
+   * @param action
+   *          PowerActions player selected.
+   */
+  public void setAction(PowerAction action) {
+    this.action = action;
+  }
+
+  /**
    * Get player PowerAction selection.
    *
-   * @param actions
-   *          Set of PowerActions player may choose from.
-   * @return selected PowerAction.
+   * @return Player selected PowerAction.
+   * @throws IllegalStateException
+   *           If getAction was called before player PowerAction selection was
+   *           set using setAction.
    */
-  public abstract PowerAction selectPowerAction(List<PowerAction> actions);
+  public PowerAction getAction() throws IllegalStateException {
+    if (action == null) {
+      throw new IllegalStateException(
+          "ERROR: called getAction() before setAction() in Player.");
+    }
+    return action;
+  }
+
+  /**
+   * Check whether input is valid for player's power action.
+   *
+   * @param input
+   *          Input for PowerAction.
+   * @return true if valid input, otherwise false.
+   */
+  public boolean validActionInput(Object input) {
+    if (action == null) {
+      return false;
+    }
+
+    return action.validInput(input);
+  }
+
+  /**
+   * Execute player's power action.
+   *
+   * @param input
+   *          Input to execute PowerAction.
+   */
+  public void executeAction(Object input) {
+    action.act(input);
+    action = null;
+  }
+
+  /**
+   * Get the desired input format to execute player's selected PowerAction.
+   *
+   * @return the desired input format to execute player's selected PowerAction.
+   */
+  public String getActionInputFormat() {
+    if (action != null) {
+      return action.inputFormat();
+    }
+    return null;
+  }
 
 }

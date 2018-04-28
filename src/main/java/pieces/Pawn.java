@@ -4,6 +4,7 @@ import board.Board;
 import board.Location;
 import game.Color;
 import game.Move;
+import powerups.PowerObject;
 
 /**
  * Pawn represents a pawn chess piece.
@@ -81,6 +82,11 @@ public class Pawn extends Piece {
     }
     Location check =
         new Location(start.getRow() + direction, start.getCol() + colDif);
+    PowerObject pwr = board.getPowerObjectAt(check);
+    if (pwr != null) {
+      return true;
+    }
+
     Piece p = board.getPieceAt(check);
     if (p == null || p.getColor() == getColor()) {
       return false;

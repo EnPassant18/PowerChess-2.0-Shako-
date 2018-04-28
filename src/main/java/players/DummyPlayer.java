@@ -1,12 +1,9 @@
 package players;
 
-import java.util.List;
-
 import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Move;
-import poweractions.PowerAction;
 
 /**
  * DummyPlayer for testing; can pre-set a back-up, valid move in case first move
@@ -58,12 +55,6 @@ public class DummyPlayer extends Player {
       triedIllegalMove = true;
       return nextLegalMove;
     }
-  }
-
-  @Override
-  public PowerAction selectPowerAction(List<PowerAction> actions) {
-    // TODO Auto-generated method stub
-    return null;
   }
 
   /**

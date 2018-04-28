@@ -3,9 +3,7 @@ package poweractions;
 import java.util.ArrayList;
 import java.util.List;
 
-import board.IllegalMoveException;
 import board.Location;
-import game.Color;
 import game.Game;
 import game.Move;
 import powerups.PowerObject.Rarity;
@@ -18,22 +16,24 @@ import powerups.PowerObject.Rarity;
  *
  */
 public class Adjust extends PowerAction {
+  private List<Location> adjacentSquares;
 
   /**
-   * Default constructor.
+   * Constructor takes a game object and the location where the PowerAction was
+   * captured.
+   *
+   * @param game
+   *          Game to be affected by PowerAction.
+   * @param whereCaptured
+   *          Location where PowerAction was captured.
    */
-  public Adjust() {
-    super(Rarity.COMMON);
-  }
-
-  @Override
-  public void act(Location whereCaptured, Game game) {
-    Color color = game.getColorAt(whereCaptured);
+  public Adjust(Game game, Location whereCaptured) {
+    super(Rarity.COMMON, game, whereCaptured);
 
     int row = whereCaptured.getRow();
     int col = whereCaptured.getCol();
 
-    List<Location> adjacentSquares = new ArrayList<>();
+    adjacentSquares = new ArrayList<>();
 
     // collect empty adjacent squares
     Location square;
@@ -50,32 +50,26 @@ public class Adjust extends PowerAction {
       }
     }
 
-    // if no empty adjacent squares, return
-    if (adjacentSquares.size() == 0) {
-      return;
+    if (adjacentSquares.isEmpty()) {
+      throw new IllegalStateException("ERROR: Cannot execute poweraction"
+          + " 'Adjust' because there are no adjacent empty spaces.");
     }
 
-    Move move;
+  }
 
-    // loop until valid move is executed
-    while (true) {
+  @Override
+  public String inputFormat() {
+    return "[a-h][1-8] adjacent empty space";
+  }
 
-      // make player move the capturing piece
-      while (true) {
-        try {
-          move = game.getMove(color, whereCaptured);
-          break;
-        } catch (IllegalMoveException e) {
-          System.out.println(e.getMessage());
-        }
-      }
+  @Override
+  public boolean validInput(Object obj) {
+    return obj instanceof Location && adjacentSquares.contains((Location) obj);
+  }
 
-      // check that attempted move is to an empty adjacent square
-      if (adjacentSquares.contains(move.getEnd())) {
-        game.executeMove(move);
-        break;
-      }
-    }
+  @Override
+  public void act(Object obj) {
+    getGame().executeMove(new Move(getWhereCaptured(), (Location) obj));
   }
 
   @Override

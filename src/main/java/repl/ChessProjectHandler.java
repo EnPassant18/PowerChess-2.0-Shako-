@@ -1,17 +1,20 @@
 package repl;
 
+import java.util.List;
+import java.util.Locale;
+
 import board.IllegalMoveException;
 import board.Location;
 import game.Color;
 import game.Game;
+import game.Game.GameState;
 import game.Move;
-import pieces.Bishop;
-import pieces.Knight;
+import pieces.King;
+import pieces.Pawn;
 import pieces.Piece;
-import pieces.Queen;
-import pieces.Rook;
 import players.CliPlayer;
 import players.Player;
+import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerObject.Rarity;
 
@@ -23,11 +26,9 @@ import powerups.PowerObject.Rarity;
  */
 public class ChessProjectHandler extends CommandMap {
 
-  private boolean whiteToMove;
   private Game game;
   private CliPlayer whitePlayer, blackPlayer;
   private boolean printBoard = true;
-  private static final int SIZE = 8;
 
   /**
    * Default constructor for ChessProjectHandler.
@@ -52,6 +53,54 @@ public class ChessProjectHandler extends CommandMap {
 
     // Handles spawning powerups
     add("spawn", "spawn %s %s", s -> spawn(s.get(1), s.get(2)));
+
+    // Handles selecting powerup
+    add("power", "power %s", s -> power(s.get(1)));
+
+    // Handles executing poweraction
+    add("action", "action %s", s -> action(s.get(1)));
+
+  }
+
+  private String power(String indexStr) {
+    List<PowerAction> actionOptions = game.getActionOptions();
+    PowerAction selected;
+    try {
+      int index = Integer.parseInt(indexStr);
+      selected = actionOptions.get(index - 1);
+      game.getActivePlayer().setAction(selected);
+    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+      return String.format(
+          "ERROR: Expected PowerAction "
+              + "index selection integer between [1, %d] (inclusive).",
+          actionOptions.size());
+    }
+
+    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
+    return String.format("selected %s%n%s", selected.getClass().getSimpleName(),
+        print());
+  }
+
+  private String action(final String str) {
+    if (game.getGameState() != Game.GameState.WAITING_FOR_POWERUP_EXEC) {
+      return "ERROR: No powerups available to execute.";
+    }
+
+    Location location = ChessReplUtils.parseLocation(str);
+    if (location != null && game.validActionInput(location)) {
+      game.executePowerAction(location);
+      return print();
+    }
+
+    Piece piece =
+        ChessReplUtils.parsePiece(str, game.getActivePlayer().getColor());
+    if (piece != null && game.validActionInput(piece)) {
+      game.executePowerAction(piece);
+      return print();
+    }
+
+    return String.format("ERROR: Invalid input, expected: 'action %s'%n",
+        game.getActionInputFormat());
   }
 
   private String startNewGame() {
@@ -74,8 +123,8 @@ public class ChessProjectHandler extends CommandMap {
 
     String errorString = "ERROR: Invalid start or end positions.";
 
-    Location startLocation = ChessReplUtils.parseMove(startPosition);
-    Location endLocation = ChessReplUtils.parseMove(endPosition);
+    Location startLocation = ChessReplUtils.parseLocation(startPosition);
+    Location endLocation = ChessReplUtils.parseLocation(endPosition);
 
     if (startLocation == null || endLocation == null) {
       return errorString;
@@ -106,10 +155,10 @@ public class ChessProjectHandler extends CommandMap {
 
   private String spawn(final String locationString, final String rarityString) {
 
-    Location location = ChessReplUtils.parseMove(locationString);
+    Location location = ChessReplUtils.parseLocation(locationString);
     Rarity rarity;
     try {
-      rarity = Rarity.valueOf(rarityString);
+      rarity = Rarity.valueOf(rarityString.toUpperCase(Locale.ENGLISH));
     } catch (IllegalArgumentException e) {
       return "ERROR: Invalid rarity.";
     }
@@ -124,27 +173,16 @@ public class ChessProjectHandler extends CommandMap {
     return print();
   }
 
-  private String promote(final String piece) {
+  private String promote(final String pieceStr) {
     if (game.getGameState() != Game.GameState.WAITING_FOR_PROMOTE) {
       return "ERROR: Not able to promote.";
     }
 
     Player player = game.getActivePlayer();
     Color color = player.getColor();
-    Piece p;
+    Piece p = ChessReplUtils.parsePiece(pieceStr, color);
 
-    // todo: put stuff in repl utils
-    if (piece.equalsIgnoreCase("Queen") || piece.equalsIgnoreCase("Q")) {
-      p = new Queen(color);
-    } else if (piece.equalsIgnoreCase("Bishop")
-        || piece.equalsIgnoreCase("B")) {
-      p = new Bishop(color);
-    } else if (piece.equalsIgnoreCase("Rook") || piece.equalsIgnoreCase("R")) {
-      p = new Rook(color);
-    } else if (piece.equalsIgnoreCase("Knight")
-        || piece.equalsIgnoreCase("N")) {
-      p = new Knight(color);
-    } else {
+    if (p == null || p instanceof King || p instanceof Pawn) {
       return "ERROR: Invalid promotion choice.";
     }
 
@@ -172,9 +210,28 @@ public class ChessProjectHandler extends CommandMap {
             game.whiteToMove() ? "White to promote.\n" : "Black to promote.\n";
         break;
       case WAITING_FOR_POWERUP_CHOICE:
-        header =
-            game.whiteToMove() ? "White to choose powerup.\n"
-                : "Black to choose powerup.\n";
+        StringBuilder powerupText = new StringBuilder();
+        powerupText.append(game.whiteToMove() ? "White to choose powerup.\n"
+            : "Black to choose powerup.\n");
+        powerupText.append("command format: 'power [index]'\n");
+        List<PowerAction> actionOptions = game.getActionOptions();
+        for (int i = 0; i < actionOptions.size(); i++) {
+          powerupText.append(String
+              .format("%d. %s%n", i + 1, actionOptions.get(i)).toString());
+        }
+        header = powerupText.toString();
+        break;
+      case WAITING_FOR_POWERUP_EXEC:
+        StringBuilder actionFormat = new StringBuilder();
+        actionFormat.append(
+            game.whiteToMove() ? "White to execute " : "Black to execute ");
+        String action =
+            game.getActivePlayer().getAction().getClass().getSimpleName();
+        actionFormat
+            .append(String.format("%s%n%s", action, "command format: "));
+        actionFormat.append(
+            String.format("'action %s'%n", game.getActionInputFormat()));
+        header = actionFormat.toString();
         break;
       default:
         header = gameState.toString() + "\n";

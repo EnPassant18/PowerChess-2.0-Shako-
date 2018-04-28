@@ -2,18 +2,12 @@ package poweractions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import board.Location;
-import game.Color;
-import game.GameDummy;
-import game.Move;
-import pieces.Piece;
-import players.DummyPlayer;
+import game.Game;
 import powerups.PowerObject.Rarity;
-import repl.ChessReplUtils;
 
 /**
  * Test SecondEffort PowerAction.
@@ -28,54 +22,44 @@ public class SecondEffortTest {
    */
   @Test
   public void constructorTest() {
-    SecondEffort s = new SecondEffort();
+    Game game = new Game();
+    Location whereCaptured = new Location(1, 1);
+
+    SecondEffort s = new SecondEffort(game, whereCaptured);
     assertNotNull(s);
     assertEquals(Rarity.COMMON, s.getRarity());
+    assertEquals(game, s.getGame());
+    assertEquals(whereCaptured, s.getWhereCaptured());
   }
 
   /**
-   * Test execution of power action.
+   * Test inputFormat method.
+   */
+  @Test
+  public void inputFormatTest() {
+
+  }
+
+  /**
+   * Test validInput method.
+   */
+  @Test
+  public void validInputTest() {
+    // check second legal move
+
+    // check second illegal move onto own piece
+
+    // check second illegal move onto empty space
+  }
+
+  /**
+   * Test execution.
    */
   @Test
   public void actTest() {
-    GameDummy game = new GameDummy();
-    DummyPlayer whitePlayer = new DummyPlayer(Color.WHITE);
-    DummyPlayer blackPlayer = new DummyPlayer(Color.BLACK);
+    // execute second legal move
 
-    game.addPlayer(whitePlayer);
-    game.addPlayer(blackPlayer);
-
-    SecondEffort s = new SecondEffort();
-
-    // knight "captured" SecondEffort at starting location
-    Location whereCaptured = new Location(0, 1);
-    Location end = new Location(2, 2);
-    Piece piece = game.getPieceAt(whereCaptured);
-    whitePlayer.setMove(new Move(whereCaptured, end));
-
-    // Move knight "again"
-    s.act(whereCaptured, game);
-    assertTrue(game.isEmpty(whereCaptured));
-    assertEquals(piece, game.getPieceAt(end));
-
-    // Make rook try illegal move on Second Effort
-    whereCaptured = new Location(0, 0);
-    end = new Location(4, 0);
-    piece = game.getPieceAt(whereCaptured);
-    whitePlayer.setMove(new Move(whereCaptured, end));
-    Location trueEnd = new Location(0, 1);
-
-    // then execute legal move, right to empty knight space
-    game.setNextLegalMove(new Move(whereCaptured, trueEnd));
-
-    // Move rook "again" (try illegal move, should fail then execute legal move)
-    s.act(whereCaptured, game);
-    System.out.println(ChessReplUtils.getBoardString(game.getBoard()));
-
-    assertEquals(1, game.getIllegalMovesAttempted());
-    assertTrue(game.isEmpty(end));
-    assertTrue(game.isEmpty(whereCaptured));
-    assertEquals(piece, game.getPieceAt(trueEnd));
+    // try to execute second illegal move
 
   }
 

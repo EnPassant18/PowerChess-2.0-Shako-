@@ -34,24 +34,58 @@ public final class ChessReplUtils {
   /**
    * Parses chess coordinates to a location. Example a1 -> (0,0) or e4 -> (4,3).
    *
-   * @param str
+   * @param locString
    *          String representation of a location in algebraic chess
    *          coordinates.
    * @return Location object representing the location (or null if invalid
    *         input.)
    */
-  public static Location parseMove(final String str) {
+  public static Location parseLocation(final String locString) {
     String regex = "[a-h][1-8]";
-    if (!str.matches(regex)) {
+    if (!locString.matches(regex)) {
       return null;
     }
 
     int row, col;
 
-    col = str.charAt(0) - 'a';
-    row = Character.getNumericValue(str.charAt(1)) - 1;
+    col = locString.charAt(0) - 'a';
+    row = Character.getNumericValue(locString.charAt(1)) - 1;
 
     return new Location(row, col);
+  }
+
+  /**
+   * Parse a string to a piece of the specified color.
+   *
+   * @param pieceStr
+   *          Piece string to parse (could be full name like 'queen' or single
+   *          character like 'q').
+   * @param color
+   *          Color of piece to return.
+   * @return return Piece that parsed string indicated or return null if could
+   *         not parse piece.
+   */
+  public static Piece parsePiece(final String pieceStr, Color color) {
+    if (pieceStr.equalsIgnoreCase("Queen") || pieceStr.equalsIgnoreCase("Q")) {
+      return new Queen(color);
+    } else if (pieceStr.equalsIgnoreCase("Bishop")
+        || pieceStr.equalsIgnoreCase("B")) {
+      return new Bishop(color);
+    } else if (pieceStr.equalsIgnoreCase("Rook")
+        || pieceStr.equalsIgnoreCase("R")) {
+      return new Rook(color);
+    } else if (pieceStr.equalsIgnoreCase("Knight")
+        || pieceStr.equalsIgnoreCase("N")) {
+      return new Knight(color);
+    } else if (pieceStr.equalsIgnoreCase("Pawn")
+        || pieceStr.equalsIgnoreCase("P")) {
+      return new Pawn(color);
+    } else if (pieceStr.equalsIgnoreCase("King")
+        || pieceStr.equalsIgnoreCase("K")) {
+      return new King(color);
+    } else {
+      return null;
+    }
   }
 
   /**

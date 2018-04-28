@@ -4,6 +4,8 @@ import java.util.List;
 
 import board.Board;
 import board.BoardObject;
+import board.Location;
+import game.Game;
 import game.Move;
 import poweractions.PowerAction;
 import randutils.RandomCollection;
@@ -84,10 +86,14 @@ public class PowerObject implements BoardObject {
   /**
    * Get a list of PowerActions allowed upon capturing this PowerObject.
    *
-   * @return randomly generated list of 3 PowerActions.
+   * @param game
+   *          Game PowerAction will modify.
+   * @param whereCaptured
+   *          Location where PowerObject was captured.
+   * @return randomly generated list of 2 PowerActions.
    */
-  public List<PowerAction> getPowerActions() {
-    return PowerAction.ofRarity(rarity);
+  public List<PowerAction> getPowerActions(Game game, Location whereCaptured) {
+    return PowerAction.ofRarity(rarity, game, whereCaptured);
   }
 
   @Override
