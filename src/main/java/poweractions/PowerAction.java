@@ -30,10 +30,11 @@ public abstract class PowerAction {
 
   static {
     POWER_ACTIONS = HashMultimap.create();
-    // POWER_ACTIONS.put(Rarity.COMMON, "Adjust");
-    // POWER_ACTIONS.put(Rarity.COMMON, "SecondEffort");
+    POWER_ACTIONS.put(Rarity.COMMON, "Adjust");
+    POWER_ACTIONS.put(Rarity.COMMON, "SecondEffort");
     POWER_ACTIONS.put(Rarity.COMMON, "Shield");
-    POWER_ACTIONS.put(Rarity.COMMON, "BlackHole");
+    POWER_ACTIONS.put(Rarity.RARE, "BlackHole");
+    POWER_ACTIONS.put(Rarity.RARE, "EyeForEye");
   }
 
   /**
@@ -88,6 +89,8 @@ public abstract class PowerAction {
         return new Shield(game, whereCaptured);
       case "BlackHole":
         return new BlackHole(game, whereCaptured);
+      case "EyeForEye":
+        return new EyeForEye(game, whereCaptured);
       default:
         return null;
     }

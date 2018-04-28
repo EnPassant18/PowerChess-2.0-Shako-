@@ -40,4 +40,10 @@ public class Queen extends Piece {
     int rowDir = (int) Math.signum(end.getRow() - start.getRow());
     return checkInLine(start, end, board, rowDir, colDir);
   }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

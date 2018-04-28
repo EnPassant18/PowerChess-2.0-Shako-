@@ -86,4 +86,10 @@ public class Knight extends Piece {
     }
     return board.isJumpable(check);
   }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

@@ -289,6 +289,28 @@ public class Game {
   }
 
   /**
+   * Removes a piece at a given location (if one exists).
+   *
+   * @param loc
+   *          Location to remove the piece from.
+   */
+  public void removePieceAt(Location loc) {
+    Piece p = board.getPieceAt(loc);
+    if (p instanceof Pawn) {
+      int dir = p.getColor() == Color.WHITE ? -1 : 1;
+      try {
+        Location ghostLoc = new Location(loc.getRow() + dir, loc.getCol());
+        if (board.getPieceAt(ghostLoc) instanceof GhostPawn) {
+          board.resetGhost(p.getColor());
+        }
+      } catch (IllegalArgumentException e) {
+        // pass
+      }
+    }
+    board.removePieceAt(loc);
+  }
+
+  /**
    * Check whether specified move is valid.
    *
    * @param move

@@ -48,4 +48,10 @@ public class Bishop extends Piece {
 
     return checkInLine(start, end, board, rowDir, colDir);
   }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

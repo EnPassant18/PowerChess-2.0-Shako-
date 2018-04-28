@@ -104,4 +104,10 @@ public class King extends Piece {
   public void resetCastling() {
     this.castling = false;
   }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

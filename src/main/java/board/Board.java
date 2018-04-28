@@ -184,6 +184,9 @@ public class Board {
         spaces.remove(loc, obj);
       }
     }
+    if (spaces.get(loc).isEmpty()) {
+      spaces.put(loc, EMPTY_SPACE);
+    }
   }
 
   /**
@@ -238,6 +241,10 @@ public class Board {
    */
   public void removePowerUp(Location loc, PowerUp power) {
     spaces.remove(loc, power);
+    System.out.println(spaces.get(loc));
+    if (!spaces.get(loc).isEmpty()) {
+      spaces.put(loc, EMPTY_SPACE);
+    }
   }
 
   /**

@@ -89,8 +89,11 @@ public class Pawn extends Piece {
     if (!isValidEnd(start, check, board)) {
       return false;
     }
-
-    if (board.getPieceAt(check) instanceof GhostPawn) {
+    Piece p = board.getPieceAt(check);
+    if (p == null) {
+      return false;
+    }
+    if (p instanceof GhostPawn) {
       ghost = true;
     }
     return true;
@@ -110,5 +113,11 @@ public class Pawn extends Piece {
    */
   public void resetGhost() {
     ghost = false;
+  }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
   }
 }

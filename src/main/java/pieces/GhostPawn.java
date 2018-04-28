@@ -27,4 +27,10 @@ public class GhostPawn extends Piece {
   public boolean move(Move move, Board board) {
     return false;
   }
+
+  @Override
+  public int getRank() {
+    // TODO Auto-generated method stub
+    return 0;
+  }
 }

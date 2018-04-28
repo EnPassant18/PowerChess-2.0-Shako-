@@ -65,6 +65,13 @@ public abstract class Piece implements BoardObject {
   }
 
   /**
+   * Get piece rank.
+   *
+   * @return Piece rank.
+   */
+  public abstract int getRank();
+
+  /**
    * Is called after a piece makes a move. Sets the moved boolean to true.
    */
   public void setMoved() {
