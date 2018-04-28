@@ -12,8 +12,10 @@ Power chess approved by adehovit, consider including a randomized start variant 
 - `print on` turn on printing of board after each command (default: on)
 - `print off` turn off printing of board after each command
 - `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
+- `promote [piece name]` promotes pawn to specified pieec name. May type full piece name or character representation (e.g. 'queen' or 'q').
 - `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
-- `promote [piece name]` promotes pawn to specified pieec name
+- `power [index]` select a power action after capturing a power object
+- `action [input]` execute a previously selected power action. The format of input may vary (e.g. [a-h][1-8] end location for an additional move or [piece name] for get a captured piece back).
 - `quit` to exit the program completely
 
 **Team Strengths and Weaknesses:**
