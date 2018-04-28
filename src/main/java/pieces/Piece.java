@@ -82,7 +82,7 @@ public abstract class Piece implements BoardObject {
 
   /**
    * Check whether end location is valid for given piece (i.e. must be empty or
-   * contain piece of opposite color).
+   * contain piece of opposite color without invulnerability).
    *
    * @param start
    *          Start location.
@@ -96,10 +96,12 @@ public abstract class Piece implements BoardObject {
   public static boolean isValidEnd(Location start, Location end, Board board) {
     Piece endP = board.getPieceAt(end);
     Piece startP = board.getPieceAt(start);
+
     PowerUp power = board.getPowerUpAt(end);
     if (power instanceof Invulnerability) {
       return false;
     }
+
     if (endP != null && startP != null && !(endP instanceof GhostPawn)) {
       if (endP.getColor() == startP.getColor()) {
         return false;

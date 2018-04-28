@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
+import com.google.common.collect.ImmutableMap;
+
 import board.Board;
 import board.BoardObject;
 import board.IllegalMoveException;
@@ -181,7 +183,7 @@ public class Game {
 
     // after move, check if new PowerObject should spawn
     if (tilNextPowerup == 0) {
-      addBoardObject(getSpawnLoc(), PowerObject.createRandPowerObject());
+      spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
       updateTilNextPowerUp();
     }
 
@@ -203,12 +205,16 @@ public class Game {
       whiteToMove = !whiteToMove;
     }
 
-    // decrement lifetime of PowerUps
-    for (PowerUp power : powerUps.keySet()) {
+    // decrement lifetime of PowerUp
+    List<PowerUp> toRemove = new ArrayList<>();
+    powerUps.keySet().forEach((power) -> {
       power.decrementTurns();
       if (power.toRemove()) {
-        removePowerUp(powerUps.get(power), power);
+        toRemove.add(power);
       }
+    });
+    for (PowerUp power : toRemove) {
+      removePowerUp(power);
     }
   }
 
@@ -225,9 +231,25 @@ public class Game {
     board.addBoardObject(loc, power);
   }
 
-  private void removePowerUp(Location loc, PowerUp power) {
+  /**
+   * Removes powerup from board and from list of on-board powerups held by Game.
+   *
+   * @param power
+   *          Power to remove.
+   */
+  private void removePowerUp(PowerUp power) {
+    Location loc = powerUps.get(power);
     board.removePowerUp(loc, power);
     powerUps.remove(power);
+  }
+
+  /**
+   * Get a map of all powerups currently on board and their locations.
+   *
+   * @return map of on-board powerups to their location.
+   */
+  public Map<PowerUp, Location> getOnBoardPowers() {
+    return ImmutableMap.copyOf(powerUps);
   }
 
   /**
@@ -255,15 +277,15 @@ public class Game {
   }
 
   /**
-   * Place BoardObject at specified location.
+   * Spawn PowerObject at specified location.
    *
    * @param loc
-   *          Location where to place Board Object.
-   * @param obj
-   *          BoardObject to add.
+   *          Location where to place PowerObject.
+   * @param powerObj
+   *          PowerObject to spawn.
    */
-  public void addBoardObject(Location loc, BoardObject obj) {
-    board.addBoardObject(loc, obj);
+  public void spawnPowerObject(Location loc, PowerObject powerObj) {
+    board.addBoardObject(loc, powerObj);
   }
 
   /**

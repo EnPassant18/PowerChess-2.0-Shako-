@@ -26,6 +26,7 @@ public final class ChessReplUtils {
   public static final int SIZE = 8;
   public static final Character EMPTY_SPACE_CHAR = 'x';
   public static final Character POWER_UP_CHAR = 'W';
+  public static final Character BLACKHOLE_CHAR = 'O';
 
   private ChessReplUtils() {
 
@@ -135,6 +136,9 @@ public final class ChessReplUtils {
     if (board.isEmpty(location)) {
       return EMPTY_SPACE_CHAR;
     } else if (board.getPieceAt(location) == null) {
+      if (board.getPowerUpAt(location) instanceof powerups.BlackHole) {
+        return BLACKHOLE_CHAR;
+      }
       return POWER_UP_CHAR;
     }
 

@@ -86,12 +86,11 @@ public class Pawn extends Piece {
     if (pwr != null) {
       return true;
     }
-
-    Piece p = board.getPieceAt(check);
-    if (p == null || p.getColor() == getColor()) {
+    if (!isValidEnd(start, check, board)) {
       return false;
     }
-    if (p instanceof GhostPawn) {
+
+    if (board.getPieceAt(check) instanceof GhostPawn) {
       ghost = true;
     }
     return true;

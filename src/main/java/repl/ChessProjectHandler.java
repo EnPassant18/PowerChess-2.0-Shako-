@@ -2,6 +2,7 @@ package repl;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import board.IllegalMoveException;
 import board.Location;
@@ -17,6 +18,7 @@ import players.Player;
 import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerObject.Rarity;
+import powerups.PowerUp;
 
 /**
  * Handler for chess project.
@@ -178,7 +180,7 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     PowerObject powerObject = PowerObject.ofRarity(rarity);
-    game.addBoardObject(location, powerObject);
+    game.spawnPowerObject(location, powerObject);
 
     return print();
   }
@@ -248,15 +250,22 @@ public class ChessProjectHandler extends CommandMap {
         break;
     }
 
-    return printBoardState(header);
+    StringBuffer footer = new StringBuffer();
+    Map<PowerUp, Location> powers = game.getOnBoardPowers();
+    for (PowerUp power : powers.keySet()) {
+      footer.append(String.format("%s has %s for %d more turns%n",
+          powers.get(power), power, power.getTurnsRemaining()));
+    }
+
+    return printBoardState(header, footer.toString());
   }
 
-  private String printBoardState(final String header) {
+  private String printBoardState(final String header, final String footer) {
     String boardString = ChessReplUtils.getBoardString(game.getBoard());
     if (header.equals("")) {
       return boardString;
     }
-    return "\n" + header + boardString + "\n";
+    return String.format("%n%s%s%n%s", header, boardString, footer);
   }
 
 }
