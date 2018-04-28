@@ -3,7 +3,9 @@ package game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import board.Board;
 import board.BoardObject;
@@ -16,6 +18,7 @@ import pieces.Piece;
 import players.Player;
 import poweractions.PowerAction;
 import powerups.PowerObject;
+import powerups.PowerUp;
 import randutils.RandomCollection;
 
 /**
@@ -36,8 +39,10 @@ public class Game {
 
   private int tilNextPowerup;
   private List<PowerAction> actionOptions;
+  private Map<PowerUp, Location> powerUps;
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
+
   private Location toPromote;
 
   /**
@@ -55,7 +60,7 @@ public class Game {
   private GameState gameState;
 
   private static RandomCollection<Location> spawnLocations;
-  private static final int INNER_ROW_FREQ = 50;
+  private static final int INNER_ROW_FREQ = 60;
   private static final int INNER_COL_FREQ = 20;
   private static final int OUTTER_ROW_FREQ = 30;
   private static final int OUTTER_COL_FREQ = 10;
@@ -96,6 +101,11 @@ public class Game {
     gameOver = false;
     updateTilNextPowerUp();
     toPromote = null;
+    actionOptions = new ArrayList<>();
+    powerUps = new TreeMap<>((p1, p2) -> {
+      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
+    });
+
     whiteToMove = true;
     gameState = GameState.WAITING_FOR_MOVE;
   }
@@ -167,10 +177,11 @@ public class Game {
           "ERROR: Move is invalid for %s", p.getClass().getSimpleName()));
     }
     executeMove(move);
+    tilNextPowerup--;
 
     // after move, check if new PowerObject should spawn
     if (tilNextPowerup == 0) {
-      spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
+      addBoardObject(getSpawnLoc(), PowerObject.createRandPowerObject());
       updateTilNextPowerUp();
     }
 
@@ -187,6 +198,36 @@ public class Game {
       whiteToMove = !whiteToMove; // Change move back to previous turn
     }
 
+    // if PowerObject was captured, switch active player back
+    if (!actionOptions.isEmpty()) {
+      whiteToMove = !whiteToMove;
+    }
+
+    // decrement lifetime of PowerUps
+    for (PowerUp power : powerUps.keySet()) {
+      power.decrementTurns();
+      if (power.toRemove()) {
+        removePowerUp(powerUps.get(power), power);
+      }
+    }
+  }
+
+  /**
+   * Add a PowerUp to the game at the specified location.
+   *
+   * @param loc
+   *          Location where to add.
+   * @param power
+   *          PowerUp to add.
+   */
+  public void addPowerUp(Location loc, PowerUp power) {
+    powerUps.put(power, loc);
+    board.addBoardObject(loc, power);
+  }
+
+  private void removePowerUp(Location loc, PowerUp power) {
+    board.removePowerUp(loc, power);
+    powerUps.remove(power);
   }
 
   /**
@@ -194,7 +235,7 @@ public class Game {
    * uniformly random between 3 and 5 (inclusive).
    */
   private void updateTilNextPowerUp() {
-    tilNextPowerup = rand.nextInt(3) + 2;
+    tilNextPowerup = rand.nextInt(3) + 3;
   }
 
   /**
@@ -214,15 +255,15 @@ public class Game {
   }
 
   /**
-   * Spawn capturable PowerObject on the board at specified location.
+   * Place BoardObject at specified location.
    *
    * @param loc
-   *          Location where to place PowerObject.
-   * @param powerObj
-   *          PowerObject to add to board.
+   *          Location where to place Board Object.
+   * @param obj
+   *          BoardObject to add.
    */
-  public void spawnPowerObject(Location loc, PowerObject powerObj) {
-    board.addBoardObject(loc, powerObj);
+  public void addBoardObject(Location loc, BoardObject obj) {
+    board.addBoardObject(loc, obj);
   }
 
   /**
@@ -325,11 +366,20 @@ public class Game {
 
   private void manageCaptured(Collection<BoardObject> captured, Location end) {
 
+    // update powerup location with move
+    PowerUp power = board.getPowerUpAt(end);
+    if (power != null) {
+      powerUps.put(power, end);
+    }
+
     for (BoardObject obj : captured) {
       if (obj instanceof PowerObject) {
         gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
         actionOptions = ((PowerObject) obj).getPowerActions(this, end);
-        whiteToMove = !whiteToMove;
+
+      } else if (power != null && obj instanceof Piece) {
+        // if piece with powerup captures, powerup should be removed
+        power.setTurnsRemaining(0);
 
       } else if (obj instanceof King) {
         gameOver = true;

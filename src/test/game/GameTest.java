@@ -28,7 +28,7 @@ public class GameTest {
     Game g = new Game();
     Location objLoc = new Location(4, 4);
     PowerObject powerObj = PowerObject.createRandPowerObject();
-    g.spawnPowerObject(objLoc, powerObj);
+    g.addBoardObject(objLoc, powerObj);
     Collection<BoardObject> objs = g.getObjsAt(objLoc);
     assertTrue(objs.contains(powerObj));
 

@@ -32,6 +32,7 @@ public abstract class PowerAction {
     POWER_ACTIONS = HashMultimap.create();
     POWER_ACTIONS.put(Rarity.COMMON, "Adjust");
     POWER_ACTIONS.put(Rarity.COMMON, "SecondEffort");
+    POWER_ACTIONS.put(Rarity.COMMON, "Shield");
   }
 
   /**
@@ -66,9 +67,7 @@ public abstract class PowerAction {
       Location whereCaptured) {
     List<String> availableActions = new ArrayList<>(POWER_ACTIONS.get(rarity));
     Collections.shuffle(availableActions);
-    if (availableActions.isEmpty()) {
-      return null;
-    } else if (availableActions.size() >= 2) {
+    if (availableActions.size() >= 2) {
       availableActions = availableActions.subList(0, 2);
     }
     List<PowerAction> actionOptions = new ArrayList<>();
@@ -84,6 +83,8 @@ public abstract class PowerAction {
         return new Adjust(game, whereCaptured);
       case "SecondEffort":
         return new SecondEffort(game, whereCaptured);
+      case "Shield":
+        return new Shield(game, whereCaptured);
       default:
         return null;
     }

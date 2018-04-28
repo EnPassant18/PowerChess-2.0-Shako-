@@ -229,6 +229,18 @@ public class Board {
   }
 
   /**
+   * Remove the PowerUp at a specified board location.
+   *
+   * @param loc
+   *          Location of PowerUp.
+   * @param power
+   *          PowerUp to remove.
+   */
+  public void removePowerUp(Location loc, PowerUp power) {
+    spaces.remove(loc, power);
+  }
+
+  /**
    * Check whether given board location is empty.
    *
    * @param loc

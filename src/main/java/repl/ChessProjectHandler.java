@@ -77,13 +77,23 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
+    if (game.getActionInputFormat() == null) {
+      game.executePowerAction(null);
+      return String.format("executed %s%n%s",
+          selected.getClass().getSimpleName(), print());
+    }
     return String.format("selected %s%n%s", selected.getClass().getSimpleName(),
         print());
   }
 
   private String action(final String str) {
-    if (game.getGameState() != Game.GameState.WAITING_FOR_POWERUP_EXEC) {
-      return "ERROR: No powerups available to execute.";
+    switch (game.getGameState()) {
+      case WAITING_FOR_POWERUP_CHOICE:
+        return "ERROR: Must select powerup first.";
+      case WAITING_FOR_POWERUP_EXEC:
+        break;
+      default:
+        return "ERROR: No powerups available to execute.";
     }
 
     Location location = ChessReplUtils.parseLocation(str);
@@ -168,7 +178,7 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     PowerObject powerObject = PowerObject.ofRarity(rarity);
-    game.spawnPowerObject(location, powerObject);
+    game.addBoardObject(location, powerObject);
 
     return print();
   }
