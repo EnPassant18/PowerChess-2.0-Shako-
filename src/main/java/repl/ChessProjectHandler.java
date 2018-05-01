@@ -61,6 +61,7 @@ public class ChessProjectHandler extends CommandMap {
 
     // Handles executing poweraction
     add("action", "action %s", s -> action(s.get(1)));
+    add("action", "action", s -> action(""));
 
   }
 
@@ -87,7 +88,7 @@ public class ChessProjectHandler extends CommandMap {
     return String.format("selected %s%n%s", selected.getClass().getSimpleName(),
         print());
   }
-
+  
   private String action(final String str) {
     switch (game.getGameState()) {
       case WAITING_FOR_POWERUP_CHOICE:
@@ -110,6 +111,11 @@ public class ChessProjectHandler extends CommandMap {
       game.executePowerAction(piece);
       return print();
     }
+    
+    if(str.equals("") && game.validActionInput("")) {
+      game.executePowerAction("");
+      return print();
+    }
 
     return String.format("ERROR: Invalid input, expected: 'action %s'%n",
         game.getActionInputFormat());
@@ -123,7 +129,7 @@ public class ChessProjectHandler extends CommandMap {
 
     game.addPlayer(whitePlayer);
     game.addPlayer(blackPlayer);
-
+    
     return print();
   }
 

@@ -111,7 +111,7 @@ public class Game {
     whiteToMove = true;
     gameState = GameState.WAITING_FOR_MOVE;
   }
-
+  
   /**
    * Start the game.
    */
@@ -570,6 +570,15 @@ public class Game {
    */
   public void setGameState(GameState gameState) {
     this.gameState = gameState;
+  }
+  
+  /**
+   * Gets the move history of the game.
+   * @return
+   *    Move history of the game.
+   */
+  public List<Move> getHistory(){
+    return history;
   }
 
 }

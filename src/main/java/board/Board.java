@@ -2,6 +2,7 @@ package board;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.*;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -46,6 +47,8 @@ public class Board {
     fillRow(Board.SIZE - 1, Color.BLACK);
     fillPawns(Board.SIZE - 2, Color.BLACK);
   }
+  
+  
 
   // TODO implement constructor that takes boardString to use with db
 
@@ -246,6 +249,14 @@ public class Board {
       spaces.put(loc, EMPTY_SPACE);
     }
   }
+  
+  public void swap(final Location loc1, final Location loc2) {
+    Collection<BoardObject> coll1 = spaces.removeAll(loc1);
+    Collection<BoardObject> coll2 = spaces.removeAll(loc2);
+    
+    spaces.putAll(loc1, coll2);
+    spaces.putAll(loc2, coll1);
+  }
 
   /**
    * Check whether given board location is empty.
@@ -367,6 +378,15 @@ public class Board {
    */
   public Collection<BoardObject> getObjsAt(Location loc) {
     return spaces.get(loc);
+  }
+  
+  /**
+   * Getter for set of all board locations.
+   * @return
+   *    Set of all board locations.
+   */
+  public Set<Location> getLocationSet(){
+    return spaces.keySet();
   }
 
 }
