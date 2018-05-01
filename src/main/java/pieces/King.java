@@ -23,7 +23,7 @@ public class King extends Piece {
    *          Piece color.
    */
   public King(Color color) {
-    super(color);
+    super(color, 10);
     castling = false;
   }
 
@@ -103,11 +103,5 @@ public class King extends Piece {
    */
   public void resetCastling() {
     this.castling = false;
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

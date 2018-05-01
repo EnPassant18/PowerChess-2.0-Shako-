@@ -20,7 +20,7 @@ public class Knight extends Piece {
    *          Piece color.
    */
   public Knight(Color color) {
-    super(color);
+    super(color, 3);
   }
 
   @Override
@@ -85,11 +85,5 @@ public class Knight extends Piece {
       check = new Location(check.getRow() + rowDir, check.getCol());
     }
     return board.isJumpable(check);
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

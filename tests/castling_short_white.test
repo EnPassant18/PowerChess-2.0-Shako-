@@ -1,4 +1,5 @@
 INPUT
+print off
 new game
 move g2 -> g3
 move a7 -> a6

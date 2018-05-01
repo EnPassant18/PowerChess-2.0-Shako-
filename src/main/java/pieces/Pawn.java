@@ -24,7 +24,7 @@ public class Pawn extends Piece {
    *          Piece color.
    */
   public Pawn(Color color) {
-    super(color);
+    super(color, 1);
   }
 
   @Override
@@ -58,7 +58,7 @@ public class Pawn extends Piece {
       Piece p = board.getPieceAt(end);
       return p == null;
     }
-    if (rowDif == 2 * direction) {
+    if (rowDif == 2 * direction && !getMoved()) {
       Location check = new Location(start.getRow() + direction, start.getCol());
       if (!board.isEmpty(check)) {
         return false;
@@ -113,11 +113,5 @@ public class Pawn extends Piece {
    */
   public void resetGhost() {
     ghost = false;
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

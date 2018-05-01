@@ -302,6 +302,7 @@ public class Board {
     if (startPiece == null) {
       return Collections.emptyList();
     }
+    startPiece.setMoved();
     Collection<BoardObject> captured;
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Location rookLocStart;
@@ -344,7 +345,6 @@ public class Board {
       spaces.putAll(end, startObjs);
       spaces.put(start, EMPTY_SPACE);
     }
-    startPiece.setMoved();
     return captured;
   }
 

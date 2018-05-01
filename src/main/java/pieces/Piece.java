@@ -17,6 +17,7 @@ public abstract class Piece implements BoardObject {
 
   private Color color;
   private boolean moved;
+  private int rank;
 
   /**
    * Construct a piece of the specified color.
@@ -24,11 +25,12 @@ public abstract class Piece implements BoardObject {
    * @param color
    *          Piece color.
    */
-  public Piece(Color color) {
+  public Piece(Color color, int rank) {
     this.color = color;
     moved = false;
+    this.rank = rank;
   }
-
+  
   @Override
   public boolean canBeJumped() {
     return true;
@@ -69,7 +71,9 @@ public abstract class Piece implements BoardObject {
    *
    * @return Piece rank.
    */
-  public abstract int getRank();
+  public int getRank() {
+	  return this.rank;
+  }
 
   /**
    * Is called after a piece makes a move. Sets the moved boolean to true.

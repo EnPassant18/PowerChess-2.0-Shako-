@@ -20,17 +20,11 @@ public class GhostPawn extends Piece {
    *          Piece color.
    */
   public GhostPawn(Color color) {
-    super(color);
+    super(color, 0);
   }
 
   @Override
   public boolean move(Move move, Board board) {
     return false;
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

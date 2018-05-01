@@ -20,7 +20,7 @@ public class Bishop extends Piece {
    *          Piece color.
    */
   public Bishop(Color color) {
-    super(color);
+    super(color, 3);
   }
 
   @Override
@@ -47,11 +47,5 @@ public class Bishop extends Piece {
     }
 
     return checkInLine(start, end, board, rowDir, colDir);
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

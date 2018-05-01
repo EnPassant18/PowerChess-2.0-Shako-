@@ -20,7 +20,7 @@ public class Rook extends Piece {
    *          Piece color.
    */
   public Rook(Color color) {
-    super(color);
+    super(color, 5);
   }
 
   @Override
@@ -45,11 +45,5 @@ public class Rook extends Piece {
       return false;
     }
     return checkInLine(start, end, board, rowDir, colDir);
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }

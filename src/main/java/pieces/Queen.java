@@ -20,7 +20,7 @@ public class Queen extends Piece {
    *          Piece color.
    */
   public Queen(Color color) {
-    super(color);
+    super(color, 9);
   }
 
   @Override
@@ -39,11 +39,5 @@ public class Queen extends Piece {
     int colDir = (int) Math.signum(end.getCol() - start.getCol());
     int rowDir = (int) Math.signum(end.getRow() - start.getRow());
     return checkInLine(start, end, board, rowDir, colDir);
-  }
-
-  @Override
-  public int getRank() {
-    // TODO Auto-generated method stub
-    return 0;
   }
 }
