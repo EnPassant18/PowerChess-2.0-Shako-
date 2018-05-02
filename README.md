@@ -4,6 +4,36 @@ Power chess approved by adehovit, consider including a randomized start variant 
 
 **Team Members:** Brad Bentz, Daniel Kostovetsky, Dain Woods, Katie Normandin
 
+**REPL Commands**
+
+
+- `new game` start a new game
+- `print board` print current board state
+- `print on` turn on printing of board after each command (default: on)
+- `print off` turn off printing of board after each command
+- `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
+- `promote [piece name]` promotes pawn to specified pieec name. May type full piece name or character representation (e.g. 'queen' or 'q').
+- `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
+- `power [index]` select a power action after capturing a power object
+- `action [input]` execute a previously selected power action. The format of input may vary (e.g. [a-h][1-8] end location for an additional move or [piece name] for get a captured piece back).
+- `quit` to exit the program completely
+
+**System Tests**
+NOTE: some currently do not work as powerups spawn randomly. Will need to implement
+a way around that
+
+castling_error.test - Checks that castling through pieces as well as castling a piece that has already moved does not work and throws an error.
+
+castling_long_black.test - Checks that the black king can castle properly on its long side.
+
+castling_long_white.test - Checks that the white king can castle properly on its long side.
+
+castling_short_black.test - Checks that the black king can castle properly on its short side.
+
+castling_short_white.test - Checks that the white king can castle properly on its short side.
+
+en_passant.test - Checks that both sides can capture a pawn through en passant.
+
 **Team Strengths and Weaknesses:**
 
 Daniel: My strengths are functional programming, data structures and algorithms. I studies these extensively in CS19. My weaknesses are object-oriented design and UI design, since I have relatively little experience in these areas. I never took an object-oriented programming course before. Advanced chess knowledge/experience.

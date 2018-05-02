@@ -3,7 +3,11 @@ package game;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
+
+import com.google.common.collect.ImmutableMap;
 
 import board.Board;
 import board.BoardObject;
@@ -16,6 +20,7 @@ import pieces.Piece;
 import players.Player;
 import poweractions.PowerAction;
 import powerups.PowerObject;
+import powerups.PowerUp;
 import randutils.RandomCollection;
 
 /**
@@ -25,18 +30,39 @@ import randutils.RandomCollection;
  *
  */
 public class Game {
-  private List<Player> players;
-  private int activePlayerIndex;
+  private Player whitePlayer;
+  private Player blackPlayer;
+  private boolean whiteToMove;
+
   private Board board;
   private boolean gameOver;
+
   private List<Move> history; // list past moves
+
   private int tilNextPowerup;
+  private List<PowerAction> actionOptions;
+  private Map<PowerUp, Location> powerUps;
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
+
   private Location toPromote;
 
+  /**
+   * GameState enumerates the various states of a game (e.g. waiting for a
+   * player to make a move).
+   *
+   * @author bbentz
+   *
+   */
+  public enum GameState {
+    WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE,
+    WAITING_FOR_POWERUP_EXEC, GAME_OVER
+  }
+
+  private GameState gameState;
+
   private static RandomCollection<Location> spawnLocations;
-  private static final int INNER_ROW_FREQ = 50;
+  private static final int INNER_ROW_FREQ = 60;
   private static final int INNER_COL_FREQ = 20;
   private static final int OUTTER_ROW_FREQ = 30;
   private static final int OUTTER_COL_FREQ = 10;
@@ -74,12 +100,18 @@ public class Game {
   public Game() {
     board = new Board();
     history = new ArrayList<>();
-    players = new ArrayList<>();
     gameOver = false;
     updateTilNextPowerUp();
     toPromote = null;
-  }
+    actionOptions = new ArrayList<>();
+    powerUps = new TreeMap<>((p1, p2) -> {
+      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
+    });
 
+    whiteToMove = true;
+    gameState = GameState.WAITING_FOR_MOVE;
+  }
+  
   /**
    * Start the game.
    */
@@ -92,12 +124,8 @@ public class Game {
       }
 
       while (toPromote != null) {
-        try {
-          executePromotion(toPromote);
-          toPromote = null;
-        } catch (IllegalPromotionException e) {
-          continue;
-        }
+        executePromotion(toPromote);
+        toPromote = null;
       }
     }
   }
@@ -109,7 +137,11 @@ public class Game {
    *          Player to be added.
    */
   public void addPlayer(final Player player) {
-    players.add(player);
+    if (player.getColor() == Color.WHITE) {
+      whitePlayer = player;
+    } else {
+      blackPlayer = player;
+    }
   }
 
   /**
@@ -142,11 +174,12 @@ public class Game {
           "ERROR: Wrong player, currently %s to move.", player.getColor()));
     }
 
-    while (!validMove(move)) {
+    if (!validMove(move)) {
       throw new IllegalMoveException(String.format(
           "ERROR: Move is invalid for %s", p.getClass().getSimpleName()));
     }
     executeMove(move);
+    tilNextPowerup--;
 
     // after move, check if new PowerObject should spawn
     if (tilNextPowerup == 0) {
@@ -155,16 +188,68 @@ public class Game {
     }
 
     // update active player and reset GhostPawns
-    activePlayerIndex = (activePlayerIndex + 1) % 2;
-    board.resetGhost(activePlayerIndex);
+    whiteToMove = !whiteToMove;
+    board.resetGhost(getActivePlayer().getColor());
 
     // if promotion, execute
     Location end = move.getEnd();
     if ((end.getRow() == lastRow || end.getRow() == 0)
         && board.getPieceAt(end) instanceof Pawn) {
       toPromote = end;
+      gameState = GameState.WAITING_FOR_PROMOTE;
+      whiteToMove = !whiteToMove; // Change move back to previous turn
     }
 
+    // if PowerObject was captured, switch active player back
+    if (!actionOptions.isEmpty()) {
+      whiteToMove = !whiteToMove;
+    }
+
+    // decrement lifetime of PowerUp
+    List<PowerUp> toRemove = new ArrayList<>();
+    powerUps.keySet().forEach((power) -> {
+      power.decrementTurns();
+      if (power.toRemove()) {
+        toRemove.add(power);
+      }
+    });
+    for (PowerUp power : toRemove) {
+      removePowerUp(power);
+    }
+  }
+
+  /**
+   * Add a PowerUp to the game at the specified location.
+   *
+   * @param loc
+   *          Location where to add.
+   * @param power
+   *          PowerUp to add.
+   */
+  public void addPowerUp(Location loc, PowerUp power) {
+    powerUps.put(power, loc);
+    board.addBoardObject(loc, power);
+  }
+
+  /**
+   * Removes powerup from board and from list of on-board powerups held by Game.
+   *
+   * @param power
+   *          Power to remove.
+   */
+  private void removePowerUp(PowerUp power) {
+    Location loc = powerUps.get(power);
+    board.removePowerUp(loc, power);
+    powerUps.remove(power);
+  }
+
+  /**
+   * Get a map of all powerups currently on board and their locations.
+   *
+   * @return map of on-board powerups to their location.
+   */
+  public Map<PowerUp, Location> getOnBoardPowers() {
+    return ImmutableMap.copyOf(powerUps);
   }
 
   /**
@@ -172,7 +257,7 @@ public class Game {
    * uniformly random between 3 and 5 (inclusive).
    */
   private void updateTilNextPowerUp() {
-    tilNextPowerup = rand.nextInt(3) + 2;
+    tilNextPowerup = rand.nextInt(3) + 3;
   }
 
   /**
@@ -192,15 +277,37 @@ public class Game {
   }
 
   /**
-   * Spawn capturable PowerObject on the board at specified location.
+   * Spawn PowerObject at specified location.
    *
    * @param loc
    *          Location where to place PowerObject.
    * @param powerObj
-   *          PowerObject to add to board.
+   *          PowerObject to spawn.
    */
   public void spawnPowerObject(Location loc, PowerObject powerObj) {
     board.addBoardObject(loc, powerObj);
+  }
+
+  /**
+   * Removes a piece at a given location (if one exists).
+   *
+   * @param loc
+   *          Location to remove the piece from.
+   */
+  public void removePieceAt(Location loc) {
+    Piece p = board.getPieceAt(loc);
+    if (p instanceof Pawn) {
+      int dir = p.getColor() == Color.WHITE ? -1 : 1;
+      try {
+        Location ghostLoc = new Location(loc.getRow() + dir, loc.getCol());
+        if (board.getPieceAt(ghostLoc) instanceof GhostPawn) {
+          board.resetGhost(p.getColor());
+        }
+      } catch (IllegalArgumentException e) {
+        // pass
+      }
+    }
+    board.removePieceAt(loc);
   }
 
   /**
@@ -209,20 +316,13 @@ public class Game {
    * @param move
    *          Move to check.
    * @return true if valid, false otherwise.
-   * @throws IllegalMoveException
-   *           If no piece or only GhostPawn at move starting location.
    */
-  public boolean validMove(Move move) throws IllegalMoveException {
+  public boolean validMove(Move move) {
     Location start = move.getStart();
-    Piece p = board.getPieceAt(start);
-    if (!(p instanceof Piece)) {
-      throw new IllegalMoveException(String
-          .format("ERROR: No piece to move at starting location %s", start));
-    } else if (p instanceof GhostPawn) {
-      throw new IllegalMoveException("ERROR: Cannot move ghost pawn");
-    }
-
     Piece piece = board.getPieceAt(start);
+    if (piece == null) {
+      return false;
+    }
 
     return piece.move(move, board);
   }
@@ -245,7 +345,7 @@ public class Game {
    * @return the player whose turn it is.
    */
   public Player getActivePlayer() {
-    return players.get(activePlayerIndex);
+    return whiteToMove ? whitePlayer : blackPlayer;
   }
 
   /**
@@ -287,6 +387,13 @@ public class Game {
   }
 
   /**
+   * Executes a promotion at the toPromote location.
+   */
+  public void executePromotion() {
+    executePromotion(toPromote);
+  }
+
+  /**
    * Execute promotion.
    *
    * @param loc
@@ -294,30 +401,80 @@ public class Game {
    * @throws IllegalPromotionException
    *           If player tries to promote to Pawn or King.
    */
-  public void executePromotion(Location loc) throws IllegalPromotionException {
+  public void executePromotion(Location loc) {
     Piece newPiece = getActivePlayer().getPromotion();
-    try {
-      board.replacePiece(loc, newPiece);
-    } catch (IllegalMoveException e) {
-      throw new IllegalPromotionException(e.getMessage());
-    }
+    board.placePiece(loc, newPiece);
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = !whiteToMove;
   }
 
-  private void manageCaptured(Collection<BoardObject> captured,
-      Location whereCaptured) {
+  private void manageCaptured(Collection<BoardObject> captured, Location end) {
+
+    // update powerup location with move
+    PowerUp power = board.getPowerUpAt(end);
+    if (power != null) {
+      powerUps.put(power, end);
+    }
 
     for (BoardObject obj : captured) {
       if (obj instanceof PowerObject) {
-        List<PowerAction> actions = ((PowerObject) captured).getPowerActions();
-        Player player = getActivePlayer();
-        PowerAction powerup = player.selectPowerAction(actions);
-        powerup.act(whereCaptured, this);
+        gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
+        actionOptions = ((PowerObject) obj).getPowerActions(this, end);
+
+      } else if (power != null && obj instanceof Piece) {
+        // if piece with powerup captures, powerup should be removed
+        power.setTurnsRemaining(0);
 
       } else if (obj instanceof King) {
         gameOver = true;
       }
     }
 
+  }
+
+  /**
+   * Get the list of available power action options active player may choose
+   * from.
+   *
+   * @return List of up to 2 power actions.
+   */
+  public List<PowerAction> getActionOptions() {
+    return actionOptions;
+  }
+
+  /**
+   * Check whether input is valid for active player's power action.
+   *
+   * @param input
+   *          Input for PowerAction.
+   * @return true if valid input, otherwise false.
+   */
+  public boolean validActionInput(Object input) {
+    return getActivePlayer().validActionInput(input);
+  }
+
+  /**
+   * Get the desired input format to execute active player's selected
+   * PowerAction.
+   *
+   * @return the desired input format to execute active player's selected
+   *         PowerAction.
+   */
+  public String getActionInputFormat() {
+    return getActivePlayer().getActionInputFormat();
+  }
+
+  /**
+   * Execute specified power action.
+   *
+   * @param input
+   *          Object that is the required input to execute the PowerAction.
+   */
+  public void executePowerAction(Object input) {
+    getActivePlayer().executeAction(input);
+    actionOptions.clear();
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = !whiteToMove;
   }
 
   /**
@@ -383,8 +540,8 @@ public class Game {
    *
    * @return Current active player.
    */
-  public int getActivePlayerIndex() {
-    return activePlayerIndex;
+  public boolean whiteToMove() {
+    return whiteToMove;
   }
 
   /**
@@ -394,6 +551,34 @@ public class Game {
    */
   public boolean getGameOverStatus() {
     return gameOver;
+  }
+
+  /**
+   * Returns the current state of the game.
+   *
+   * @return The current state of the game.
+   */
+  public GameState getGameState() {
+    return gameState;
+  }
+
+  /**
+   * Set the current state of the game.
+   *
+   * @param gameState
+   *          The current stat of the game to set.
+   */
+  public void setGameState(GameState gameState) {
+    this.gameState = gameState;
+  }
+  
+  /**
+   * Gets the move history of the game.
+   * @return
+   *    Move history of the game.
+   */
+  public List<Move> getHistory(){
+    return history;
   }
 
 }

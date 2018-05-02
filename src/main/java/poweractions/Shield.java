@@ -2,16 +2,17 @@ package poweractions;
 
 import board.Location;
 import game.Game;
-import game.Move;
+import powerups.Invulnerability;
 import powerups.PowerObject.Rarity;
 
 /**
- * SecondEffort allows capturing piece to move again. Rarity: Common.
+ * Shield makes the capturing piece invulnerable for the next 3 turns, or until
+ * it captures, whichever is less. Rarity: Common.
  *
  * @author knorms
  *
  */
-public class SecondEffort extends PowerAction {
+public class Shield extends PowerAction {
 
   /**
    * Constructor takes a game object and the location where the PowerAction was
@@ -22,30 +23,30 @@ public class SecondEffort extends PowerAction {
    * @param whereCaptured
    *          Location where PowerAction was captured.
    */
-  public SecondEffort(Game game, Location whereCaptured) {
+  public Shield(Game game, Location whereCaptured) {
     super(Rarity.COMMON, game, whereCaptured);
   }
 
   @Override
   public String inputFormat() {
-    return "[a-h][1-8] ending location of legal move";
+    return null;
   }
 
   @Override
   public boolean validInput(Object input) {
-    return input instanceof Location
-        && getGame().validMove(new Move(getWhereCaptured(), (Location) input));
+    return true;
   }
 
   @Override
   public void act(Object input) {
-    getGame().executeMove(new Move(getWhereCaptured(), (Location) input));
+    getGame().addPowerUp(getWhereCaptured(), new Invulnerability(6));
   }
 
   @Override
   public String toString() {
-    return "Second Effort: You may move the capturing "
-        + "piece capturing piece to move again. Rarity: Common";
+    return "Shield: you may make the capturing piece invulnerable "
+        + "for the next 3 turns, or until it captures, whichever "
+        + "is less. Rarity: Common.";
   }
 
 }

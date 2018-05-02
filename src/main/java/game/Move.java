@@ -1,5 +1,7 @@
 package game;
 
+import java.util.Objects;
+
 import board.Location;
 
 /**
@@ -67,12 +69,12 @@ public class Move {
 
   @Override
   public int hashCode() {
-    return start.hashCode() + end.hashCode();
+    return Objects.hash(start, end);
   }
 
   @Override
   public String toString() {
-    return String.format("%s -> %s", start, end);
+    return String.format("%s -> %s", start.toString(), end.toString());
   }
 
 }

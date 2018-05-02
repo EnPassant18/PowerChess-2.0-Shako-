@@ -20,7 +20,12 @@ public class Rook extends Piece {
    *          Piece color.
    */
   public Rook(Color color) {
-    super(color);
+    super(color, 5);
+  }
+
+  @Override
+  public boolean canBePromotedTo() {
+    return true;
   }
 
   @Override

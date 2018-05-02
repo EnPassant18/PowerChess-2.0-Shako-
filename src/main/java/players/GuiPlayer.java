@@ -9,7 +9,7 @@ import game.Color;
  * @author knorms
  *
  */
-public class CliPlayer extends Player {
+public class GuiPlayer extends Player {
 
   /**
    * Constructs command line interface player of specified color.
@@ -17,7 +17,7 @@ public class CliPlayer extends Player {
    * @param color
    *          Player color.
    */
-  public CliPlayer(Color color) {
+  public GuiPlayer(Color color) {
     super(color);
   }
 

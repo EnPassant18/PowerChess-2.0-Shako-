@@ -1,6 +1,8 @@
 package board;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.*;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -15,6 +17,8 @@ import pieces.Pawn;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
+import powerups.PowerObject;
+import powerups.PowerUp;
 
 /**
  * Board represents the chess board.
@@ -43,6 +47,8 @@ public class Board {
     fillRow(Board.SIZE - 1, Color.BLACK);
     fillPawns(Board.SIZE - 2, Color.BLACK);
   }
+  
+  
 
   // TODO implement constructor that takes boardString to use with db
 
@@ -98,6 +104,40 @@ public class Board {
   }
 
   /**
+   * Get PowerObject at specified location.
+   *
+   * @param loc
+   *          Board location.
+   * @return PowerObject at specified location or null if location no
+   *         PowerObject at location.
+   */
+  public PowerObject getPowerObjectAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof PowerObject) {
+        return (PowerObject) obj;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Get PowerUp at specified location.
+   *
+   * @param loc
+   *          Board location.
+   * @return PowerUp at specified location or null if location no PowerUp at
+   *         location.
+   */
+  public PowerUp getPowerUpAt(Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof PowerUp) {
+        return (PowerUp) obj;
+      }
+    }
+    return null;
+  }
+
+  /**
    * Add an object to the board (usually a PowerObject or a PowerUp); note this
    * method does check whether a space is empty.
    *
@@ -136,6 +176,36 @@ public class Board {
   }
 
   /**
+   * Removes a piece at a given location (if one exists).
+   *
+   * @param loc
+   *          Location to remove the piece from.
+   */
+  public void removePieceAt(final Location loc) {
+    for (BoardObject obj : spaces.get(loc)) {
+      if (obj instanceof Piece) {
+        spaces.remove(loc, obj);
+      }
+    }
+    if (spaces.get(loc).isEmpty()) {
+      spaces.put(loc, EMPTY_SPACE);
+    }
+  }
+
+  /**
+   * Places a piece at a given location, replacing any existing piece.
+   *
+   * @param loc
+   *          Location to place the piece.
+   * @param piece
+   *          Piece to be placed.
+   */
+  public void placePiece(final Location loc, final Piece piece) {
+    removePieceAt(loc);
+    spaces.put(loc, piece);
+  }
+
+  /**
    * Check if a location on the board is jumpable.
    *
    * @param loc
@@ -144,7 +214,7 @@ public class Board {
    */
   public boolean isJumpable(Location loc) {
     for (BoardObject obj : spaces.get(loc)) {
-      return obj.canBeJumped();
+      return obj.canBeJumped(); // what
     }
     return false;
   }
@@ -152,33 +222,40 @@ public class Board {
   /**
    * Remove ghost pawn from board for active player.
    *
-   * @param playerIndex
-   *          Index of player whose ghost pawns should be removed (0 = White, 1
-   *          = Black).
-   * @exception IllegalArgumentException
-   *              if method is passed playerIndex other than 0 (white) or 1
-   *              (black).
+   * @param color
+   *          Color of ghost pawn to remove ghost.
    */
-  public void resetGhost(int playerIndex) throws IllegalArgumentException {
-    Color color;
-    switch (playerIndex) {
-      case 0:
-        color = Color.WHITE;
-        break;
-      case 1:
-        color = Color.BLACK;
-        break;
-      default:
-        throw new IllegalArgumentException(
-            "ERROR: Illegal playerIndex; expected 0 (white) or 1 (black).");
-    }
-
+  public void resetGhost(final Color color) {
     for (Location loc : spaces.keySet()) {
       Piece p = getPieceAt(loc);
       if (p instanceof GhostPawn && p.getColor() == color) {
         spaces.remove(loc, p);
       }
     }
+  }
+
+  /**
+   * Remove the PowerUp at a specified board location.
+   *
+   * @param loc
+   *          Location of PowerUp.
+   * @param power
+   *          PowerUp to remove.
+   */
+  public void removePowerUp(Location loc, PowerUp power) {
+    spaces.remove(loc, power);
+    System.out.println(spaces.get(loc));
+    if (!spaces.get(loc).isEmpty()) {
+      spaces.put(loc, EMPTY_SPACE);
+    }
+  }
+  
+  public void swap(final Location loc1, final Location loc2) {
+    Collection<BoardObject> coll1 = spaces.removeAll(loc1);
+    Collection<BoardObject> coll2 = spaces.removeAll(loc2);
+    
+    spaces.putAll(loc1, coll2);
+    spaces.putAll(loc2, coll1);
   }
 
   /**
@@ -222,46 +299,52 @@ public class Board {
     Location end = move.getEnd();
 
     Piece startPiece = getPieceAt(start);
+    if (startPiece == null) {
+      return Collections.emptyList();
+    }
+    startPiece.setMoved();
     Collection<BoardObject> captured;
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Location rookLocStart;
       Location rookLocEnd;
-      if (end.getCol() == 1) {
-        rookLocStart = new Location(end.getRow(), end.getCol() - 1);
+      if (end.getCol() == 2) {
+        rookLocStart = new Location(end.getRow(), end.getCol() - 2);
         rookLocEnd = new Location(end.getRow(), end.getCol() + 1);
-        spaces.put(end, startPiece);
 
       } else {
         rookLocStart = new Location(end.getRow(), end.getCol() + 1);
         rookLocEnd = new Location(end.getRow(), end.getCol() - 1);
       }
-      Collection<BoardObject> obj1 = spaces.get(start);
+      Collection<BoardObject> obj1 = spaces.removeAll(start);
       captured = spaces.removeAll(end);
       spaces.putAll(end, obj1);
       spaces.put(start, EMPTY_SPACE);
       Collection<BoardObject> obj2 = spaces.get(rookLocStart);
       spaces.removeAll(rookLocEnd);
       spaces.putAll(rookLocEnd, obj2);
+      spaces.removeAll(rookLocStart);
       spaces.put(rookLocStart, EMPTY_SPACE);
       ((King) startPiece).resetCastling();
     } else {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
-        Piece p = getPieceAt(end); // FIXME got null pointer
+        Piece p = getPieceAt(end);
         int direction;
-        // TODO should be startpiece?
-        if (startPiece.getColor() == Color.WHITE) {
+        if (p.getColor() == Color.WHITE) {
           direction = 1;
         } else {
           direction = -1;
         }
-        spaces.removeAll(new Location(end.getRow(), end.getCol() + direction));
+        ((Pawn) startPiece).resetGhost();
+        Location enemyPawn =
+            new Location(end.getRow() + direction, end.getCol());
+        spaces.removeAll(enemyPawn);
+        spaces.put(enemyPawn, EMPTY_SPACE);
       }
       Collection<BoardObject> startObjs = spaces.removeAll(start);
       captured = spaces.removeAll(end);
       spaces.putAll(end, startObjs);
       spaces.put(start, EMPTY_SPACE);
     }
-    startPiece.setMoved();
     return captured;
   }
 
@@ -295,6 +378,15 @@ public class Board {
    */
   public Collection<BoardObject> getObjsAt(Location loc) {
     return spaces.get(loc);
+  }
+  
+  /**
+   * Getter for set of all board locations.
+   * @return
+   *    Set of all board locations.
+   */
+  public Set<Location> getLocationSet(){
+    return spaces.keySet();
   }
 
 }

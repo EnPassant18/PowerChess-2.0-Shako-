@@ -20,7 +20,12 @@ public class Knight extends Piece {
    *          Piece color.
    */
   public Knight(Color color) {
-    super(color);
+    super(color, 3);
+  }
+
+  @Override
+  public boolean canBePromotedTo() {
+    return true;
   }
 
   @Override

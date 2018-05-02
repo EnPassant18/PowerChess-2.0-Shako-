@@ -20,7 +20,12 @@ public class Bishop extends Piece {
    *          Piece color.
    */
   public Bishop(Color color) {
-    super(color);
+    super(color, 3);
+  }
+
+  @Override
+  public boolean canBePromotedTo() {
+    return true;
   }
 
   @Override

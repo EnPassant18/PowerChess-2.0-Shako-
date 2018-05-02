@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import repl.ChessProjectHandler;
-//import projects.ChessProjectHandler;
-import repl.Repl;
 import freemarker.template.Configuration;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import repl.ChessProjectHandler;
+// import projects.ChessProjectHandler;
+import repl.Repl;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
@@ -91,14 +91,6 @@ public final class Main {
 
     // Setup Spark Routes
 
-    //Spark.get("/autocorrect", autoCorrectHandler.getGUIHandler(), freeMarker);
-    //Spark.get("/stars", StarsHandler.getStarsFrontHandler(), freeMarker);
-    //Spark.get("/bacon", BaconHandler.getGUIHandler(), freeMarker);
-    //Spark.get("/bacon/actors/:name", baconHandler.getActorPage(), freeMarker);
-    //Spark.get("/bacon/movies/:name", baconHandler.getMoviePage(), freeMarker);
-    //Spark.post("/correct", autoCorrectHandler.getCorrectHandler());
-    //Spark.post("/neighbors", starsHandler.getNeighborsHandler(), freeMarker);
-    //Spark.post("/bacon/search", baconHandler.getResultsHandler(), freeMarker);
   }
 
   /**

@@ -20,7 +20,7 @@ public class GhostPawn extends Piece {
    *          Piece color.
    */
   public GhostPawn(Color color) {
-    super(color);
+    super(color, 0);
   }
 
   @Override

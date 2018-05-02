@@ -4,6 +4,7 @@ import board.Board;
 import board.Location;
 import game.Color;
 import game.Move;
+import powerups.PowerObject;
 
 /**
  * Pawn represents a pawn chess piece.
@@ -23,7 +24,7 @@ public class Pawn extends Piece {
    *          Piece color.
    */
   public Pawn(Color color) {
-    super(color);
+    super(color, 1);
   }
 
   @Override
@@ -57,7 +58,7 @@ public class Pawn extends Piece {
       Piece p = board.getPieceAt(end);
       return p == null;
     }
-    if (rowDif == 2 * direction) {
+    if (rowDif == 2 * direction && !getMoved()) {
       Location check = new Location(start.getRow() + direction, start.getCol());
       if (!board.isEmpty(check)) {
         return false;
@@ -67,7 +68,6 @@ public class Pawn extends Piece {
         Location ghostPos =
             new Location(start.getRow() + direction, start.getCol());
         board.setGhost(ghostPos, getColor());
-        this.ghost = true;
         return true;
       }
       return false;
@@ -82,12 +82,19 @@ public class Pawn extends Piece {
     }
     Location check =
         new Location(start.getRow() + direction, start.getCol() + colDif);
+    PowerObject pwr = board.getPowerObjectAt(check);
+    if (pwr != null) {
+      return true;
+    }
+    if (!isValidEnd(start, check, board)) {
+      return false;
+    }
     Piece p = board.getPieceAt(check);
-    if (p == null || p.getColor() == getColor()) {
+    if (p == null) {
       return false;
     }
     if (p instanceof GhostPawn) {
-      this.ghost = true;
+      ghost = true;
     }
     return true;
   }
@@ -98,13 +105,13 @@ public class Pawn extends Piece {
    * @return true if catpured a GhostPawn.
    */
   public boolean getGhost() {
-    return this.ghost;
+    return ghost;
   }
 
   /**
    * Reset indicator for captured GhostPawn; called when turn ends.
    */
   public void resetGhost() {
-    this.ghost = false;
+    ghost = false;
   }
 }

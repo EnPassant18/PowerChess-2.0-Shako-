@@ -4,6 +4,8 @@ import board.Board;
 import board.BoardObject;
 import board.Location;
 import game.Color;
+import powerups.Invulnerability;
+import powerups.PowerUp;
 
 /**
  * Piece represents a chess piece.
@@ -15,6 +17,7 @@ public abstract class Piece implements BoardObject {
 
   private Color color;
   private boolean moved;
+  private int rank;
 
   /**
    * Construct a piece of the specified color.
@@ -22,14 +25,26 @@ public abstract class Piece implements BoardObject {
    * @param color
    *          Piece color.
    */
-  public Piece(Color color) {
+  public Piece(Color color, int rank) {
     this.color = color;
     moved = false;
+    this.rank = rank;
   }
-
+  
   @Override
   public boolean canBeJumped() {
     return true;
+  }
+
+  /**
+   * Returns true if a pawn can promote to the desired piece and false
+   * otherwise. Defaults to false.
+   *
+   * @return True if the pawn can promote to the desired piece and false
+   *         otherwise.
+   */
+  public boolean canBePromotedTo() {
+    return false;
   }
 
   /**
@@ -52,6 +67,15 @@ public abstract class Piece implements BoardObject {
   }
 
   /**
+   * Get piece rank.
+   *
+   * @return Piece rank.
+   */
+  public int getRank() {
+	  return this.rank;
+  }
+
+  /**
    * Is called after a piece makes a move. Sets the moved boolean to true.
    */
   public void setMoved() {
@@ -69,7 +93,7 @@ public abstract class Piece implements BoardObject {
 
   /**
    * Check whether end location is valid for given piece (i.e. must be empty or
-   * contain piece of opposite color).
+   * contain piece of opposite color without invulnerability).
    *
    * @param start
    *          Start location.
@@ -83,6 +107,12 @@ public abstract class Piece implements BoardObject {
   public static boolean isValidEnd(Location start, Location end, Board board) {
     Piece endP = board.getPieceAt(end);
     Piece startP = board.getPieceAt(start);
+
+    PowerUp power = board.getPowerUpAt(end);
+    if (power instanceof Invulnerability) {
+      return false;
+    }
+
     if (endP != null && startP != null && !(endP instanceof GhostPawn)) {
       if (endP.getColor() == startP.getColor()) {
         return false;

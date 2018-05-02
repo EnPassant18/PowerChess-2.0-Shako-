@@ -1,0 +1,23 @@
+INPUT
+print off
+new game
+move a2 -> a3
+move g7 -> g6
+move a3 -> a4
+move f8 -> h6
+move a4 -> a5
+move g8 -> f6
+move e8 -> g8
+print board
+OUTPUT
+8 |RNBQxRKx
+7 |PPPPPPxP
+6 |pxxxxNPB
+5 |xxxxxxxx
+4 |xxxxxxxx
+3 |xxxxxxxx
+2 |xppppppp
+1 |rnbqkbnr
+   ________
+   abcdefgh
+END

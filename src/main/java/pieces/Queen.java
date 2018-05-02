@@ -20,7 +20,12 @@ public class Queen extends Piece {
    *          Piece color.
    */
   public Queen(Color color) {
-    super(color);
+    super(color, 9);
+  }
+
+  @Override
+  public boolean canBePromotedTo() {
+    return true;
   }
 
   @Override
