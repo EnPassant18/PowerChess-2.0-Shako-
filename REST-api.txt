@@ -14,12 +14,11 @@ Message types:
 CREATE_GAME (0)
 ADD_PLAYER (1)
 GAME_OVER (2)
-OFFER_DRAW (3)
-DRAW_OFFERED (4)
-PLAYER_ACTION (5)
-GAME_UPDATE (6)
-ILLEGAL_ACTION (7)
-ERROR (8) 
+REQUEST_DRAW (3)
+PLAYER_ACTION (4)
+GAME_UPDATE (5)
+ILLEGAL_ACTION (6)
+ERROR (7) 
 **************************************************
 ERROR can be sent by either the client or the server
 upon receiving an improperly formatted or impossible
@@ -29,28 +28,49 @@ request, e.g. a move action while it's the other player's turn
 
 Other enums:
 color: WHITE (true), BLACK (false)
+action: NONE (0), MOVE (1), SELECT_POWER (2), SELECT_SQUARE (3), SELECT_PIECE (4), MOVE_THIS (5)
 game end reason: MATE (0), RESIGNATION (1), TIME (2), DRAW_AGREED (3)
 game result: WIN (0), LOSS (1), DRAW (2)
-piece ids: NOTHING (0), KING (1), QUEEN (2), ROOK (3), BISHOP (4), KNIGHT (5), PAWN (6), <Others to be decided later>
+entity types: NOTHING (0), PIECE (1), POWER (2), OTHER (3)
+piece ids: KING (0), QUEEN (1), ROOK (2), BISHOP (3), KNIGHT (4), PAWN (5)
 power rarities: COMMON (0), RARE (1), LEGENDARY (2)
-power ids: <To be decided later>
+common powers: ADJUST (0), REWIND (1), SECOND_EFFORT (2), SHIELD (3), SWAP (4)
+rare powers: BLACK_HOLE (0), ENERGIZE (1), EYE_FOR_AN_EYE (2), SAFETY_NET (3), SEND_AWAY (4)
+legendary powers: ARMAGEDDON (0), AWAKEN (1), CLONE (2), REANIMATE (3)
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
 
-Requests (INCLUDE GAMEID, PLAYERID, EVEN THOUGH THEY'RE NOT LISTED):
+Requests:
 
 Creates a game with the given ID: {
-	type: CREATE_GAME (0),
-	<OMIT playerId>
+	type: CREATE_GAME,
 }
-Response: 200 OK
+Response: {
+    type: CREATE_GAME,
+    gameId: <Int> ***** Server assigns the game an id and replies with it *****
+}
 
-Adds a player with the given ID and Color to the given game: {
-	type: ADD_PLAYER (1),
-	playerColor: <WHITE(true)/BLACK(false)>
+Adds a player with the given color and name to the given game: {
+	type: ADD_PLAYER,
+    gameId: <Int>,
+	color: <WHITE(true)/BLACK(false)>,
+    name: <String>
 }
-Response: 200 OK
+Response: {
+    type: ADD_PLAYER,
+    playerId: <Int> ***** Server assigns the player an id and replies with it *****
+}
+Response (to other player): {
+    type: ADD_PLAYER,
+    name: <String> *** Opponent's name ***
+}
+****** Once the second player is added, the game starts immediately ******
+
+**************************************************************
+GAMEID, PLAYERID (of sender), ARE INCLUDED IN ALL OTHER 
+REQUESTS (EVEN THOUGH THEY'RE NOT EXPRESSLY LISTED)
+**************************************************************
 
 ****************************************************
 A player can offer a draw by pressing the ‘draw’ button.
@@ -60,14 +80,13 @@ A draw offer is valid until the offer recipient makes a MOVE (not necessarily a 
 When the offer is accepted, both players will be notified via the GAME_OVER message.
 ****************************************************
 When a player offers/accepts a draw: {
-	type: REQUEST_DRAW (3),
+	type: REQUEST_DRAW,
 }
-Response (if the other player has not requested a draw): 200 OK
 Response to other player (if they have not requested a draw): {
-	type: DRAW_OFFERED (4),
+	type: REQUEST_DRAW,
 }
 Response to both players (if both have requested a draw): {
-	type: GAME_OVER (2),
+	type: GAME_OVER,
 	reason: DRAW_AGREED (3),
 	result: DRAW (2)
 }
@@ -77,7 +96,7 @@ The client guarantees that there is a piece controlled
 by the moving player on the move start square.
 ***************************************
 When a player makes a move: {
-	type: PLAYER_ACTION (5),
+	type: PLAYER_ACTION,
     action: MOVE (1),
     move: {
         from: {
@@ -92,19 +111,24 @@ When a player makes a move: {
 	
 }
 Response (if the move was illegal) {
-    type: ILLEGAL_ACTION (7),
+    type: ILLEGAL_ACTION,
 }
 Response (if the move was legal): {
-	type: GAME_UPDATE (6),
+	type: GAME_UPDATE,
     updates (if power boxes spawned or the state of certain pieces changed, 
             e.g. loss of invulnerability or expiration of black hole): [
         ****************************************************
         Updates are represented by piece transformations, e.g. 
-        BLACK_HOLE -> NOTHING. Only the new state need be provided. 
+        BLACK_HOLE -> NOTHING. Only the NEW state need be provided. 
         Also, updates are evaluated AFTER MOVES, so if the moving 
         piece needs to be updated, update the move-to square.
         ****************************************************
-        {row: <0…7>, col: <0…7>, newState: <piece id>, newColor: <WHITE(true)/BLACK(false)>},
+        {
+            row: <0…7>, 
+            col: <0…7>, 
+            state: <NOTHING(0)/PIECE(1)/POWER(2)/OTHER(3)>, 
+            piece,color/rarity (if applicable)
+        },
         ...
     ]
     action: <NONE(0)/SELECT_POWER(2)> (what the player has to do next;
@@ -124,7 +148,7 @@ Response (if the move was legal): {
     }
 }
 Response (to other player, if the move was legal): {
-    type: GAME_UPDATE (6),
+    type: GAME_UPDATE,
     move: {
         from: {
             row: <0…7>,
@@ -144,32 +168,33 @@ The client guarantees this message will only be sent
 after the acting player had just captured a power box.
 ***************************************
 When a player selects a power: {
-    type: PLAYER_ACTION (5),
+    type: PLAYER_ACTION,
     action: SELECT_POWER (2),
     selection: <boolean> (first=0, second=1),
     followUp (if applicable): <{row:<0...7>,col:<0...7>}/{from:...,to:...}>
 }
 Response (if the follow up was illegal) {
-    type: ILLEGAL_ACTION (7),
+    type: ILLEGAL_ACTION,
 }
 Response: {
-    type: GAME_UPDATE (6),
+    type: GAME_UPDATE,
     updates: [...],
 }
 Response to other player: {
-    type: GAME_UPDATE (6),
+    type: GAME_UPDATE,
+    rarity: <COMMON(0)/RARE(1)/LEGENDARY(2)>
     power: <power ID>
     updates: [...],
     move (if applicable) {from: ..., to: ...}
 }
 
 When a player resigns or forfeits on time: {
-    type: GAME_OVER (2),
+    type: GAME_OVER,
 	reason: <RESIGNATION(1)/TIME(2)>,
 	result: LOSS (1)
 }
 Response to other player: {
-    type: GAME_OVER (2),
+    type: GAME_OVER,
 	reason: <RESIGNATION(1)/TIME(2)>,
 	result: WIN (0)
 }

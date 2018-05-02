@@ -18,9 +18,7 @@ body {
 }
 
 #logo {
-    width: auto;
-    height: 100px;
-    background-color: white;
+    width: 300px;
 }
 
 /* Create game form style */
@@ -61,6 +59,7 @@ label {
 
 label:hover, input[type="radio"]:checked+label {
     background-color: rgb(188, 188, 188);
+    cursor: pointer;
 }
 
 button {
@@ -71,6 +70,7 @@ button {
 
 button:hover {
     background-color: rgb(178, 60, 60);
+    cursor: grab;
 }
 
 input[type="text"] {
@@ -108,7 +108,7 @@ input[type="text"] {
     background-color: rgb(226, 226, 226);
 }
 
-.join {
+.play {
     padding-top: 7px; 
     padding-bottom: 7px; 
 }

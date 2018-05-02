@@ -1,8 +1,9 @@
 <!DOCTYPE html>
   <head>
     <meta charset="utf-8">
-    <title>PowerChess</title>
+    <title>Sako</title>
     <link rel="stylesheet" href="css/home.css">
+    <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="js/jquery-3.1.1.js"></script>
     <script src="js/home.js"></script>
     <script src="js/enums.js"></script>
@@ -10,14 +11,12 @@
   <body>
     <div id="container">
      <div id="left">
-       <div id="logo">Logo</div>
+       <img id="logo" src="images/logo.png">
        <br>
        <div id="form">
           <div id="header">Create Game</div>
           <form>
-            <br>
             <input type="text" name="name" placeholder="Your name">
-            <br>
             <br>
             <br>
             <input type="radio" name="time" value="Quick" id="Quick" hidden>
@@ -28,7 +27,6 @@
             <label for="Slow">Slow</label>
             <br>
             <br>
-            <br>
             <input type="radio" name="color" value="White" id="White" hidden>
             <label for="White">White</label>
             <input type="radio" name="color" value="Random" id="Random" hidden checked>
@@ -37,12 +35,10 @@
             <label for="Black">Black</label>
             <br>
             <br>
-            <br>
             <input type="radio" name="privacy" value="Private" id="Private" hidden>
             <label for="Private">Private</label>
             <input type="radio" name="privacy" value="Public" id="Public" hidden checked>
             <label for="Public">Public</label>
-            <br>
             <br>
             <br>
             <button type="submit">Play</button>
@@ -54,7 +50,7 @@
         <th>Opponent</th>
         <th>Time Control</th>
         <th>Color</th>
-        <th>Join</th>
+        <th>Play</th>
       </tr>
       <tr>
         <td colspan="4">No available public games</td>
@@ -63,13 +59,13 @@
         <td>checkmate123</td>
         <td>Standard</td>
         <td>Random</td>
-        <td><button class="join">Join</button></td>
+        <td><button class="play">Play</button></td>
       </tr>
       <tr>
         <td>iamgreatatchess</td>
         <td>Slow</td>
         <td>Black</td>
-        <td><button class="join">Join</button></td>
+        <td><button class="play">Play</button></td>
       </tr>
      </table>
     </div>

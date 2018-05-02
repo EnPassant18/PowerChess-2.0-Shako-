@@ -25,32 +25,35 @@ $(document).ready(() => {
 
     boardBox = $board[0].getBoundingClientRect();
 
+    $("#option1").click(() => select(true));
+    $("#option2").click(() => select(false));
+
     spawnStart();
 
-    $(".piece").on("mousedown", dragStart);
+    setupSocket();
 });
 
 function spawnStart() {
-    spawn(PIECE_IMAGE.BLACK.ROOK, new Square(0,0));
-    spawn(PIECE_IMAGE.BLACK.KNIGHT, new Square(0,1));
-    spawn(PIECE_IMAGE.BLACK.BISHOP, new Square(0,2));
-    spawn(PIECE_IMAGE.BLACK.QUEEN, new Square(0,3));
-    spawn(PIECE_IMAGE.BLACK.KING, new Square(0,4));
-    spawn(PIECE_IMAGE.BLACK.BISHOP, new Square(0,5));
-    spawn(PIECE_IMAGE.BLACK.KNIGHT, new Square(0,6));
-    spawn(PIECE_IMAGE.BLACK.ROOK, new Square(0,7));
-    spawn(PIECE_IMAGE.WHITE.ROOK, new Square(7,0));
-    spawn(PIECE_IMAGE.WHITE.KNIGHT, new Square(7,1));
-    spawn(PIECE_IMAGE.WHITE.BISHOP, new Square(7,2));
-    spawn(PIECE_IMAGE.WHITE.QUEEN, new Square(7,3));
-    spawn(PIECE_IMAGE.WHITE.KING, new Square(7,4));
-    spawn(PIECE_IMAGE.WHITE.BISHOP, new Square(7,5));
-    spawn(PIECE_IMAGE.WHITE.KNIGHT, new Square(7,6));
-    spawn(PIECE_IMAGE.WHITE.ROOK, new Square(7,7));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.ROOK], new Square(0,0));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.KNIGHT], new Square(0,1));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.BISHOP], new Square(0,2));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.QUEEN], new Square(0,3));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.KING], new Square(0,4));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.BISHOP], new Square(0,5));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.KNIGHT], new Square(0,6));
+    spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.ROOK], new Square(0,7));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.ROOK], new Square(7,0));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.KNIGHT], new Square(7,1));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.BISHOP], new Square(7,2));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.QUEEN], new Square(7,3));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.KING], new Square(7,4));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.BISHOP], new Square(7,5));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.KNIGHT], new Square(7,6));
+    spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.ROOK], new Square(7,7));
     for (let col in [0, 1, 2, 3, 4, 5, 6, 7]) {
-        spawn(PIECE_IMAGE.BLACK.PAWN, new Square(1,col));
+        spawn(PIECE_IMAGE[COLOR.BLACK][PIECE.PAWN], new Square(1,col));
     }
     for (let col in [0, 1, 2, 3, 4, 5, 6, 7]) {
-        spawn(PIECE_IMAGE.WHITE.PAWN, new Square(6,col));
+        spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.PAWN], new Square(6,col));
     }
 }

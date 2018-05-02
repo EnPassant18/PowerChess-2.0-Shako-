@@ -23,15 +23,16 @@ class Moving {
 
 // When user clicks on a piece (event: MouseEvent)
 function dragStart(event) {
-    moving = new Moving(
-        $(event.target),
-        event.pageX,
-        event.pageY
-    );
-    $(event.target).css("z-index", 2);
-    $(document).on("mousemove", drag);
-    $(document).on("mouseup", drop);
-    console.log(event.pageY);
+    if (action === ACTION.MOVE) {
+        moving = new Moving(
+            $(event.target),
+            event.pageX,
+            event.pageY
+        );
+        $(event.target).css("z-index", 3);
+        $(document).on("mousemove", drag);
+        $(document).on("mouseup", drop);
+    }
 }
 
 // When user drags a piece
@@ -54,7 +55,7 @@ function drop(event) {
     } else {
         teleport(moving.piece, moveEnd);
     }
-    moving.piece.css("z-index", 1);
+    moving.piece.css("z-index", 2);
     moving = null;
     $(document).off("mousemove");
     $(document).off("mouseup");
