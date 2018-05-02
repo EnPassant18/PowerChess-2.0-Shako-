@@ -1,5 +1,4 @@
 let COLOR;
-let action;
 
 // Represents square on board, where TOP-LEFT IS (0, 0)
 class Square {
@@ -115,9 +114,43 @@ function updates(updates) {
 }
 
 // Prompts the user to select between two powers
-function prompt(imageUrl1, imageUrl2) {
-    $("#log").attr("hidden", "true");
-    $("#selection").attr("hidden", null);
-    $("#option1").attr("src", imageUrl1);
-    $("#option2").attr("src", imageUrl2);
+function powerPrompt(imageUrl1, imageUrl2) {
+    if (_action !== ACTION.SELECT_POWER) {
+        console.log("Error: expected action is not SLECT_POWER");
+    } else {
+        $("#log").attr("hidden", "true");
+        $("#selection").attr("hidden", null);
+        $("#option1").attr("src", imageUrl1);
+        $("#option2").attr("src", imageUrl2);
+    }
+}
+
+// Displays a popup when the game ends
+function gameOver(result, reason) {
+    switch (result) {
+        case GAME_RESULT.WIN: alert("You win"); break;
+        case GAME_RESULT.LOSS: alert("You lose"); break;
+        case GAME_RESULT.DRAW: alert("Game drawn"); break;
+    }
+}
+
+// DO NOT MUTATE
+// What the player is expected to do next (if anything): e.g. NONE, MOVE, SELECT_POWER
+let _action = ACTION.NONE; 
+
+// DO NOT MUTATE
+// True when waiting for the server
+let _hold = false;
+
+function setAction(newAction) {
+    resume();
+    _action = newAction;
+}
+
+function hold() {
+    _hold = true;
+}
+
+function resume() {
+    _hold = false;
 }

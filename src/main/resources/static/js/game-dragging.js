@@ -23,7 +23,7 @@ class Moving {
 
 // When user clicks on a piece (event: MouseEvent)
 function dragStart(event) {
-    if (action === ACTION.MOVE) {
+    if (action === ACTION.MOVE && !_hold) {
         moving = new Moving(
             $(event.target),
             event.pageX,
@@ -50,13 +50,10 @@ function drag(event) {
 // When user drops a piece
 function drop(event) {
     const moveEnd = moving.getSquare();
-    if (moveEnd == null || false /* move is illegal */) {
-        teleport(moving.piece, moving.startSquare);
-    } else {
-        teleport(moving.piece, moveEnd);
-    }
+    teleport(moving.piece, moveEnd);
     moving.piece.css("z-index", 2);
     moving = null;
     $(document).off("mousemove");
     $(document).off("mouseup");
+    attemptMove(moving.startSquare, moveEnd);
 }

@@ -182,9 +182,10 @@ Response: {
 }
 Response to other player: {
     type: GAME_UPDATE,
-    rarity: <COMMON(0)/RARE(1)/LEGENDARY(2)>
-    power: <power ID>
+    rarity: <COMMON(0)/RARE(1)/LEGENDARY(2)>,
+    power: <power ID>,
     updates: [...],
+    action: <NONE(0)/MOVE(1)>,
     move (if applicable) {from: ..., to: ...}
 }
 

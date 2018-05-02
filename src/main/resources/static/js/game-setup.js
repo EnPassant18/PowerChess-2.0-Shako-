@@ -57,3 +57,8 @@ function spawnStart() {
         spawn(PIECE_IMAGE[COLOR.WHITE][PIECE.PAWN], new Square(6,col));
     }
 }
+
+// Starts the game
+function start() {
+    console.log("start");
+}
