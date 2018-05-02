@@ -1,14 +1,16 @@
 package poweractions;
 
-import board.*;
-import game.*;
-import pieces.Piece;
+import java.util.List;
+
+import board.Location;
+import game.Game;
+import game.Move;
 import powerups.PowerObject.Rarity;
-import java.util.*;
 
 /**
  * Allows the capturing player to undo their opponents last move (if possible.)
  * Does not undo captures.
+ * 
  * @author Brad
  *
  */
@@ -29,7 +31,7 @@ public class Rewind extends PowerAction {
 
   @Override
   public String inputFormat() {
-    return "";
+    return null;
   }
 
   @Override
@@ -41,14 +43,14 @@ public class Rewind extends PowerAction {
   public void act(Object input) {
     List<Move> history = getGame().getHistory();
     Move move = history.get(history.size() - 2);
-    
+
     Location start = move.getStart();
     Location end = move.getEnd();
-    
-    if(getGame().getBoard().isEmpty(start)) {
+
+    if (getGame().getBoard().isEmpty(start)) {
       getGame().getBoard().swap(start, end);
     }
-    
+
   }
 
   @Override

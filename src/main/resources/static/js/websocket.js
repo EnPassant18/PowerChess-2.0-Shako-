@@ -55,7 +55,7 @@ function setupSocket() {
                     gameOver(message.result, message.reason);
                     break
                 case MESSAGE.REQUEST_DRAW:
-                    $("#drawOffered").attr("hidden", "true"); 
+                    $("#drawOffered").attr("hidden", "true");
                     break;
                 case MESSAGE.GAME_UPDATE:
                     if (message.move !== undefined) {
