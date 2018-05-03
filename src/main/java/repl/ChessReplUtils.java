@@ -182,84 +182,83 @@ public final class ChessReplUtils {
     }
 
   }
-  
+
   /**
    * Returns true if a string FEN is valid and otherwise returns false.
    * https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
-   * 
+   *
    * FEN fields 5 and 6 are optional.
-   * 
+   *
    * @param fen
-   *    Fen String.
-   * @return
-   *    True if the FEN is valid and false otherwise.
+   *          Fen String.
+   * @return True if the FEN is valid and false otherwise.
    */
   public boolean isFenValid(final String fen) {
     String[] fenArray = fen.split("\\s+");
-    
-    if(fenArray.length < 4) {
+
+    if (fenArray.length < 4) {
       return false;
     }
-    
+
     String piecePlacement = fenArray[0];
     String activeColor = fenArray[1];
     String castling = fenArray[2];
     String enPassant = fenArray[3];
-    
+
     String activeColorRegex = "[bw]";
     String castlingRegex = "K?Q?k?q?|-";
     String enPassantRegex = "[a-h][1-8]|-";
-    
-    if(!isPiecePlacementString(piecePlacement)) {
+
+    if (!isPiecePlacementString(piecePlacement)) {
       return false;
     }
-    
-    if(!activeColor.matches(activeColorRegex)) {
+
+    if (!activeColor.matches(activeColorRegex)) {
       return false;
     }
-    
-    if(!castling.matches(castlingRegex)) {
+
+    if (!castling.matches(castlingRegex)) {
       return false;
     }
-    
-    if(!enPassant.matches(enPassantRegex)) {
+
+    if (!enPassant.matches(enPassantRegex)) {
       return false;
     }
-    
+
     return true;
   }
-  
+
   /**
    * True if the string is a piecePlacement string.
+   *
    * @param piecePlacement
-   *    String to test if is piece placement string.
-   * @return
-   *    True if the string is a piece placement string and false otherwise.
+   *          String to test if is piece placement string.
+   * @return True if the string is a piece placement string and false otherwise.
    */
   public static boolean isPiecePlacementString(final String piecePlacement) {
-    
-    // PiecePlacement Strings look like 
-    //          rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
+
+    // PiecePlacement Strings look like
+    // rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR
     // We say that the string represents 8 rows of 8 spots each.
     // index keeps track of the size of a row
     int rowCount = 0;
     int index = 0;
-    
+
     Character c;
     Character seperator = '/';
-    
-    for(int i = 0; i < piecePlacement.length(); i++) {
-      
+
+    for (int i = 0; i < piecePlacement.length(); i++) {
+
       c = piecePlacement.charAt(i);
-      
+
       // If we have too many rows or a row is too big
-      if(rowCount > SIZE - 1 || index > SIZE) {
+      if (rowCount > SIZE - 1 || index > SIZE) {
         return false;
       }
 
       // If we should be at the end of a row
-      if(index == SIZE) {
-        if(c.equals(seperator)) {
+      if (index == SIZE) {
+        if (c.equals(seperator)) {
           index = 0;
           rowCount++;
           continue;
@@ -267,9 +266,9 @@ public final class ChessReplUtils {
           return false;
         }
       }
-        
+
       // When we are in the middle of a column
-      if(isCharPiece(c)) {
+      if (isCharPiece(c)) {
         index++;
       } else if (Character.isDigit(c)) {
         index += Character.getNumericValue(c);
@@ -277,16 +276,17 @@ public final class ChessReplUtils {
         return false;
       }
     }
-    
+
     return rowCount == SIZE - 1 && index == SIZE;
   }
-  
+
   /**
    * True if input character specifies a valid piece.
+   *
    * @param c
-   *    Input character.
-   * @return
-   *    True if the input character specifies a valid piece and false otherwise.
+   *          Input character.
+   * @return True if the input character specifies a valid piece and false
+   *         otherwise.
    */
   private static boolean isCharPiece(final Character c) {
     return "rnbqkp".indexOf(Character.toLowerCase(c)) >= 0;

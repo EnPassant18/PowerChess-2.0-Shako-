@@ -10,7 +10,7 @@ import powerups.PowerObject.Rarity;
 /**
  * Allows the capturing player to undo their opponents last move (if possible.)
  * Does not undo captures.
- * 
+ *
  * @author Brad
  *
  */

@@ -13,6 +13,7 @@ import game.Move;
  */
 public class King extends Piece {
   private static final int CASTLE_DIST = -2;
+  private static final int RANK = 10;
 
   private boolean castling;
 
@@ -23,7 +24,7 @@ public class King extends Piece {
    *          Piece color.
    */
   public King(Color color) {
-    super(color, 10);
+    super(color, RANK);
     castling = false;
   }
 
