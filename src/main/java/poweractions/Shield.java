@@ -24,7 +24,7 @@ public class Shield extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Shield(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured);
+    super(Rarity.COMMON, game, whereCaptured, 3, 0);
   }
 
   @Override
