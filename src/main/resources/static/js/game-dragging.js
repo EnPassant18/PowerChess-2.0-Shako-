@@ -1,4 +1,4 @@
-let moving = null;
+let moving;
 
 // Contains information about the piece being moved
 class Moving {
@@ -11,19 +11,21 @@ class Moving {
     // Returns the square the piece is being dragged over, 
     // or null if it's outside the board
     getSquare() {
-        const row = Math.floor((this.y - boardBox.top) / SQUARE_SIZE);
-        const col = Math.floor((this.x - boardBox.left) / SQUARE_SIZE);
+        const row = Math.floor((this.y - UI.boardBox.top) / UI.SQUARE_SIZE);
+        const col = Math.floor((this.x - UI.boardBox.left) / UI.SQUARE_SIZE);
         if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
             return new Square(row, col);
         } else {
-            return null
+            return null;
         }
     }
 }
 
 // When user clicks on a piece (event: MouseEvent)
 function dragStart(event) {
-    if (action === ACTION.MOVE && !_hold) {
+    if (game.action === ACTION.MOVE
+        || (game.action === ACTION.MOVE_THIS 
+            && event.target === game.mustMove)) {
         moving = new Moving(
             $(event.target),
             event.pageX,
@@ -50,10 +52,21 @@ function drag(event) {
 // When user drops a piece
 function drop(event) {
     const moveEnd = moving.getSquare();
-    teleport(moving.piece, moveEnd);
+    UI.teleport(moving.piece, moveEnd);
     moving.piece.css("z-index", 2);
-    moving = null;
     $(document).off("mousemove");
     $(document).off("mouseup");
-    attemptMove(moving.startSquare, moveEnd);
+    if (JSON.stringify(moving.startSquare) !== JSON.stringify(moveEnd)) {
+        if (game.selected !== null) {
+            game.powerFollowUp(new Move(moving.startSquare, moveEnd));
+        } else {
+            connection.attemptMove(new Move(moving.startSquare, moveEnd)); 
+        }
+    }
+    moving = null;
+}
+
+// When user clicks on a square
+function click(event) {
+
 }

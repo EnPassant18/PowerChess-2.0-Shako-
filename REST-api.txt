@@ -12,7 +12,7 @@ Message format: {
 
 Message types:
 CREATE_GAME (0)
-ADD_PLAYER (1)
+JOIN_GAME (1)
 GAME_OVER (2)
 REQUEST_DRAW (3)
 PLAYER_ACTION (4)
@@ -28,7 +28,7 @@ request, e.g. a move action while it's the other player's turn
 
 Other enums:
 color: WHITE (true), BLACK (false)
-action: NONE (0), MOVE (1), SELECT_POWER (2), SELECT_SQUARE (3), SELECT_PIECE (4), MOVE_THIS (5)
+action: NONE (0), MOVE (1), SELECT_POWER (2), SELECT_SQUARE (3), MOVE_THIS (4)
 game end reason: MATE (0), RESIGNATION (1), TIME (2), DRAW_AGREED (3)
 game result: WIN (0), LOSS (1), DRAW (2)
 entity types: NOTHING (0), PIECE (1), POWER (2), OTHER (3)
@@ -43,26 +43,34 @@ legendary powers: ARMAGEDDON (0), AWAKEN (1), CLONE (2), REANIMATE (3)
 
 Requests:
 
-Creates a game with the given ID: {
+Creates a game, adding a player with the given color and name: {
 	type: CREATE_GAME,
-}
-Response: {
-    type: CREATE_GAME,
-    gameId: <Int> ***** Server assigns the game an id and replies with it *****
-}
-
-Adds a player with the given color and name to the given game: {
-	type: ADD_PLAYER,
-    gameId: <Int>,
-	color: <WHITE(true)/BLACK(false)>,
+    color: <WHITE(true)/BLACK(false)>,
     name: <String>
 }
 Response: {
-    type: ADD_PLAYER,
-    playerId: <Int> ***** Server assigns the player an id and replies with it *****
+    type: CREATE_GAME,
+    gameId: <Int>,
+    playerId: <Int>
+    ***** Server assigns the game and player ids and replies with them *****
+}
+
+Adds a player with the given name to the given game: {
+	type: JOIN_GAME,
+    gameId: <Int>,
+    name: <String>
+}
+Response: {
+    type: JOIN_GAME,
+    playerId: <Int>,
+    color: <WHITE(true)/BLACK(false)>,
+    ********************************************* 
+    Server assigns the player an id and color 
+    (the opposite color of the player who created the game)
+    *********************************************
 }
 Response (to other player): {
-    type: ADD_PLAYER,
+    type: JOIN_GAME,
     name: <String> *** Opponent's name ***
 }
 ****** Once the second player is added, the game starts immediately ******
@@ -136,15 +144,7 @@ Response (if the move was legal): {
     options: (if the player captured a power, i.e. action = SELECT_POWER) {
         rarity: COMMON(0)/RARE(1)/LEGENDARY(2),
         id1: <id of the first power option>,
-        followUp1: <NONE(0)/MOVE(1)/SELECT_SQUARE(3)/SELECT_PIECE(4)/MOVE_THIS(5)>,
-        id2: <id of the second power option>,
-        followUp2: <NONE(0)/MOVE(1)/SELECT_SQUARE(3)/SELECT_PIECE(4)/MOVE_THIS(5)>
-        ************************************************************
-        followUp: some powers require the player to make additional
-        choices, e.g. move again or select an enemy piece to destroy.
-        NONE = no further action. SELECT_SQUARE = select empty square.
-        MOVE_THIS = the moving piece must be moved again.
-        ************************************************************
+        id2: <id of the second power option>
     }
 }
 Response (to other player, if the move was legal): {
@@ -172,6 +172,10 @@ When a player selects a power: {
     action: SELECT_POWER (2),
     selection: <boolean> (first=0, second=1),
     followUp (if applicable): <{row:<0...7>,col:<0...7>}/{from:...,to:...}>
+    ************************************************************
+    followUp: some powers require the player to make additional
+    choices, e.g. move again or select an enemy piece to destroy.
+    ************************************************************
 }
 Response (if the follow up was illegal) {
     type: ILLEGAL_ACTION,

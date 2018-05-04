@@ -1,6 +1,6 @@
 MESSAGE = {
     CREATE_GAME: 0,
-    ADD_PLAYER: 1,
+    JOIN_GAME: 1,
     GAME_OVER: 2,
     REQUEST_DRAW: 3,
     PLAYER_ACTION: 4,
@@ -14,13 +14,17 @@ ACTION = {
     MOVE: 1,
     SELECT_POWER: 2,
     SELECT_SQUARE: 3,
-    SELECT_PIECE: 4,
-    MOVE_THIS: 5
+    MOVE_THIS: 4
 }
 
 COLOR = {
     WHITE: true,
     BLACK: false
+}
+
+PLAYER = {
+    PLAYER: true,
+    OPPONENT: false
 }
 
 GAME_END_CAUSE = {
@@ -106,25 +110,25 @@ POWER = {
     }
 }
 
-POWER_IMAGE = {
+POWER_OBJECT = {
     0: {
-        0: "images/powers/Adjust.png",
-        1: "images/powers/Rewind.png",
-        2: "images/powers/Second Effort.png",
-        3: "images/powers/Shield.png",
-        4: "images/powers/Swap.png"
+        0: new Power("images/powers/Adjust.png", ACTION.MOVE_THIS),
+        1: new Power("images/powers/Rewind.png", ACTION.NONE),
+        2: new Power("images/powers/Second Effort.png", ACTION.MOVE_THIS),
+        3: new Power("images/powers/Shield.png", ACTION.NONE),
+        4: new Power("images/powers/Swap.png", ACTION.SELECT_SQUARE)
     },
     1: {
-        0: "images/powers/Black Hole.png",
-        1: "images/powers/Energize.png",
-        2: "images/powers/Eye for an Eye.png",
-        3: "images/powers/Safety Net.png",
-        4: "images/powers/Send Away.png"
+        0: new Power("images/powers/Black Hole.png", ACTION.SELECT_SQUARE),
+        1: new Power("images/powers/Energize.png", ACTION.NONE),
+        2: new Power("images/powers/Eye for an Eye.png", ACTION.SELECT_SQUARE),
+        3: new Power("images/powers/Safety Net.png", ACTION.NONE),
+        4: new Power("images/powers/Send Away.png", ACTION.SELECT_SQUARE)
     },
     2: {
-        0: "images/powers/Armageddon.png",
-        1: "images/powers/Awaken.png",
-        2: "images/powers/Clone.png",
-        3: "images/powers/Reanimate.png"
+        0: new Power("images/powers/Armageddon.png", ACTION.NONE),
+        1: new Power("images/powers/Awaken.png", ACTION.NONE),
+        2: new Power("images/powers/Clone.png", ACTION.NONE),
+        3: new Power("images/powers/Reanimate.png", ACTION.NONE)
     }
 }
