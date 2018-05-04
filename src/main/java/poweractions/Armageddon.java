@@ -1,13 +1,20 @@
 package poweractions;
 
-import board.*;
-import game.*;
-import pieces.*;
-import powerups.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import board.Board;
+import board.Location;
+import game.Game;
+import pieces.King;
+import pieces.Pawn;
+import pieces.Piece;
+import powerups.Invulnerability;
 import powerups.PowerObject.Rarity;
-import java.util.*;
+
 /**
  * Destroy all pawns. All kings are invulnerable for the next two turns.
+ * 
  * @author Brad
  *
  */
@@ -23,12 +30,12 @@ public class Armageddon extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Armageddon(Game game, Location whereCaptured) {
-    super(Rarity.LEGENDARY, game, whereCaptured);
+    super(Rarity.LEGENDARY, game, whereCaptured, 0, 0);
   }
 
   @Override
   public String inputFormat() {
-    return "";
+    return null;
   }
 
   @Override
@@ -39,30 +46,30 @@ public class Armageddon extends PowerAction {
   @Override
   public void act(Object input) {
     Board board = getGame().getBoard();
-    
+
     // Must separate to prevent ConcurrentModificationException
     Set<Location> pawnLocations = new HashSet<>();
     Set<Location> kingLocations = new HashSet<>();
-    
-    for(Location loc : board.getLocationSet()) {
+
+    for (Location loc : board.getLocationSet()) {
       Piece p = board.getPieceAt(loc);
-      
-      if(p != null) {
-        
-        if(p instanceof Pawn) {
+
+      if (p != null) {
+
+        if (p instanceof Pawn) {
           pawnLocations.add(loc);
         } else if (p instanceof King) {
           kingLocations.add(loc);
-        } 
-        
+        }
+
       }
     }
-    
-    for(Location loc : pawnLocations) {
+
+    for (Location loc : pawnLocations) {
       board.removePieceAt(loc);
     }
-    
-    for(Location loc : kingLocations) {
+
+    for (Location loc : kingLocations) {
       getGame().addPowerUp(loc, new Invulnerability(2));
     }
   }

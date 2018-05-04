@@ -96,6 +96,7 @@ class Connection {
         this.socket.send(JSON.stringify(message));
     }
 
+<<<<<<< HEAD
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
@@ -114,3 +115,15 @@ class Connection {
         }));
     }
 }
+=======
+// When a player resigns or loses on time
+// reason: RESIGNATION (1) / TIME (2)
+function lose(reason) {
+    setAction(ACTION.NONE);
+    websocket.send(JSON.stringify({
+        type: MESSAGE.GAME_OVER,
+        result: GAME_RESULT
+        selection: option
+    }))
+}
+>>>>>>> 0e5f745cdcf221532bedff9231a5f93c15b280dc

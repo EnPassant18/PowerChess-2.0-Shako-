@@ -23,7 +23,7 @@ public class SecondEffort extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public SecondEffort(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured);
+    super(Rarity.COMMON, game, whereCaptured, 2, 5);
   }
 
   @Override
