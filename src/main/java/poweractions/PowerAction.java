@@ -81,24 +81,36 @@ public abstract class PowerAction {
     return actionOptions;
   }
 
-  private static PowerAction stringToAction(String actionName, Game game,
+  /**
+   * Create a power action of the specified name.
+   *
+   * @param actionName
+   *          Power action to create.
+   * @param game
+   *          Game action will affect.
+   * @param whereCaptured
+   *          Where the PowerAction was captured.
+   * @return the power action or null if name is not recognized.
+   */
+  public static PowerAction stringToAction(String actionName, Game game,
       Location whereCaptured) {
+    actionName = actionName.toLowerCase();
     switch (actionName) {
-      case "Adjust":
+      case "adjust":
         return new Adjust(game, whereCaptured);
-      case "SecondEffort":
+      case "secondeffort":
         return new SecondEffort(game, whereCaptured);
-      case "Shield":
+      case "shield":
         return new Shield(game, whereCaptured);
-      case "BlackHole":
+      case "blackhole":
         return new BlackHole(game, whereCaptured);
-      case "EyeForEye":
+      case "eyeforeye":
         return new EyeForEye(game, whereCaptured);
-      case "Swap":
+      case "wwap":
         return new Swap(game, whereCaptured);
-      case "Rewind":
+      case "rewind":
         return new Rewind(game, whereCaptured);
-      case "Armageddon":
+      case "armageddon":
         return new Armageddon(game, whereCaptured);
       default:
         return null;

@@ -31,7 +31,8 @@ public class EyeForEye extends PowerAction {
 
   @Override
   public String inputFormat() {
-    return "[a-h][1-8] location of opposing piece to destroy";
+    return "[a-h][1-8] location of opposing piece of lesser or equal rank"
+        + " to destroy";
   }
 
   @Override

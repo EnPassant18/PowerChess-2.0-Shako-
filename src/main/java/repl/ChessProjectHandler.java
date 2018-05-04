@@ -56,12 +56,48 @@ public class ChessProjectHandler extends CommandMap {
     // Handles spawning powerups
     add("spawn", "spawn %s %s", s -> spawn(s.get(1), s.get(2)));
 
+    // Handles givine active player power action
+    add("give", "give %s %s", s -> give(s.get(1), s.get(2)));
+
     // Handles selecting powerup
     add("power", "power %s", s -> power(s.get(1)));
 
     // Handles executing poweraction
     add("action", "action %s", s -> action(s.get(1)));
 
+  }
+
+  private String give(String powerActionName, String locString) {
+    Location whereCaptured = ChessReplUtils.parseLocation(locString);
+    try {
+      if (whereCaptured == null) {
+        return String.format("ERROR: Board location %s is not recognized",
+            locString);
+      } else if (game.getPieceAt(whereCaptured).getColor() != game
+          .getActivePlayer().getColor()) {
+        return "ERROR: PowerAction must be \"captured\" by active player";
+      }
+    } catch (NullPointerException e) {
+      return String.format("ERROR: No piece at location %s", whereCaptured);
+    }
+
+    powerActionName = powerActionName.replace("\"", "");
+
+    PowerAction action =
+        PowerAction.stringToAction(powerActionName.replace(" ", ""), game,
+            whereCaptured);
+    if (action == null) {
+      return String.format("ERROR: PowerAction name %s is not recognized",
+          powerActionName);
+    }
+    game.getActivePlayer().setAction(action);
+    if (action.validInput(null)) {
+      game.executePowerAction(null);
+    } else {
+      game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
+    }
+
+    return print();
   }
 
   private String power(String indexStr) {
@@ -78,13 +114,13 @@ public class ChessProjectHandler extends CommandMap {
           actionOptions.size());
     }
 
-    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
     if (game.getActionInputFormat() == null) {
       game.executePowerAction(null);
       game.setGameState(GameState.WAITING_FOR_MOVE);
       return String.format("executed %s%n%s",
           selected.getClass().getSimpleName(), print());
     }
+    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
     return String.format("selected %s%n%s", selected.getClass().getSimpleName(),
         print());
   }
