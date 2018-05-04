@@ -27,6 +27,8 @@ public abstract class PowerAction {
   private final Game game;
   private final Location whereCaptured;
   private static final Multimap<Rarity, String> POWER_ACTIONS;
+  private int id;
+  private int followUp;
 
   static {
     POWER_ACTIONS = HashMultimap.create();
@@ -50,13 +52,35 @@ public abstract class PowerAction {
    *          Game to be affected by PowerAction.
    * @param whereCaptured
    *          Location where PowerAction was captured.
+   * @param id
+   * 		  Integer representing the id for front end use
+   * @param followUpId
+   * 		  Integer representing the response the power action needs from the front end
    */
-  public PowerAction(Rarity rarity, Game game, Location whereCaptured) {
+  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id, int followUpId) {
     this.rarity = rarity;
     this.game = game;
     this.whereCaptured = whereCaptured;
+    this.id = id;
+    this.followUp = followUpId;
   }
 
+  /**
+   * Returns the id of the power action.
+   * @return integer id.
+   */
+  public int getId() {
+	  return this.id;
+  }
+  
+  /**
+   * Returns the followup id of the power action.
+   * @return integer follow up id.
+   */
+  public int getFollowUp() {
+	  return this.followUp;
+  }
+  
   /**
    * Return list of 2 PowerActions at specified rarity.
    *

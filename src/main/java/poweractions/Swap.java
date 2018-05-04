@@ -26,7 +26,7 @@ public class Swap extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Swap(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured);
+    super(Rarity.COMMON, game, whereCaptured, 4, 4);
     capturingPiece = game.getPieceAt(whereCaptured);
     this.whereCaptured = whereCaptured;
   }

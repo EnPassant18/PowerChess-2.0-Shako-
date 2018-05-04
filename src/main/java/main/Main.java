@@ -16,6 +16,7 @@ import spark.Request;
 import spark.Response;
 import spark.Spark;
 import spark.template.freemarker.FreeMarkerEngine;
+import websockets.ChessWebSocket;
 
 /**
  * The Main class of our project. This is where execution begins.
@@ -89,6 +90,7 @@ public final class Main {
 
     FreeMarkerEngine freeMarker = createEngine();
 
+    Spark.webSocket("/play", ChessWebSocket.class);
     // Setup Spark Routes
 
   }

@@ -25,7 +25,7 @@ public class EyeForEye extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public EyeForEye(Game game, Location whereCaptured) {
-    super(Rarity.RARE, game, whereCaptured);
+    super(Rarity.RARE, game, whereCaptured, 2, 0);
     capturingPiece = game.getPieceAt(whereCaptured);
   }
 

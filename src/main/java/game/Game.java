@@ -2,6 +2,7 @@ package game;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -17,6 +18,7 @@ import pieces.GhostPawn;
 import pieces.King;
 import pieces.Pawn;
 import pieces.Piece;
+import pieces.Queen;
 import players.Player;
 import poweractions.PowerAction;
 import powerups.PowerObject;
@@ -46,6 +48,10 @@ public class Game {
   private final int lastRow = 7;
 
   private Location toPromote;
+  
+  private Map<PowerUp, Location> removedLocations;
+  private Map<PowerObject, Location> addedPowerObject;
+  
 
   /**
    * GameState enumerates the various states of a game (e.g. waiting for a
@@ -182,6 +188,7 @@ public class Game {
     tilNextPowerup--;
 
     // after move, check if new PowerObject should spawn
+    addedPowerObject = new HashMap<PowerObject, Location>();
     if (tilNextPowerup == 0) {
       spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
       updateTilNextPowerUp();
@@ -206,10 +213,12 @@ public class Game {
     }
 
     // decrement lifetime of PowerUp
+    removedLocations = new HashMap<PowerUp, Location>();
     List<PowerUp> toRemove = new ArrayList<>();
     powerUps.keySet().forEach((power) -> {
       power.decrementTurns();
       if (power.toRemove()) {
+    	removedLocations.put(power, powerUps.get(power));
         toRemove.add(power);
       }
     });
@@ -217,7 +226,24 @@ public class Game {
       removePowerUp(power);
     }
   }
-
+  
+  /**
+   * Returns a list of powerups removed after the last turn.
+   * 
+   * @return list of power ups.
+   */
+  public Map<PowerUp, Location> getRemoved() {
+	  return this.removedLocations;
+  }
+  
+  /**
+   * Returns a Powerobject and its location if one was added.
+   * @return
+   */
+  public Map<PowerObject, Location> getPowerObject() {
+	  return this.addedPowerObject;
+  }
+  
   /**
    * Add a PowerUp to the game at the specified location.
    *
@@ -286,6 +312,7 @@ public class Game {
    */
   public void spawnPowerObject(Location loc, PowerObject powerObj) {
     board.addBoardObject(loc, powerObj);
+    addedPowerObject.put(powerObj, loc);
   }
 
   /**
@@ -406,6 +433,14 @@ public class Game {
     board.placePiece(loc, newPiece);
     gameState = GameState.WAITING_FOR_MOVE;
     whiteToMove = !whiteToMove;
+  }
+  
+  public Location executePromotionToQueen() {
+	  Piece newPiece = new Queen(getActivePlayer().getColor());
+	  board.placePiece(toPromote, newPiece);
+	  gameState = GameState.WAITING_FOR_MOVE;
+	  whiteToMove = !whiteToMove;
+	  return toPromote;
   }
 
   private void manageCaptured(Collection<BoardObject> captured, Location end) {
