@@ -14,7 +14,7 @@ import powerups.PowerObject.Rarity;
 
 /**
  * Destroy all pawns. All kings are invulnerable for the next two turns.
- * 
+ *
  * @author Brad
  *
  */
@@ -30,7 +30,7 @@ public class Armageddon extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Armageddon(Game game, Location whereCaptured) {
-    super(Rarity.LEGENDARY, game, whereCaptured, 0, 0);
+    super(Rarity.LEGENDARY, game, whereCaptured, 0);
   }
 
   @Override
@@ -76,7 +76,8 @@ public class Armageddon extends PowerAction {
 
   @Override
   public String toString() {
-    return "Armageddon: Destroy all pawns. All kings are invulnerable for the next two turns.";
+    return "Armageddon: Destroy all pawns. All kings are "
+        + "invulnerable for the next two turns.";
   }
 
 }

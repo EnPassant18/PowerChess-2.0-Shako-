@@ -1,143 +1,98 @@
 package websockets;
 
-import game.Color;
-import game.Game;
-import game.Game.GameState;
-import game.Move;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import board.IllegalMoveException;
-import board.Location;
+import org.eclipse.jetty.websocket.api.Session;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
+import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
-import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketClose;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-
+import board.IllegalMoveException;
+import board.Location;
+import game.Color;
+import game.Game;
+import game.Game.GameState;
+import game.Move;
 import pieces.Bishop;
 import pieces.King;
 import pieces.Knight;
 import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
-import players.CliPlayer;
 import players.GuiPlayer;
 import players.Player;
-import poweractions.Adjust;
 import poweractions.PowerAction;
-import poweractions.Rewind;
-import poweractions.SecondEffort;
-import poweractions.Shield;
-import poweractions.Swap;
 import powerups.BlackHole;
 import powerups.Invulnerability;
 import powerups.PowerObject;
 import powerups.PowerUp;
-import repl.ChessReplUtils;
 
+@WebSocket
 public class ChessWebSocket {
   private static final Gson GSON = new Gson();
   private static final Queue<Session> sessions = new ConcurrentLinkedQueue<>();
   private static int nextId = 0;
-  
+
   private static int nextGameId = 0;
   private static int nextPlayerId = 0;
-  
+
   private static final Map<Integer, Game> gameIdMap = new HashMap<>();
-  private static final Map<Integer, List<Integer>> gamePlayerMap = new HashMap<>();
+  private static final Map<Integer, List<Integer>> gamePlayerMap =
+      new HashMap<>();
   private static final Map<Integer, Session> playerSessionMap = new HashMap<>();
   private static final Map<Integer, String> playerNameMap = new HashMap<>();
   private static final Map<Integer, Boolean> playerDrawMap = new HashMap<>();
 
   private static enum MESSAGE_TYPE {
-    CREATE_GAME,
-    JOIN_GAME,
-    GAME_OVER,
-    REQUEST_DRAW,
-    PLAYER_ACTION,
-    GAME_UPDATE,
-    ILLEGAL_ACTION,
-    ERROR
+    CREATE_GAME, JOIN_GAME, GAME_OVER, REQUEST_DRAW, PLAYER_ACTION,
+    GAME_UPDATE, ILLEGAL_ACTION, ERROR
   }
-  
+
   private static enum ACTION {
-	  NONE,
-	  MOVE,
-	  SELECT_POWER,
-	  SELECT_SQUARE,
-	  SELECT_PIECE,
-	  MOVE_THIS
+    NONE, MOVE, SELECT_POWER, SELECT_SQUARE, SELECT_PIECE, MOVE_THIS
   }
-  
+
   private static enum GAME_END_REASON {
-	  MATE,
-	  RESIGNATION,
-	  TIME,
-	  DRAW_AGREED
+    MATE, RESIGNATION, TIME, DRAW_AGREED
   }
-  
+
   private static enum GAME_RESULT {
-	  WIN,
-	  LOSS,
-	  DRAW
+    WIN, LOSS, DRAW
   }
-  
+
   private static enum ENTITY_TYPES {
-	  NOTHING,
-	  PIECE,
-	  POWER,
-	  OTHER
+    NOTHING, PIECE, POWER, OTHER
   }
-  
+
   private static enum PIECE_IDS {
-	  KING,
-	  QUEEN,
-	  ROOK,
-	  BISHOP,
-	  KNIGHT,
-	  PAWN
+    KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN
   }
-  
+
   private static enum POWER_RARITIES {
-	  COMMON,
-	  RARE,
-	  LEGENDARY
+    COMMON, RARE, LEGENDARY
   }
-  
+
   private static enum COMMON_POWERS {
-	  ADJUST,
-	  REWIND,
-	  SECOND_EFFORT,
-	  SHIELD,
-	  SWAP
+    ADJUST, REWIND, SECOND_EFFORT, SHIELD, SWAP
   }
-  
+
   private static enum RARE_POWERS {
-	  BLACK_HOLE,
-	  ENERGIZE,
-	  EYE_FOR_AN_EYE,
-	  SAFETY_NET,
-	  SEND_AWAY
+    BLACK_HOLE, ENERGIZE, EYE_FOR_AN_EYE, SAFETY_NET, SEND_AWAY
   }
+
   private static enum LEGENDARY_POWERS {
-	  ARMAGEDDON,
-	  AWAKEN,
-	  CLONE,
-	  REANIMATE
+    ARMAGEDDON, AWAKEN, CLONE, REANIMATE
   }
 
   @OnWebSocketConnect
@@ -277,6 +232,7 @@ public class ChessWebSocket {
 	  try {
 		  game.turn();
 	  } catch (IllegalMoveException e) {
+		  //If illegal move, send back an illegal action message to the session owner.
 		  JsonObject response = new JsonObject();
 		  response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
 		  session.getRemote().sendString(GSON.toJson(response));
@@ -285,14 +241,17 @@ public class ChessWebSocket {
 	  playerDrawMap.replace(playerId, false);
 	  Map<PowerUp, Location> powers = game.getRemoved();
 	  JsonArray updates = new JsonArray();
+	  //If there are any power ups to update (any that ran out)
 	  for(PowerUp power : powers.keySet()) {
 		  JsonObject updatePart = new JsonObject();
 		  Location loc = powers.get(power);
 		  updatePart.addProperty("row", loc.getRow());
 		  updatePart.addProperty("col", loc.getCol());
+		  //If the powerup is a blackhole
 		  if(power instanceof BlackHole) {
 			  updatePart.addProperty("state", ENTITY_TYPES.NOTHING.ordinal());
 		  }
+		  //If its invulnerability
 		  else if(power instanceof Invulnerability) {
 			  Piece p = game.getPieceAt(loc);
 			  updatePart.addProperty("state", ENTITY_TYPES.PIECE.ordinal());
@@ -347,10 +306,8 @@ public class ChessWebSocket {
 		  PowerAction action1 = actions.get(0);
 		  response.addProperty("rarity", action1.getRarity().ordinal());
 		  response.addProperty("id1", action1.getId());
-		  response.addProperty("followUp1", action1.getFollowUp());
 		  PowerAction action2 = actions.get(1);
 		  response.addProperty("id2", action2.getId());
-		  response.addProperty("followUp2", action2.getFollowUp());
 	  }
 	  else {
 		  response.addProperty("action", ACTION.NONE.ordinal());
@@ -377,37 +334,40 @@ public class ChessWebSocket {
    * 	The integer id of the piece.
    */
   private int getPieceValue(Piece p) {
-	  if(p instanceof King) {
-		  return PIECE_IDS.KING.ordinal();
-	  }
-	  else if(p instanceof Queen) {
-		  return PIECE_IDS.QUEEN.ordinal();
-	  }
-	  else if(p instanceof Bishop) {
-		  return PIECE_IDS.BISHOP.ordinal();
-	  }
-	  else if(p instanceof Rook) {
-		  return PIECE_IDS.ROOK.ordinal();
-	  }
-	  else if(p instanceof Knight) {
-		  return PIECE_IDS.KNIGHT.ordinal();
-	  }
-	  else {
-		  return PIECE_IDS.PAWN.ordinal();
-	  }
+    if (p instanceof King) {
+      return PIECE_IDS.KING.ordinal();
+    } else if (p instanceof Queen) {
+      return PIECE_IDS.QUEEN.ordinal();
+    } else if (p instanceof Bishop) {
+      return PIECE_IDS.BISHOP.ordinal();
+    } else if (p instanceof Rook) {
+      return PIECE_IDS.ROOK.ordinal();
+    } else if (p instanceof Knight) {
+      return PIECE_IDS.KNIGHT.ordinal();
+    } else {
+      return PIECE_IDS.PAWN.ordinal();
+    }
   }
-  
+
+  /**
+   * Reads a move from the given JsonObject and returns the move.
+   * 
+   * @param moveJson
+   * 	JsonObject containing the a "from" and "to" JsonObject, each with their own "row" and "col" ints.
+   * @return
+   * 	A move, starting from from.row and from.col and ending at to.row and to.col.
+   */
   private Move getMove(JsonObject moveJson) {
-	  JsonObject from = moveJson.get("from").getAsJsonObject();
-	  JsonObject to = moveJson.get("to").getAsJsonObject();
-	  int fromRow = from.get("row").getAsInt();
-	  int fromCol = from.get("col").getAsInt();
-	  int toRow = to.get("row").getAsInt();
-	  int toCol = to.get("col").getAsInt();
-	  Location startLocation = new Location(fromRow, fromCol);
-	  Location endLocation = new Location(toRow, toCol);
-	  Move move = new Move(startLocation, endLocation);
-	  return move;
+    JsonObject from = moveJson.get("from").getAsJsonObject();
+    JsonObject to = moveJson.get("to").getAsJsonObject();
+    int fromRow = from.get("row").getAsInt();
+    int fromCol = from.get("col").getAsInt();
+    int toRow = to.get("row").getAsInt();
+    int toCol = to.get("col").getAsInt();
+    Location startLocation = new Location(fromRow, fromCol);
+    Location endLocation = new Location(toRow, toCol);
+    Move move = new Move(startLocation, endLocation);
+    return move;
   }
   
   /**

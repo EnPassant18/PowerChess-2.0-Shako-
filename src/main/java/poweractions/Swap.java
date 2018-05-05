@@ -1,13 +1,14 @@
 package poweractions;
 
-import board.*;
+import board.Location;
 import game.Game;
 import pieces.Piece;
 import powerups.PowerObject.Rarity;
 
 /**
- * Allows the capturing player to swap the position of the
- * capturing piece with another of their pieces.
+ * Allows the capturing player to swap the position of the capturing piece with
+ * another of their pieces.
+ *
  * @author Brad
  *
  */
@@ -25,7 +26,7 @@ public class Swap extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Swap(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured, 4, 4);
+    super(Rarity.COMMON, game, whereCaptured, 4);
     capturingPiece = game.getPieceAt(whereCaptured);
     this.whereCaptured = whereCaptured;
   }

@@ -20,8 +20,6 @@ import websockets.ChessWebSocket;
 
 /**
  * The Main class of our project. This is where execution begins.
- *
- * @author jj
  */
 public final class Main {
 
@@ -91,6 +89,7 @@ public final class Main {
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.webSocket("/play", ChessWebSocket.class);
+    Spark.init();
     // Setup Spark Routes
 
   }

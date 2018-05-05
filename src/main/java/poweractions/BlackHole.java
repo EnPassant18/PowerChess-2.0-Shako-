@@ -24,7 +24,7 @@ public class BlackHole extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public BlackHole(Game game, Location whereCaptured) {
-    super(Rarity.RARE, game, whereCaptured, 0, 3);
+    super(Rarity.RARE, game, whereCaptured, 0);
   }
 
   @Override

@@ -28,7 +28,6 @@ public abstract class PowerAction {
   private final Location whereCaptured;
   private static final Multimap<Rarity, String> POWER_ACTIONS;
   private int id;
-  private int followUp;
 
   static {
     POWER_ACTIONS = HashMultimap.create();
@@ -53,34 +52,27 @@ public abstract class PowerAction {
    * @param whereCaptured
    *          Location where PowerAction was captured.
    * @param id
-   * 		  Integer representing the id for front end use
+   *          Integer representing the id for front end use
    * @param followUpId
-   * 		  Integer representing the response the power action needs from the front end
+   *          Integer representing the response the power action needs from the
+   *          front end
    */
-  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id, int followUpId) {
+  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id) {
     this.rarity = rarity;
     this.game = game;
     this.whereCaptured = whereCaptured;
     this.id = id;
-    this.followUp = followUpId;
   }
 
   /**
    * Returns the id of the power action.
+   *
    * @return integer id.
    */
   public int getId() {
-	  return this.id;
+    return this.id;
   }
-  
-  /**
-   * Returns the followup id of the power action.
-   * @return integer follow up id.
-   */
-  public int getFollowUp() {
-	  return this.followUp;
-  }
-  
+
   /**
    * Return list of 2 PowerActions at specified rarity.
    *
@@ -105,24 +97,36 @@ public abstract class PowerAction {
     return actionOptions;
   }
 
-  private static PowerAction stringToAction(String actionName, Game game,
+  /**
+   * Create a power action of the specified name.
+   *
+   * @param actionName
+   *          Power action to create.
+   * @param game
+   *          Game action will affect.
+   * @param whereCaptured
+   *          Where the PowerAction was captured.
+   * @return the power action or null if name is not recognized.
+   */
+  public static PowerAction stringToAction(String actionName, Game game,
       Location whereCaptured) {
+    actionName = actionName.toLowerCase();
     switch (actionName) {
-      case "Adjust":
+      case "adjust":
         return new Adjust(game, whereCaptured);
-      case "SecondEffort":
+      case "secondeffort":
         return new SecondEffort(game, whereCaptured);
-      case "Shield":
+      case "shield":
         return new Shield(game, whereCaptured);
-      case "BlackHole":
+      case "blackhole":
         return new BlackHole(game, whereCaptured);
-      case "EyeForEye":
+      case "eyeforeye":
         return new EyeForEye(game, whereCaptured);
-      case "Swap":
+      case "wwap":
         return new Swap(game, whereCaptured);
-      case "Rewind":
+      case "rewind":
         return new Rewind(game, whereCaptured);
-      case "Armageddon":
+      case "armageddon":
         return new Armageddon(game, whereCaptured);
       default:
         return null;

@@ -24,13 +24,15 @@ public abstract class Piece implements BoardObject {
    *
    * @param color
    *          Piece color.
+   * @param rank
+   *          Piece rank.
    */
   public Piece(Color color, int rank) {
     this.color = color;
     moved = false;
     this.rank = rank;
   }
-  
+
   @Override
   public boolean canBeJumped() {
     return true;
@@ -72,7 +74,7 @@ public abstract class Piece implements BoardObject {
    * @return Piece rank.
    */
   public int getRank() {
-	  return this.rank;
+    return this.rank;
   }
 
   /**

@@ -28,7 +28,7 @@ public class Adjust extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Adjust(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured, 0, 3);
+    super(Rarity.COMMON, game, whereCaptured, 0);
 
     int row = whereCaptured.getRow();
     int col = whereCaptured.getCol();
