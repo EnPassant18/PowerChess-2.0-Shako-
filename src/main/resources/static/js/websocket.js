@@ -29,6 +29,7 @@ class Connection {
                     $("opponentName").html(message.name);
                 } else {
                     this.PLAYER_ID = message.playerId;
+                    game = new Game(message.color, message.timeControl);
                 }
                 game.start();
                 break;
@@ -68,14 +69,30 @@ class Connection {
         console.log(message);
     }
 
+    createGame(color, name, timeControl, isPublic) {
+        this.socket.send({
+            type: MESSAGE.CREATE_GAME,
+            color: color,
+            name: name,
+            timeControl: timeControl,
+            public: isPublic
+        })
+    }
+
+    joinGame(id, name) {
+        this.GAME_ID = id;
+        this.socket.send({
+            gameId: this.GAME_ID,
+            type: MESSAGE.JOIN_GAME,
+            name: name
+        })
+    }
+
     // Called when the user attempts to move
     attemptMove(move) {
-        console.log({
-            type: MESSAGE.PLAYER_ACTION,
-            action: ACTION.MOVE,
-            move: move.adjusted()
-        });
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.PLAYER_ACTION,
             action: ACTION.MOVE,
             move: move.adjusted()
@@ -87,20 +104,22 @@ class Connection {
     // followUpObject: contains followUp action result
     usePower(option, followUpObject) {
         let message = {
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.PLAYER_ACTION,
             action: ACTION.SELECT_POWER,
             selection: option
         }
         if (followUpObject !== undefined) { message.followUp = followUpObject.adjusted() }
-        console.log(message);
         this.socket.send(JSON.stringify(message));
     }
 
-<<<<<<< HEAD
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.GAME_OVER,
             result: GAME_RESULT,
             reason: reason
@@ -111,19 +130,9 @@ class Connection {
     // When a player offers a draw
     draw() {
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.REQUEST_DRAW
         }));
     }
 }
-=======
-// When a player resigns or loses on time
-// reason: RESIGNATION (1) / TIME (2)
-function lose(reason) {
-    setAction(ACTION.NONE);
-    websocket.send(JSON.stringify({
-        type: MESSAGE.GAME_OVER,
-        result: GAME_RESULT
-        selection: option
-    }))
-}
->>>>>>> 0e5f745cdcf221532bedff9231a5f93c15b280dc

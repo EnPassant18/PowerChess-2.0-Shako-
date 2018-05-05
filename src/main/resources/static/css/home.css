@@ -21,9 +21,9 @@ body {
     width: 300px;
 }
 
-/* Create game form style */
+/* Create game and signin form style */
 
-#form {
+#form, #signIn {
     background-color: rgb(241, 241, 241);
     border-radius: 3px;
     text-align: center;
@@ -32,6 +32,11 @@ body {
 
 form {
     padding: 20px;
+}
+
+#welcome {
+    font-size: 30px;
+    color: rgb(95, 95, 95);
 }
 
 #header {

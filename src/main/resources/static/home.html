@@ -13,35 +13,40 @@
      <div id="left">
        <img id="logo" src="images/logo.png">
        <br>
+       <form id="signIn">
+        <div id="welcome">Welcome, Guest!</div>
+        <br>
+        <input type="text" name="name" id="name" placeholder="Your name">
+        &nbsp
+        <button type="button" id="submitName">Submit</button>
+       </form>
+       <br>
        <div id="form">
           <div id="header">Create Game</div>
           <form>
-            <input type="text" name="name" placeholder="Your name">
-            <br>
-            <br>
-            <input type="radio" name="time" value="Quick" id="Quick" hidden>
+            <input type="radio" name="time" value="0" id="Quick" hidden>
             <label for="Quick">Quick</label>
-            <input type="radio" name="time" value="Standard" id="Standard" hidden checked>
+            <input type="radio" name="time" value="1" id="Standard" hidden checked>
             <label for="Standard">Standard</label>
-            <input type="radio" name="time" value="Slow" id="Slow" hidden>
+            <input type="radio" name="time" value="2" id="Slow" hidden>
             <label for="Slow">Slow</label>
             <br>
             <br>
-            <input type="radio" name="color" value="White" id="White" hidden>
+            <input type="radio" name="color" value="true" id="White" hidden>
             <label for="White">White</label>
             <input type="radio" name="color" value="Random" id="Random" hidden checked>
             <label for="Random">Random</label>
-            <input type="radio" name="color" value="Black" id="Black" hidden>
+            <input type="radio" name="color" value="false" id="Black" hidden>
             <label for="Black">Black</label>
             <br>
             <br>
-            <input type="radio" name="privacy" value="Private" id="Private" hidden>
+            <input type="radio" name="privacy" value="false" id="Private" hidden>
             <label for="Private">Private</label>
-            <input type="radio" name="privacy" value="Public" id="Public" hidden checked>
+            <input type="radio" name="privacy" value="true" id="Public" hidden checked>
             <label for="Public">Public</label>
             <br>
             <br>
-            <button type="submit">Play</button>
+            <button type="button" id="submitCreate">Play</button>
           </form>
        </div>
      </div>
