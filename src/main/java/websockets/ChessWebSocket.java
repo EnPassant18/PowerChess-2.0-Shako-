@@ -135,108 +135,12 @@ public class ChessWebSocket {
 		  
 	  }
   }
-<<<<<<< HEAD
-
-  private void makeMove(Session session, JsonObject received)
-      throws IOException {
-    JsonObject moveJson = received.get("move").getAsJsonObject();
-    Move move = getMove(moveJson);
-
-    int gameId = received.get("gameId").getAsInt();
-    int playerId = received.get("playerId").getAsInt();
-    Game game = gameIdMap.get(gameId);
-    Player player = game.getActivePlayer();
-    player.setMove(move);
-
-    try {
-      game.turn();
-    } catch (IllegalMoveException e) {
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
-      return;
-    }
-    Map<PowerUp, Location> powers = game.getRemoved();
-    JsonArray updates = new JsonArray();
-    for (PowerUp power : powers.keySet()) {
-      JsonObject updatePart = new JsonObject();
-      Location loc = powers.get(power);
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      if (power instanceof BlackHole) {
-        updatePart.addProperty("state", ENTITY_TYPES.NOTHING.ordinal());
-      } else if (power instanceof Invulnerability) {
-        Piece p = game.getPieceAt(loc);
-        updatePart.addProperty("state", ENTITY_TYPES.PIECE.ordinal());
-        updatePart.addProperty("piece", getPieceValue(p));
-        if (p.getColor() == Color.WHITE) {
-          updatePart.addProperty("color", true);
-        } else {
-          updatePart.addProperty("color", false);
-        }
-      }
-      updates.add(updatePart);
-    }
-    Map<PowerObject, Location> addedPowerUp = game.getPowerObject();
-    for (PowerObject power : addedPowerUp.keySet()) {
-      JsonObject updatePart = new JsonObject();
-      Location loc = addedPowerUp.get(power);
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      updatePart.addProperty("state", ENTITY_TYPES.POWER.ordinal());
-      updatePart.addProperty("rarity", power.getRarity().ordinal());
-      updates.add(updatePart);
-    }
-    if (game.getGameState() == GameState.WAITING_FOR_PROMOTE) {
-      JsonObject updatePart = new JsonObject();
-      Location loc = game.executePromotionToQueen();
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      updatePart.addProperty("state", ENTITY_TYPES.PIECE.ordinal());
-      Piece p = game.getPieceAt(loc);
-      updatePart.addProperty("piece", PIECE_IDS.QUEEN.ordinal());
-      if (p.getColor() == Color.WHITE) {
-        updatePart.addProperty("color", true);
-      } else {
-        updatePart.addProperty("color", false);
-      }
-      updates.add(updatePart);
-    }
-    JsonObject response = new JsonObject();
-    response.addProperty("type", MESSAGE_TYPE.GAME_UPDATE.ordinal());
-    response.add("updates", updates);
-    // send valid message back
-    JsonObject otherResponse = new JsonObject();
-    otherResponse.addProperty("type", MESSAGE_TYPE.GAME_UPDATE.ordinal());
-    otherResponse.add("move", moveJson);
-    otherResponse.add("updates", updates);
-    List<PowerAction> actions = game.getActionOptions();
-    if (!actions.isEmpty()) {
-      response.addProperty("action", ACTION.SELECT_POWER.ordinal());
-      otherResponse.addProperty("action", ACTION.NONE.ordinal());
-      PowerAction action1 = actions.get(0);
-      response.addProperty("rarity", action1.getRarity().ordinal());
-      response.addProperty("id1", action1.getId());
-      PowerAction action2 = actions.get(1);
-      response.addProperty("id2", action2.getId());
-    } else {
-      response.addProperty("action", ACTION.NONE.ordinal());
-      otherResponse.addProperty("action", ACTION.MOVE.ordinal());
-    }
-    session.getRemote().sendString(GSON.toJson(response));
-    List<Integer> playerList = gamePlayerMap.get(gameId);
-    for (int i = 0; i < playerList.size(); i++) {
-      if (playerList.get(i) != playerId) {
-        Session otherSession = playerSessionMap.get(playerList.get(i));
-        otherSession.getRemote().sendString(GSON.toJson(otherResponse));
-        return;
-      }
-    }
-=======
-  
+	
+  //TODO: this should be pretty simple. It's called either when time runs out or a game is forfeited.
+  //Simply inform both players that the game is over and the reason that it's over (which is explained in
+  //Daniel's GUI documentation.
   private void gameOver(Session session, JsonObject received) {
 	  
->>>>>>> 6d378108468d1f1691138b4f4a2c524f719addee
   }
   
   /**
@@ -289,6 +193,10 @@ public class ChessWebSocket {
 	  }
   }
   
+	
+  //TODO: this method is incomplete. This is called when the session owner made a power up choice. 
+  //Need to update the game board based off that selection (probably similar to how its handled
+  //in the REPL.
   private void powerSelect(Session session, JsonObject received) throws IOException {
 	  boolean selection = received.get("selection").getAsBoolean();
 	  int gameId = received.get("gameId").getAsInt();
@@ -318,6 +226,9 @@ public class ChessWebSocket {
 	    }
   }
   
+  //TODO: make a proper header for this as github doesn't format well.
+  //This function takes in the session and received Json and attempts to make a move based off the
+  //the contents of the Json.
   private void makeMove(Session session, JsonObject received) throws IOException {
 	  JsonObject moveJson = received.get("move").getAsJsonObject();
 	  Move move = getMove(moveJson);
@@ -339,8 +250,9 @@ public class ChessWebSocket {
 	  }
 	  playerDrawMap.replace(playerId, false);
 	  Map<PowerUp, Location> powers = game.getRemoved();
+	  //updates is a list of all changes in the board state after the turn gets executed (not counting the move itself).
 	  JsonArray updates = new JsonArray();
-	  //If there are any power ups to update (any that ran out)
+	  //If there are any power ups to update (any that ran out after executing this turn)
 	  for(PowerUp power : powers.keySet()) {
 		  JsonObject updatePart = new JsonObject();
 		  Location loc = powers.get(power);
@@ -365,6 +277,7 @@ public class ChessWebSocket {
 		  updates.add(updatePart);
 	  }
 	  Map<PowerObject, Location> addedPowerUp = game.getPowerObject();
+	  //If a power up was spawned, add the power up and its location to update
 	  for(PowerObject power : addedPowerUp.keySet()) {
 		  JsonObject updatePart = new JsonObject();
 		  Location loc = addedPowerUp.get(power);
@@ -374,6 +287,8 @@ public class ChessWebSocket {
 		  updatePart.addProperty("rarity", power.getRarity().ordinal());
 		  updates.add(updatePart);
 	  }
+	  //If the game is waiting for a promotion, auto-promote the piece to queen and add that
+	  //change to updates.
 	  if(game.getGameState() == GameState.WAITING_FOR_PROMOTE) {
 		  JsonObject updatePart = new JsonObject();
 		  Location loc = game.executePromotionToQueen();
@@ -399,6 +314,7 @@ public class ChessWebSocket {
 	  otherResponse.add("move", moveJson);
 	  otherResponse.add("updates", updates);
 	  List<PowerAction> actions = game.getActionOptions();
+	  //If the move captured a power up, request a power up selection;
 	  if(!actions.isEmpty()) {
 		  response.addProperty("action", ACTION.SELECT_POWER.ordinal());
 		  otherResponse.addProperty("action", ACTION.NONE.ordinal());
@@ -408,6 +324,8 @@ public class ChessWebSocket {
 		  PowerAction action2 = actions.get(1);
 		  response.addProperty("id2", action2.getId());
 	  }
+	  //Otherwise, tell the session owner that their turn is over and tell the other player
+	  //that their turn has started
 	  else {
 		  response.addProperty("action", ACTION.NONE.ordinal());
 		  otherResponse.addProperty("action", ACTION.MOVE.ordinal());
