@@ -3,26 +3,31 @@ package poweractions;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import board.*;
-import game.Game;
-import game.Move;
+import board.Board;
+import board.Location;
 import game.Color;
-import powerups.PowerObject.Rarity;
+import game.Game;
 import pieces.Piece;
+import powerups.PowerObject.Rarity;
 
 /**
  * Place a copy of this piece on a random square in your back rank. Rarity:
  * Legendary.
  *
  * @author brad
- * 
+ *
  */
+<<<<<<< HEAD
 public class Clone extends PowerAction implements PieceMover {
   
   private final static int SIZE = 8;
+=======
+public class Clone extends PowerAction {
+
+  private static final int SIZE = 8;
+>>>>>>> 0f027c21d77716221ac05a1b852d30b8aea103b0
   private List<Location> vacantSquares;
   private Location startLocation, endLocation;
   private Board board;
@@ -38,6 +43,7 @@ public class Clone extends PowerAction implements PieceMover {
    */
   public Clone(Game game, Location whereCaptured) {
     super(Rarity.LEGENDARY, game, whereCaptured, 0);
+<<<<<<< HEAD
     
     board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
@@ -45,12 +51,20 @@ public class Clone extends PowerAction implements PieceMover {
     int row = color == Color.WHITE ? 0 : SIZE - 1;
     startLocation = whereCaptured;
     
+=======
+
+    Board board = game.getBoard();
+    Piece capturingPiece = board.getPieceAt(whereCaptured);
+    Color color = capturingPiece.getColor();
+    int row = color == Color.WHITE ? 0 : SIZE - 1;
+
+>>>>>>> 0f027c21d77716221ac05a1b852d30b8aea103b0
     Location loc;
     vacantSquares = new ArrayList<>();
-    
-    for(int j = 0; j < SIZE; j++) {
+
+    for (int j = 0; j < SIZE; j++) {
       loc = new Location(row, j);
-      if(board.isEmpty(loc)) {
+      if (board.isEmpty(loc)) {
         vacantSquares.add(loc);
       }
     }
@@ -69,34 +83,35 @@ public class Clone extends PowerAction implements PieceMover {
 
   @Override
   public void act(Object obj) {
-    if(vacantSquares.isEmpty()) {
+    if (vacantSquares.isEmpty()) {
       return;
     }
     endLocation = getRandomLocation();
     getGame().executeMove(new Move(startLocation, endLocation));
   }
-  
+
   /**
    * Returns end location.
-   * @return
-   *    End location.
+   *
+   * @return End location.
    */
   public Location getEndLocation() {
     return endLocation;
   }
-  
+
   private Location getRandomLocation() {
-    if(vacantSquares.isEmpty()) {
+    if (vacantSquares.isEmpty()) {
       return null;
     }
     
     Collections.shuffle(vacantSquares);
-    return vacantSquares.get(0);  
+    return vacantSquares.get(0);
   }
 
   @Override
   public String toString() {
-    return "Clone: Place a copy of this piece on a random empty square on your back rank. (If no empty squares, does nothing.)";
+    return "Clone: Place a copy of this piece on a random empty square on your "
+        + "back rank. (If no empty squares, does nothing.)";
   }
 
 }

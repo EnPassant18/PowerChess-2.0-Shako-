@@ -50,6 +50,9 @@ public class Game {
 
   private Location toPromote;
 
+  private TimeControl timeControl;
+  private boolean isPublic;
+
   private Map<PowerUp, Location> removedLocations;
   private Map<PowerObject, Location> addedPowerObject;
   
@@ -65,6 +68,16 @@ public class Game {
   public enum GameState {
     WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE,
     WAITING_FOR_POWERUP_EXEC, GAME_OVER
+  }
+
+  /**
+   * Enumerates options for game time controls.
+   *
+   * @author knorms
+   *
+   */
+  public enum TimeControl {
+    QUICK, STANDARD, SLOW
   }
 
   private GameState gameState;
@@ -108,19 +121,21 @@ public class Game {
   public Game() {
     this(START_POSITION_FEN);
   }
-  
+
   /**
-   * Constructor for a game starting from a given FEN
-   * @param FEN
-   *    FEN.
+   * Constructor for a game starting from a given FEN.
+   *
+   * @param fen
+   *          FEN.
    */
-  public Game(final String FEN) {
-    if(!ChessReplUtils.isFenValid(FEN)) {
-      throw new IllegalArgumentException("ERROR: Invalid FEN given to Game constructor.");
+  public Game(final String fen) {
+    if (!ChessReplUtils.isFenValid(fen)) {
+      throw new IllegalArgumentException(
+          "ERROR: Invalid FEN" + " given to Game constructor.");
     }
-    
-    String[] fenArray = FEN.split("\\s+");
-    
+
+    String[] fenArray = fen.split("\\s+");
+
     String piecePlacement = fenArray[0];
     String activeColor = fenArray[1];
     String castling = fenArray[2];
@@ -128,6 +143,7 @@ public class Game {
     
     board = new Board(FEN);
     whiteToMove = activeColor.equals("w");
+
     history = new ArrayList<>();
     gameOver = false;
     updateTilNextPowerUp();
@@ -138,7 +154,7 @@ public class Game {
     });
     gameState = GameState.WAITING_FOR_MOVE;
     addedPowerObject = new HashMap<PowerObject, Location>();
-    
+
   }
 
   /**
@@ -666,6 +682,36 @@ public class Game {
    */
   public List<Move> getHistory() {
     return history;
+  }
+
+  /**
+   * @return the timeControl
+   */
+  public TimeControl getTimeControl() {
+    return timeControl;
+  }
+
+  /**
+   * @param timeControl
+   *          the timeControl to set
+   */
+  public void setTimeControl(TimeControl timeControl) {
+    this.timeControl = timeControl;
+  }
+
+  /**
+   * @return the isPublic
+   */
+  public boolean isPublic() {
+    return isPublic;
+  }
+
+  /**
+   * @param pub
+   *          the public to set
+   */
+  public void setPublic(boolean pub) {
+    this.isPublic = pub;
   }
 
 }

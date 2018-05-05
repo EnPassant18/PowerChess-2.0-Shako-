@@ -1,11 +1,12 @@
 class Game {
     constructor(color, timeControl) {
         this.color = color;
-        this._action = ACTION.NONE;
-        this.timer = new Timer(timeControl);
+        this.timer = new Timer(Timer.TIME_CONTROL.timeControl);
         this.power1 = null;
         this.power2 = null;
         this.selected = null;
+        color ? this._action = ACTION.MOVE : this._action = ACTION.NONE;
+        setTimeout(() => UI.drawPieces(), 10);
     }
 
     get action() {
@@ -35,10 +36,10 @@ class Game {
     }
 
     // When the user selects a power
-    // selection: boolean (true = first)
+    // selection: boolean (false = first)
     powerSelect(selection) {
-        const selected = selection ? this.power1 : this.power2;
-        const unselected = selection ? this.power2 : this.power1;
+        const unselected = selection ? this.power1 : this.power2;
+        const selected = selection ? this.power2 : this.power1;
         if (selected.hasFollowUp) {
             this.selected = selected;
             this.action = selected.followUp;
@@ -53,9 +54,16 @@ class Game {
         this.selected.activateFollowUp(followUpObject);
     }
 
+    start() {
+        this.timer.start();
+    }
+
     // Displays a popup when the game ends
     gameOver(result, reason) {
-        stopTimer();
+        this._action = ACTION.NONE;
+        this.timer.stop();
+        $("#draw").off("click");
+        $("#resign").off("click");
         switch (result) {
             case GAME_RESULT.WIN: alert("You win"); break;
             case GAME_RESULT.LOSS: alert("You lose"); break;

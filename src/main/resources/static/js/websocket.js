@@ -2,20 +2,21 @@ class Connection {
     constructor(url) {
         try {
             this.socket = new WebSocket(url);
-            _setup();
+            this._setup();
         } catch (error) {
             this.connectionError(error);
         }
     }
 
     _setup() {
-        socket.onerror = event => {
+        this.socket.onerror = event => {
             connectionError(event);
         }
 
-        socket.onmessage = event => {
+        this.socket.onmessage = event => {
             $("#error").attr("hidden");
-            message = JSON.parse(event.data);
+            const message = JSON.parse(event.data);
+            console.log(message);
             switch (message.type) {
             default:
                 connectionError("Unexpected or unrecognized message type: " + message.type);
@@ -25,10 +26,10 @@ class Connection {
                 this.PLAYER_ID = message.playerId;
                 break;
             case MESSAGE.JOIN_GAME:
-                if (message.name !== undefined) {
-                    $("opponentName").html(message.name);
-                } else {
+                $("#opponentName").html(message.name);
+                if (message.playerId !== undefined) {
                     this.PLAYER_ID = message.playerId;
+                    game = new Game(message.color, message.timeControl);
                 }
                 game.start();
                 break;
@@ -68,14 +69,30 @@ class Connection {
         console.log(message);
     }
 
+    createGame(color, name, timeControl, isPublic) {
+        this.socket.send(JSON.stringify({
+            type: MESSAGE.CREATE_GAME,
+            color: color,
+            name: name,
+            timeControl: timeControl,
+            public: isPublic
+        }));
+    }
+
+    joinGame(id, name) {
+        this.GAME_ID = id;
+        this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            type: MESSAGE.JOIN_GAME,
+            name: name
+        }));
+    }
+
     // Called when the user attempts to move
     attemptMove(move) {
-        console.log({
-            type: MESSAGE.PLAYER_ACTION,
-            action: ACTION.MOVE,
-            move: move.adjusted()
-        });
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.PLAYER_ACTION,
             action: ACTION.MOVE,
             move: move.adjusted()
@@ -87,12 +104,13 @@ class Connection {
     // followUpObject: contains followUp action result
     usePower(option, followUpObject) {
         let message = {
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.PLAYER_ACTION,
             action: ACTION.SELECT_POWER,
             selection: option
         }
         if (followUpObject !== undefined) { message.followUp = followUpObject.adjusted() }
-        console.log(message);
         this.socket.send(JSON.stringify(message));
     }
 
@@ -100,6 +118,8 @@ class Connection {
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.GAME_OVER,
             result: GAME_RESULT,
             reason: reason
@@ -110,18 +130,9 @@ class Connection {
     // When a player offers a draw
     draw() {
         this.socket.send(JSON.stringify({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
             type: MESSAGE.REQUEST_DRAW
         }));
     }
-}
-
-// When a player resigns or loses on time
-// reason: RESIGNATION (1) / TIME (2)
-function lose(reason) {
-    setAction(ACTION.NONE);
-    websocket.send(JSON.stringify({
-        type: MESSAGE.GAME_OVER,
-        result: GAME_RESULT,
-        selection: option
-    }))
 }

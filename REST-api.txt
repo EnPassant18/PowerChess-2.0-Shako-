@@ -33,10 +33,13 @@ game end reason: MATE (0), RESIGNATION (1), TIME (2), DRAW_AGREED (3)
 game result: WIN (0), LOSS (1), DRAW (2)
 entity types: NOTHING (0), PIECE (1), POWER (2), OTHER (3)
 piece ids: KING (0), QUEEN (1), ROOK (2), BISHOP (3), KNIGHT (4), PAWN (5)
+***** Add 6 to id for invulnerable pieces *****
 power rarities: COMMON (0), RARE (1), LEGENDARY (2)
 common powers: ADJUST (0), REWIND (1), SECOND_EFFORT (2), SHIELD (3), SWAP (4)
 rare powers: BLACK_HOLE (0), ENERGIZE (1), EYE_FOR_AN_EYE (2), SAFETY_NET (3), SEND_AWAY (4)
 legendary powers: ARMAGEDDON (0), AWAKEN (1), CLONE (2), REANIMATE (3)
+time controls: QUICK (0), STANDARD (1), SLOW (2)
+other objects: BLACK_HOLE (0)
 
 -----------------------------------------------------------------------------
 -----------------------------------------------------------------------------
@@ -45,8 +48,10 @@ Requests:
 
 Creates a game, adding a player with the given color and name: {
 	type: CREATE_GAME,
+    name: <String>,
     color: <WHITE(true)/BLACK(false)>,
-    name: <String>
+    timeControl: QUICK(0)/STANDARD(1)/SLOW(2),
+    public: <boolean>
 }
 Response: {
     type: CREATE_GAME,
@@ -64,6 +69,8 @@ Response: {
     type: JOIN_GAME,
     playerId: <Int>,
     color: <WHITE(true)/BLACK(false)>,
+    name: <String> *** Opponent's name ***
+    timeControl: QUICK(0)/STANDARD(1)/SLOW(2)
     ********************************************* 
     Server assigns the player an id and color 
     (the opposite color of the player who created the game)
