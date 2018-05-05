@@ -1,7 +1,7 @@
 $(document).ready(() => {
 
     game = new Game(COLOR.WHITE, Timer.TIME_CONTROL.STANDARD);
-    connection = new Connection("");
+    connection = new Connection("ws://localhost:4567/play");
     UI.drawGame();
 
     $("#option1").click(() => game.powerSelect(true));

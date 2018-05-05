@@ -12,7 +12,7 @@ class Connection {
         socket.onerror = event => {
             connectionError(event);
         }
-    
+
         socket.onmessage = event => {
             $("#error").attr("hidden");
             message = JSON.parse(event.data);
@@ -37,7 +37,7 @@ class Connection {
                 gameOver(message.result, message.reason);
                 break;
             case MESSAGE.REQUEST_DRAW:
-                $("#drawOffered").removeAttr("hidden"); 
+                $("#drawOffered").removeAttr("hidden");
                 break;
             case MESSAGE.GAME_UPDATE:
                 if (message.move !== undefined) {
@@ -95,8 +95,6 @@ class Connection {
         console.log(message);
         this.socket.send(JSON.stringify(message));
     }
-
-<<<<<<< HEAD
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
@@ -115,15 +113,14 @@ class Connection {
         }));
     }
 }
-=======
+
 // When a player resigns or loses on time
 // reason: RESIGNATION (1) / TIME (2)
 function lose(reason) {
     setAction(ACTION.NONE);
     websocket.send(JSON.stringify({
         type: MESSAGE.GAME_OVER,
-        result: GAME_RESULT
+        result: GAME_RESULT,
         selection: option
     }))
 }
->>>>>>> 0e5f745cdcf221532bedff9231a5f93c15b280dc
