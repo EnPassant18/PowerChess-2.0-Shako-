@@ -55,8 +55,9 @@ public class Game {
 
   private Map<PowerUp, Location> removedLocations;
   private Map<PowerObject, Location> addedPowerObject;
-  
-  private final static String START_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+  private static final String START_POSITION_FEN =
+      "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   /**
    * GameState enumerates the various states of a game (e.g. waiting for a
@@ -140,8 +141,8 @@ public class Game {
     String activeColor = fenArray[1];
     String castling = fenArray[2];
     String enPassant = fenArray[3];
-    
-    board = new Board(FEN);
+
+    board = new Board(fen);
     whiteToMove = activeColor.equals("w");
 
     history = new ArrayList<>();
