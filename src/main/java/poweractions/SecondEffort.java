@@ -23,7 +23,7 @@ public class SecondEffort extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public SecondEffort(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured, 2, 5);
+    super(Rarity.COMMON, game, whereCaptured, 2);
   }
 
   @Override
@@ -45,7 +45,7 @@ public class SecondEffort extends PowerAction {
   @Override
   public String toString() {
     return "Second Effort: You may move the capturing "
-        + "piece capturing piece to move again. Rarity: Common";
+        + "piece capturing piece to move again.";
   }
 
 }

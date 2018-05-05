@@ -24,6 +24,7 @@ import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerUp;
 import randutils.RandomCollection;
+import repl.ChessReplUtils;
 
 /**
  * Game represents a game of chess.
@@ -48,10 +49,9 @@ public class Game {
   private final int lastRow = 7;
 
   private Location toPromote;
-  
+
   private Map<PowerUp, Location> removedLocations;
   private Map<PowerObject, Location> addedPowerObject;
-  
 
   /**
    * GameState enumerates the various states of a game (e.g. waiting for a
@@ -118,6 +118,37 @@ public class Game {
     gameState = GameState.WAITING_FOR_MOVE;
   }
   
+  /**
+   * Constructor for a game starting from a given FEN
+   * @param FEN
+   *    FEN.
+   */
+  public Game(final String FEN) {
+    if(!ChessReplUtils.isFenValid(FEN)) {
+      throw new IllegalArgumentException("ERROR: Invalid FEN given to Game constructor.");
+    }
+    
+    String[] fenArray = FEN.split("\\s+");
+    
+    String piecePlacement = fenArray[0];
+    String activeColor = fenArray[1];
+    String castling = fenArray[2];
+    String enPassant = fenArray[3];
+    
+    board = new Board(FEN);
+    history = new ArrayList<>();
+    gameOver = false;
+    updateTilNextPowerUp();
+    toPromote = null;
+    actionOptions = new ArrayList<>();
+    powerUps = new TreeMap<>((p1, p2) -> {
+      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
+    });
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = activeColor.equals("w");
+    
+  }
+
   /**
    * Start the game.
    */
@@ -218,7 +249,7 @@ public class Game {
     powerUps.keySet().forEach((power) -> {
       power.decrementTurns();
       if (power.toRemove()) {
-    	removedLocations.put(power, powerUps.get(power));
+        removedLocations.put(power, powerUps.get(power));
         toRemove.add(power);
       }
     });
@@ -226,24 +257,39 @@ public class Game {
       removePowerUp(power);
     }
   }
-  
+
   /**
    * Returns a list of powerups removed after the last turn.
-   * 
+   *
    * @return list of power ups.
    */
   public Map<PowerUp, Location> getRemoved() {
-	  return this.removedLocations;
+    return this.removedLocations;
   }
-  
+
+  /**
+   * Returns the Color of the first empty player.
+   *
+   * @return Either black or white depending on status of players.
+   */
+  public Color getEmptyPlayerColor() {
+    if (whitePlayer == null) {
+      return Color.WHITE;
+    } else if (blackPlayer == null) {
+      return Color.BLACK;
+    }
+    return null;
+  }
+
   /**
    * Returns a Powerobject and its location if one was added.
-   * @return
+   *
+   * @return map of newly spawned on-board PowerObject and its location.
    */
   public Map<PowerObject, Location> getPowerObject() {
-	  return this.addedPowerObject;
+    return this.addedPowerObject;
   }
-  
+
   /**
    * Add a PowerUp to the game at the specified location.
    *
@@ -279,11 +325,21 @@ public class Game {
   }
 
   /**
-   * Updates the number of turns until the next PowerObject will spawn; usually
-   * uniformly random between 3 and 5 (inclusive).
+   * Updates the number of turns until the next PowerObject will spawn to a
+   * uniformly random number between 2 and 4 (inclusive).
    */
   private void updateTilNextPowerUp() {
-    tilNextPowerup = rand.nextInt(3) + 3;
+    tilNextPowerup = rand.nextInt(3) + 2;
+  }
+
+  /**
+   * Set number of turns until next PowerObject spawns.
+   *
+   * @param remainingTurns
+   *          number of turns until next PowerObject will spawn.
+   */
+  public void setTilNextPowerUp(int remainingTurns) {
+    tilNextPowerup = remainingTurns;
   }
 
   /**
@@ -434,13 +490,18 @@ public class Game {
     gameState = GameState.WAITING_FOR_MOVE;
     whiteToMove = !whiteToMove;
   }
-  
+
+  /**
+   * Execute an automatic promotion to queen.
+   *
+   * @return location of the newly promoted queen.
+   */
   public Location executePromotionToQueen() {
-	  Piece newPiece = new Queen(getActivePlayer().getColor());
-	  board.placePiece(toPromote, newPiece);
-	  gameState = GameState.WAITING_FOR_MOVE;
-	  whiteToMove = !whiteToMove;
-	  return toPromote;
+    Piece newPiece = new Queen(getActivePlayer().getColor());
+    board.placePiece(toPromote, newPiece);
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = !whiteToMove;
+    return toPromote;
   }
 
   private void manageCaptured(Collection<BoardObject> captured, Location end) {
@@ -606,13 +667,13 @@ public class Game {
   public void setGameState(GameState gameState) {
     this.gameState = gameState;
   }
-  
+
   /**
    * Gets the move history of the game.
-   * @return
-   *    Move history of the game.
+   *
+   * @return Move history of the game.
    */
-  public List<Move> getHistory(){
+  public List<Move> getHistory() {
     return history;
   }
 

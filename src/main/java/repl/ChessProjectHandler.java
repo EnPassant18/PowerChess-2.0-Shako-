@@ -19,6 +19,7 @@ import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerObject.Rarity;
 import powerups.PowerUp;
+import stringutils.StringUtils;
 
 /**
  * Handler for chess project.
@@ -31,6 +32,7 @@ public class ChessProjectHandler extends CommandMap {
   private Game game;
   private CliPlayer whitePlayer, blackPlayer;
   private boolean printBoard = true;
+  private boolean spawnPowers = false;
 
   /**
    * Default constructor for ChessProjectHandler.
@@ -39,6 +41,7 @@ public class ChessProjectHandler extends CommandMap {
 
     // Handles the "new game" command
     add("new", "new game", s -> startNewGame());
+    add("new", "new game %q", s -> startNewGame(s.get(2)));
 
     // Handles the "move" command
     add("move", "move %s %s", s -> move(s.get(1), s.get(2)));
@@ -50,11 +53,18 @@ public class ChessProjectHandler extends CommandMap {
     add("print", "print on", s -> printOn());
     add("print", "print off", s -> printOff());
 
+    // Turns powerups on/off
+    add("powers", "powers on", s -> spawnPowers(true));
+    add("powers", "powers off", s -> spawnPowers(false));
+
     // Handles pawn promotion
     add("promote", "promote %s", s -> promote(s.get(1)));
 
     // Handles spawning powerups
     add("spawn", "spawn %s %s", s -> spawn(s.get(1), s.get(2)));
+
+    // Handles givine active player power action
+    add("give", "give %s %s", s -> give(s.get(1), s.get(2)));
 
     // Handles selecting powerup
     add("power", "power %s", s -> power(s.get(1)));
@@ -62,6 +72,50 @@ public class ChessProjectHandler extends CommandMap {
     // Handles executing poweraction
     add("action", "action %s", s -> action(s.get(1)));
 
+  }
+
+  private String spawnPowers(boolean turnOn) {
+    spawnPowers = turnOn;
+    String onOff;
+    if (turnOn) {
+      onOff = "on";
+    } else {
+      onOff = "off";
+    }
+    return String.format("powerups turned %s", onOff);
+  }
+
+  private String give(String powerActionName, String locString) {
+    Location whereCaptured = ChessReplUtils.parseLocation(locString);
+    try {
+      if (whereCaptured == null) {
+        return String.format("ERROR: Board location %s is not recognized",
+            locString);
+      } else if (game.getPieceAt(whereCaptured).getColor() != game
+          .getActivePlayer().getColor()) {
+        return "ERROR: PowerAction must be \"captured\" by active player";
+      }
+    } catch (NullPointerException e) {
+      return String.format("ERROR: No piece at location %s", whereCaptured);
+    }
+
+    powerActionName = powerActionName.replace("\"", "");
+
+    PowerAction action =
+        PowerAction.stringToAction(powerActionName.replace(" ", ""), game,
+            whereCaptured);
+    if (action == null) {
+      return String.format("ERROR: PowerAction name %s is not recognized",
+          powerActionName);
+    }
+    game.getActivePlayer().setAction(action);
+    if (action.validInput(null)) {
+      game.executePowerAction(null);
+    } else {
+      game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
+    }
+
+    return print();
   }
 
   private String power(String indexStr) {
@@ -78,13 +132,13 @@ public class ChessProjectHandler extends CommandMap {
           actionOptions.size());
     }
 
-    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
     if (game.getActionInputFormat() == null) {
       game.executePowerAction(null);
       game.setGameState(GameState.WAITING_FOR_MOVE);
       return String.format("executed %s%n%s",
           selected.getClass().getSimpleName(), print());
     }
+    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
     return String.format("selected %s%n%s", selected.getClass().getSimpleName(),
         print());
   }
@@ -127,6 +181,18 @@ public class ChessProjectHandler extends CommandMap {
 
     return print();
   }
+  
+  private String startNewGame(final String FEN) {
+    game = new Game(StringUtils.parseQuotedString(FEN));
+    
+    whitePlayer = new CliPlayer(Color.WHITE);
+    blackPlayer = new CliPlayer(Color.BLACK);
+
+    game.addPlayer(whitePlayer);
+    game.addPlayer(blackPlayer);
+    
+    return print();
+  }
 
   private String move(final String startPosition, final String endPosition) {
 
@@ -151,6 +217,10 @@ public class ChessProjectHandler extends CommandMap {
       game.turn(); // checks if valid before executing move
     } catch (IllegalMoveException e) {
       return e.getMessage();
+    }
+
+    if (!spawnPowers) {
+      game.setTilNextPowerUp(3);
     }
 
     return print();

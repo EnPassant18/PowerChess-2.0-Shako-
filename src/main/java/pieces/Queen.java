@@ -12,6 +12,7 @@ import game.Move;
  *
  */
 public class Queen extends Piece {
+  private static final int RANK = 9;
 
   /**
    * Construct Queen of the specified color.
@@ -20,7 +21,7 @@ public class Queen extends Piece {
    *          Piece color.
    */
   public Queen(Color color) {
-    super(color, 9);
+    super(color, RANK);
   }
 
   @Override

@@ -2,7 +2,7 @@ package board;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.*;
+import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -19,6 +19,7 @@ import pieces.Queen;
 import pieces.Rook;
 import powerups.PowerObject;
 import powerups.PowerUp;
+import repl.ChessReplUtils;
 
 /**
  * Board represents the chess board.
@@ -49,6 +50,57 @@ public class Board {
   }
   
   
+  /**
+   * Constructs a board corresponding to a given FEN string.
+   * @param FEN
+   *    FEN String.
+   */
+  public Board(String FEN) {
+    if(!ChessReplUtils.isFenValid(FEN)) {
+      throw new IllegalArgumentException("ERROR: Invalid FEN given to Board constructor.");
+    }
+    
+    String[] fenArray = FEN.split("\\s+");
+    
+    String piecePlacement = fenArray[0];
+    String activeColor = fenArray[1];
+    String castling = fenArray[2];
+    String enPassant = fenArray[3];
+    
+    Character c;
+    Character seperator = '/';
+    
+    spaces = HashMultimap.create();
+    
+    int i = 0;
+    int j = 0;
+    
+    for (int k = 0; k < piecePlacement.length(); k++) {
+      
+      c = piecePlacement.charAt(k);
+      
+      if(c.equals(seperator)) {
+        i++;
+        j = 0;
+      } else if (Character.isLetter(c)) {
+        spaces.put(new Location(i,j), ChessReplUtils.charToPiece(c));
+        j++;
+      } else if (Character.isDigit(c)) {
+        for(int h = 0; h < Character.getNumericValue(c); h++) {
+          spaces.put(new Location(i,j), EMPTY_SPACE);
+          j++;
+        }
+      }
+    }
+    
+    if(!enPassant.equals("-")) {
+      Location loc = ChessReplUtils.parseLocation(enPassant);
+      Color color = loc.getRow() == 3 ? Color.WHITE : Color.BLACK;
+      spaces.put(loc, new GhostPawn(color));
+    }
+    
+  }
+
 
   // TODO implement constructor that takes boardString to use with db
 
@@ -249,11 +301,19 @@ public class Board {
       spaces.put(loc, EMPTY_SPACE);
     }
   }
-  
+
+  /**
+   * Swap the contents of two board locations.
+   *
+   * @param loc1
+   *          First board location.
+   * @param loc2
+   *          Second board location.
+   */
   public void swap(final Location loc1, final Location loc2) {
     Collection<BoardObject> coll1 = spaces.removeAll(loc1);
     Collection<BoardObject> coll2 = spaces.removeAll(loc2);
-    
+
     spaces.putAll(loc1, coll2);
     spaces.putAll(loc2, coll1);
   }
@@ -354,7 +414,7 @@ public class Board {
    * @author knorms
    *
    */
-  private static final class EmptySpace implements BoardObject {
+  public static final class EmptySpace implements BoardObject {
     private EmptySpace() {
     }
 
@@ -379,13 +439,13 @@ public class Board {
   public Collection<BoardObject> getObjsAt(Location loc) {
     return spaces.get(loc);
   }
-  
+
   /**
    * Getter for set of all board locations.
-   * @return
-   *    Set of all board locations.
+   *
+   * @return Set of all board locations.
    */
-  public Set<Location> getLocationSet(){
+  public Set<Location> getLocationSet() {
     return spaces.keySet();
   }
 

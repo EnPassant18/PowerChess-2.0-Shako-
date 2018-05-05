@@ -13,7 +13,9 @@ Power chess approved by adehovit, consider including a randomized start variant 
 - `print off` turn off printing of board after each command
 - `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
 - `promote [piece name]` promotes pawn to specified pieec name. May type full piece name or character representation (e.g. 'queen' or 'q').
+- `powers [on | off]` turns power spawning on or off. By default power objects will NOT spawn on board unless you use the command powers on.
 - `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
+- `give [powerAction Name] [loc]` give the active player the specified Power Actions as if it were captured at the given location. powerAction Name must be one word or surrounded by quotes; casing does not matter (e.g. `give SendAway a2` or `give "Send away" a2`).
 - `power [index]` select a power action after capturing a power object
 - `action [input]` execute a previously selected power action. The format of input may vary (e.g. [a-h][1-8] end location for an additional move or [piece name] for get a captured piece back).
 - `quit` to exit the program completely
@@ -38,14 +40,14 @@ en_passant.test - Checks that both sides can capture a pawn through en passant.
 
 Daniel: My strengths are functional programming, data structures and algorithms. I studies these extensively in CS19. My weaknesses are object-oriented design and UI design, since I have relatively little experience in these areas. I never took an object-oriented programming course before. Advanced chess knowledge/experience.
 
-Katie: Relevant courses I have taken include data structures and algorithms. If we pursue an AI element, concepts from deep learning may be relevant. I also have strong organizational skills. My weaknesses include UI/UX since I have no experience beyond what we've learned in 032 (and I'm currently taking cs132). 
+Katie: Relevant courses I have taken include data structures and algorithms. If we pursue an AI element, concepts from deep learning may be relevant. I also have strong organizational skills. My weaknesses include UI/UX since I have no experience beyond what we've learned in 032 (and I'm currently taking cs132).
 
 Brad: Strengths are in Java, object oriented programming, general software design and algorithms. My biggest weakness is in front-end development.
 
 Dain: My strengths are data structures, algorithms, and game design. My weaknesses would be the front-end development and making my code very abstract.
 
 
-**Project Idea(s):** 
+**Project Idea(s):**
 
 (1) PowerChess: Chess with Powerups that temporarily change the rules of the game (for instance, allowing multiple moves by one player, allowing pawns to move backwards, resurrecting dead pieces, etc.). Powerups would randomly spawn on the board and players would be able to capture them the same way they can capture opponent's pieces. Accomodating such rule changes would make for an interesting design challenge. We would start by ensuring a person could play against an opponent using the same computer, but we could also add an AI to play against and a feature for playing with friends over the Internet.
 

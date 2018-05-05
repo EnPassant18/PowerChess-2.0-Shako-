@@ -7,7 +7,7 @@ import powerups.PowerObject.Rarity;
 /**
  * Black Hole allows the player to place a 'black hole' on a vacant square. For
  * the next 6 turns, no piece can move onto that square. (Pieces can move over
- * the square as usual).
+ * the square as usual). Rarity: Rare.
  *
  * @author knorms
  *
@@ -24,7 +24,7 @@ public class BlackHole extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public BlackHole(Game game, Location whereCaptured) {
-    super(Rarity.RARE, game, whereCaptured, 0, 3);
+    super(Rarity.RARE, game, whereCaptured, 0);
   }
 
   @Override
@@ -47,7 +47,7 @@ public class BlackHole extends PowerAction {
   public String toString() {
     return "Black Hole: You may place a 'black hole' on a vacant square. For"
         + " the next 6 turns, no piece can move onto that square "
-        + "(pieces can move over the square as usual). Rarity: Common";
+        + "(pieces can move over the square as usual).";
   }
 
 }

@@ -12,7 +12,7 @@ class Connection {
         socket.onerror = event => {
             connectionError(event);
         }
-    
+
         socket.onmessage = event => {
             $("#error").attr("hidden");
             message = JSON.parse(event.data);
@@ -38,7 +38,7 @@ class Connection {
                 gameOver(message.result, message.reason);
                 break;
             case MESSAGE.REQUEST_DRAW:
-                $("#drawOffered").removeAttr("hidden"); 
+                $("#drawOffered").removeAttr("hidden");
                 break;
             case MESSAGE.GAME_UPDATE:
                 if (message.move !== undefined) {
@@ -124,7 +124,7 @@ class Connection {
             result: GAME_RESULT,
             reason: reason
         }));
-        gameOver(GAME_RESULT.LOSS, reason);
+        game.gameOver(GAME_RESULT.LOSS, reason);
     }
 
     // When a player offers a draw

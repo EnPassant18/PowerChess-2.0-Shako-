@@ -14,11 +14,13 @@ import powerups.PowerObject.Rarity;
 
 /**
  * Destroy all pawns. All kings are invulnerable for the next two turns.
- * 
+ *
  * @author Brad
  *
  */
 public class Armageddon extends PowerAction {
+  private Set<Location> pawnLocations;
+  private Set<Location> kingLocations;
 
   /**
    * Constructor takes a game object and the location where the PowerAction was
@@ -30,7 +32,9 @@ public class Armageddon extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Armageddon(Game game, Location whereCaptured) {
-    super(Rarity.LEGENDARY, game, whereCaptured, 0, 0);
+    super(Rarity.LEGENDARY, game, whereCaptured, 0);
+    pawnLocations = new HashSet<>();
+    kingLocations = new HashSet<>();
   }
 
   @Override
@@ -48,8 +52,8 @@ public class Armageddon extends PowerAction {
     Board board = getGame().getBoard();
 
     // Must separate to prevent ConcurrentModificationException
-    Set<Location> pawnLocations = new HashSet<>();
-    Set<Location> kingLocations = new HashSet<>();
+    pawnLocations = new HashSet<>();
+    kingLocations = new HashSet<>();
 
     for (Location loc : board.getLocationSet()) {
       Piece p = board.getPieceAt(loc);
@@ -74,9 +78,24 @@ public class Armageddon extends PowerAction {
     }
   }
 
+  /**
+   * @return the pawnLocations
+   */
+  public Set<Location> getPawnLocations() {
+    return new HashSet<Location>(pawnLocations);
+  }
+
+  /**
+   * @return the kingLocations
+   */
+  public Set<Location> getKingLocations() {
+    return new HashSet<Location>(kingLocations);
+  }
+
   @Override
   public String toString() {
-    return "Armageddon: Destroy all pawns. All kings are invulnerable for the next two turns.";
+    return "Armageddon: Destroy all pawns. All kings are "
+        + "invulnerable for the next two turns.";
   }
 
 }
