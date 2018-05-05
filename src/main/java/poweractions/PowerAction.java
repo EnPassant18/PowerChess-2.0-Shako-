@@ -53,11 +53,13 @@ public abstract class PowerAction {
    * @param whereCaptured
    *          Location where PowerAction was captured.
    * @param id
-   * 		  Integer representing the id for front end use
+   *          Integer representing the id for front end use
    * @param followUpId
-   * 		  Integer representing the response the power action needs from the front end
+   *          Integer representing the response the power action needs from the
+   *          front end
    */
-  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id, int followUpId) {
+  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id,
+      int followUpId) {
     this.rarity = rarity;
     this.game = game;
     this.whereCaptured = whereCaptured;
@@ -67,20 +69,22 @@ public abstract class PowerAction {
 
   /**
    * Returns the id of the power action.
+   *
    * @return integer id.
    */
   public int getId() {
-	  return this.id;
+    return this.id;
   }
-  
+
   /**
    * Returns the followup id of the power action.
+   *
    * @return integer follow up id.
    */
   public int getFollowUp() {
-	  return this.followUp;
+    return this.followUp;
   }
-  
+
   /**
    * Return list of 2 PowerActions at specified rarity.
    *
