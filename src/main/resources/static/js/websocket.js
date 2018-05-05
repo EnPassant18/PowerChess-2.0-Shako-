@@ -16,7 +16,7 @@ class Connection {
         this.socket.onmessage = event => {
             $("#error").attr("hidden");
             const message = JSON.parse(event.data);
-            console.log("Received: " + message.type);
+            console.log(message);
             switch (message.type) {
             default:
                 connectionError("Unexpected or unrecognized message type: " + message.type);
@@ -26,9 +26,8 @@ class Connection {
                 this.PLAYER_ID = message.playerId;
                 break;
             case MESSAGE.JOIN_GAME:
-                if (message.name !== undefined) {
-                    $("opponentName").html(message.name);
-                } else {
+                $("#opponentName").html(message.name);
+                if (message.playerId !== undefined) {
                     this.PLAYER_ID = message.playerId;
                     game = new Game(message.color, message.timeControl);
                 }
