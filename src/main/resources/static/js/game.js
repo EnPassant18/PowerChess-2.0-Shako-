@@ -6,6 +6,7 @@ class Game {
         this.power2 = null;
         this.selected = null;
         color ? this._action = ACTION.MOVE : this._action = ACTION.NONE;
+        setTimeout(() => UI.drawPieces(), 10);
     }
 
     get action() {

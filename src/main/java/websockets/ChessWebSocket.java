@@ -851,7 +851,7 @@ public class ChessWebSocket {
     // more players.
     if (playerColor == null) {
       JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
+      response.addProperty("type", MessageType.ERROR.ordinal());
       session.getRemote().sendString(GSON.toJson(response));
       return;
     }

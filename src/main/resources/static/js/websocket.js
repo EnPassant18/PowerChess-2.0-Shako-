@@ -2,20 +2,21 @@ class Connection {
     constructor(url) {
         try {
             this.socket = new WebSocket(url);
-            _setup();
+            this._setup();
         } catch (error) {
             this.connectionError(error);
         }
     }
 
     _setup() {
-        socket.onerror = event => {
+        this.socket.onerror = event => {
             connectionError(event);
         }
 
-        socket.onmessage = event => {
+        this.socket.onmessage = event => {
             $("#error").attr("hidden");
-            message = JSON.parse(event.data);
+            const message = JSON.parse(event.data);
+            console.log("Received: " + message.type);
             switch (message.type) {
             default:
                 connectionError("Unexpected or unrecognized message type: " + message.type);
@@ -70,22 +71,22 @@ class Connection {
     }
 
     createGame(color, name, timeControl, isPublic) {
-        this.socket.send({
+        this.socket.send(JSON.stringify({
             type: MESSAGE.CREATE_GAME,
             color: color,
             name: name,
             timeControl: timeControl,
             public: isPublic
-        })
+        }));
     }
 
     joinGame(id, name) {
         this.GAME_ID = id;
-        this.socket.send({
+        this.socket.send(JSON.stringify({
             gameId: this.GAME_ID,
             type: MESSAGE.JOIN_GAME,
             name: name
-        })
+        }));
     }
 
     // Called when the user attempts to move

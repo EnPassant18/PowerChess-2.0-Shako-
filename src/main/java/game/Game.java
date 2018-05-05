@@ -117,7 +117,7 @@ public class Game {
     whiteToMove = true;
     gameState = GameState.WAITING_FOR_MOVE;
   }
-  
+
   /**
    * Constructor for a game starting from a given FEN
    * @param FEN
@@ -127,14 +127,14 @@ public class Game {
     if(!ChessReplUtils.isFenValid(FEN)) {
       throw new IllegalArgumentException("ERROR: Invalid FEN given to Game constructor.");
     }
-    
+
     String[] fenArray = FEN.split("\\s+");
-    
+
     String piecePlacement = fenArray[0];
     String activeColor = fenArray[1];
     String castling = fenArray[2];
     String enPassant = fenArray[3];
-    
+
     board = new Board(FEN);
     history = new ArrayList<>();
     gameOver = false;
@@ -146,7 +146,7 @@ public class Game {
     });
     gameState = GameState.WAITING_FOR_MOVE;
     whiteToMove = activeColor.equals("w");
-    
+
   }
 
   /**
@@ -273,6 +273,8 @@ public class Game {
    * @return Either black or white depending on status of players.
    */
   public Color getEmptyPlayerColor() {
+    System.out.println("white " + whitePlayer);
+    System.out.println("black " + blackPlayer);
     if (whitePlayer == null) {
       return Color.WHITE;
     } else if (blackPlayer == null) {

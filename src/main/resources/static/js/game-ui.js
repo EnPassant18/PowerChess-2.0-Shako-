@@ -1,6 +1,6 @@
 class UI {
 
-    static drawGame() {
+    static drawBoard() {
         const $board = $("#board");
         $board.css({
             width: UI.SQUARE_SIZE*8 + "px",
@@ -22,11 +22,9 @@ class UI {
         $("#container").css("width", UI.SQUARE_SIZE*12 + UI.GAP_BETWEEN + "px");
     
         UI.boardBox = $board[0].getBoundingClientRect();
-
-        UI.drawBoard();
     }
 
-    static drawBoard() {
+    static drawPieces() {
         let first, second, seventh, eighth;
         if (game.color === COLOR.WHITE) {
             first = 7;

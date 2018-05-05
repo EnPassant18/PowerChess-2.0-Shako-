@@ -1,18 +1,17 @@
+let game;
+
 $(document).ready(() => {
 
-    let game;
-    connection = new Connection("");
-    UI.drawGame();
+    connection = new Connection("ws://localhost:4567/play");
+    UI.drawBoard();
 
     if (localStorage.create !== undefined) {
         game = new Game(localStorage.create.color, localStorage.create.timeControl);
-        connection.create(
+        connection.createGame(
             localStorage.create.color, localStorage.create.name,
             localStorage.create.timeControl, localStorage.create.isPublic)
     } else if (localStorage.join !== undefined) {
-        connection.join(localStorage.join.id, localStorage.join.name);
-    } else {
-        window.location = "homeurl";
+        connection.joinGame(localStorage.join.id, localStorage.join.name);
     }
 
     $("#option1").click(() => game.powerSelect(true));
