@@ -20,7 +20,7 @@ import powerups.PowerObject.Rarity;
  */
 public class Clone extends PowerAction {
 
-  private final static int SIZE = 8;
+  private static final int SIZE = 8;
   private List<Location> vacantSquares;
   private Location endLocation;
 

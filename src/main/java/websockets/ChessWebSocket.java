@@ -37,9 +37,9 @@ import pieces.Rook;
 import players.GuiPlayer;
 import players.Player;
 import poweractions.Armageddon;
+import poweractions.PieceMover;
 import poweractions.PowerAction;
 import poweractions.Rewind;
-import poweractions.SendAway;
 import powerups.BlackHole;
 import powerups.Invulnerability;
 import powerups.PowerObject;
@@ -500,8 +500,8 @@ public class ChessWebSocket {
       }
 
       // If SendAway, check where sent
-    } else if (selected instanceof SendAway) {
-      Location loc = ((SendAway) selected).getEndLocation();
+    } else if (selected instanceof PieceMover) {
+      Location loc = ((PieceMover) selected).getEndLocation();
       Piece p = game.getPieceAt(loc);
       // update that endloc now has a piece
       JsonObject updatePart = new JsonObject();
@@ -878,8 +878,6 @@ public class ChessWebSocket {
         JsonObject responseToOther = new JsonObject();
         responseToOther.addProperty("type", MessageType.JOIN_GAME.ordinal());
         responseToOther.addProperty("name", name);
-        responseToOther.addProperty("timeControl",
-            game.getTimeControl().ordinal());
         Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(0));
         otherName = PLAYER_NAME_MAP.get(playerList.get(0));
         otherSession.getRemote().sendString(GSON.toJson(responseToOther));
@@ -905,6 +903,7 @@ public class ChessWebSocket {
       }
       response.addProperty("color", colorBool);
       response.addProperty("name", otherName);
+      response.addProperty("timeControl", game.getTimeControl().ordinal());
       session.getRemote().sendString(GSON.toJson(response));
 
     } catch (NullPointerException e) {
