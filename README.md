@@ -15,7 +15,7 @@ Power chess approved by adehovit, consider including a randomized start variant 
 - `promote [piece name]` promotes pawn to specified pieec name. May type full piece name or character representation (e.g. 'queen' or 'q').
 - `powers [on | off]` turns power spawning on or off. By default power objects will NOT spawn on board unless you use the command powers on.
 - `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
-- `give [powerAction Name] [loc]` give the active player the specified Power Actions as if it were captured at the given location.
+- `give [powerAction Name] [loc]` give the active player the specified Power Actions as if it were captured at the given location. powerAction Name must be one word or surrounded by quotes; casing does not matter (e.g. `give SendAway a2` or `give "Send away" a2`).
 - `power [index]` select a power action after capturing a power object
 - `action [input]` execute a previously selected power action. The format of input may vary (e.g. [a-h][1-8] end location for an additional move or [piece name] for get a captured piece back).
 - `quit` to exit the program completely
