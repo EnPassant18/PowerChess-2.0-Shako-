@@ -31,6 +31,7 @@ public class ChessProjectHandler extends CommandMap {
   private Game game;
   private CliPlayer whitePlayer, blackPlayer;
   private boolean printBoard = true;
+  private boolean spawnPowers = false;
 
   /**
    * Default constructor for ChessProjectHandler.
@@ -50,6 +51,10 @@ public class ChessProjectHandler extends CommandMap {
     add("print", "print on", s -> printOn());
     add("print", "print off", s -> printOff());
 
+    // Turns powerups on/off
+    add("powers", "powers on", s -> spawnPowers(true));
+    add("powers", "powers off", s -> spawnPowers(false));
+
     // Handles pawn promotion
     add("promote", "promote %s", s -> promote(s.get(1)));
 
@@ -65,6 +70,17 @@ public class ChessProjectHandler extends CommandMap {
     // Handles executing poweraction
     add("action", "action %s", s -> action(s.get(1)));
 
+  }
+
+  private String spawnPowers(boolean turnOn) {
+    spawnPowers = turnOn;
+    String onOff;
+    if (turnOn) {
+      onOff = "on";
+    } else {
+      onOff = "off";
+    }
+    return String.format("powerups turned %s", onOff);
   }
 
   private String give(String powerActionName, String locString) {
@@ -187,6 +203,10 @@ public class ChessProjectHandler extends CommandMap {
       game.turn(); // checks if valid before executing move
     } catch (IllegalMoveException e) {
       return e.getMessage();
+    }
+
+    if (!spawnPowers) {
+      game.setTilNextPowerUp(3);
     }
 
     return print();

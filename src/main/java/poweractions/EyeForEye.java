@@ -7,7 +7,8 @@ import powerups.PowerObject.Rarity;
 
 /**
  * Eye for an Eye allows a player to destroy the piece that captured the
- * PowerObject and an opposing piece of equal or lesser point value.
+ * PowerObject and an opposing piece of equal or lesser point value. Rarity:
+ * Rare.
  *
  * @author knorms
  *
@@ -25,7 +26,7 @@ public class EyeForEye extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public EyeForEye(Game game, Location whereCaptured) {
-    super(Rarity.RARE, game, whereCaptured, 2, 0);
+    super(Rarity.RARE, game, whereCaptured, 2);
     capturingPiece = game.getPieceAt(whereCaptured);
   }
 

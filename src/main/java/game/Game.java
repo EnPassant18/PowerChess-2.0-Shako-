@@ -279,11 +279,21 @@ public class Game {
   }
 
   /**
-   * Updates the number of turns until the next PowerObject will spawn; usually
-   * uniformly random between 3 and 5 (inclusive).
+   * Updates the number of turns until the next PowerObject will spawn to a
+   * uniformly random number between 2 and 4 (inclusive).
    */
   private void updateTilNextPowerUp() {
-    tilNextPowerup = rand.nextInt(3) + 3;
+    tilNextPowerup = rand.nextInt(3) + 2;
+  }
+
+  /**
+   * Set number of turns until next PowerObject spawns.
+   *
+   * @param remainingTurns
+   *          number of turns until next PowerObject will spawn.
+   */
+  public void setTilNextPowerUp(int remainingTurns) {
+    tilNextPowerup = remainingTurns;
   }
 
   /**

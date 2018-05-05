@@ -28,7 +28,6 @@ public abstract class PowerAction {
   private final Location whereCaptured;
   private static final Multimap<Rarity, String> POWER_ACTIONS;
   private int id;
-  private int followUp;
 
   static {
     POWER_ACTIONS = HashMultimap.create();
@@ -39,6 +38,7 @@ public abstract class PowerAction {
     POWER_ACTIONS.put(Rarity.COMMON, "Rewind");
     POWER_ACTIONS.put(Rarity.RARE, "BlackHole");
     POWER_ACTIONS.put(Rarity.RARE, "EyeForEye");
+    POWER_ACTIONS.put(Rarity.RARE, "SendAway");
     POWER_ACTIONS.put(Rarity.LEGENDARY, "Armageddon");
   }
 
@@ -54,17 +54,12 @@ public abstract class PowerAction {
    *          Location where PowerAction was captured.
    * @param id
    *          Integer representing the id for front end use
-   * @param followUpId
-   *          Integer representing the response the power action needs from the
-   *          front end
    */
-  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id,
-      int followUpId) {
+  public PowerAction(Rarity rarity, Game game, Location whereCaptured, int id) {
     this.rarity = rarity;
     this.game = game;
     this.whereCaptured = whereCaptured;
     this.id = id;
-    this.followUp = followUpId;
   }
 
   /**
@@ -74,15 +69,6 @@ public abstract class PowerAction {
    */
   public int getId() {
     return this.id;
-  }
-
-  /**
-   * Returns the followup id of the power action.
-   *
-   * @return integer follow up id.
-   */
-  public int getFollowUp() {
-    return this.followUp;
   }
 
   /**
@@ -134,10 +120,12 @@ public abstract class PowerAction {
         return new BlackHole(game, whereCaptured);
       case "eyeforeye":
         return new EyeForEye(game, whereCaptured);
-      case "wwap":
+      case "swap":
         return new Swap(game, whereCaptured);
       case "rewind":
         return new Rewind(game, whereCaptured);
+      case "sendaway":
+        return new SendAway(game, whereCaptured);
       case "armageddon":
         return new Armageddon(game, whereCaptured);
       default:

@@ -26,7 +26,7 @@ public class Rewind extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Rewind(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured, 1, 0);
+    super(Rarity.COMMON, game, whereCaptured, 1);
   }
 
   @Override

@@ -30,7 +30,7 @@ public class Armageddon extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Armageddon(Game game, Location whereCaptured) {
-    super(Rarity.LEGENDARY, game, whereCaptured, 0, 0);
+    super(Rarity.LEGENDARY, game, whereCaptured, 0);
   }
 
   @Override

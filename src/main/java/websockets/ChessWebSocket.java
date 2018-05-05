@@ -204,10 +204,8 @@ public class ChessWebSocket {
       PowerAction action1 = actions.get(0);
       response.addProperty("rarity", action1.getRarity().ordinal());
       response.addProperty("id1", action1.getId());
-      response.addProperty("followUp1", action1.getFollowUp());
       PowerAction action2 = actions.get(1);
       response.addProperty("id2", action2.getId());
-      response.addProperty("followUp2", action2.getFollowUp());
     } else {
       response.addProperty("action", ACTION.NONE.ordinal());
       otherResponse.addProperty("action", ACTION.MOVE.ordinal());

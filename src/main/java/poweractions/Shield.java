@@ -24,7 +24,7 @@ public class Shield extends PowerAction {
    *          Location where PowerAction was captured.
    */
   public Shield(Game game, Location whereCaptured) {
-    super(Rarity.COMMON, game, whereCaptured, 3, 0);
+    super(Rarity.COMMON, game, whereCaptured, 3);
   }
 
   @Override
@@ -45,8 +45,7 @@ public class Shield extends PowerAction {
   @Override
   public String toString() {
     return "Shield: you may make the capturing piece invulnerable "
-        + "for the next 3 turns, or until it captures, whichever "
-        + "is less. Rarity: Common.";
+        + "for the next 3 turns, or until it captures, whichever is less.";
   }
 
 }

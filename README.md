@@ -13,6 +13,7 @@ Power chess approved by adehovit, consider including a randomized start variant 
 - `print off` turn off printing of board after each command
 - `move [loc] [loc]` or `move [loc] -> [loc]` move piece from first location to second location (format [a-h][1-8])
 - `promote [piece name]` promotes pawn to specified pieec name. May type full piece name or character representation (e.g. 'queen' or 'q').
+- `powers [on | off]` turns power spawning on or off. By default power objects will NOT spawn on board unless you use the command powers on.
 - `spawn [loc] [rarity]` spawn power object of specified rarity at specific location
 - `give [powerAction Name] [loc]` give the active player the specified Power Actions as if it were captured at the given location.
 - `power [index]` select a power action after capturing a power object

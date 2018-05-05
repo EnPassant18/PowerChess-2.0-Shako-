@@ -95,6 +95,7 @@ class Connection {
         console.log(message);
         this.socket.send(JSON.stringify(message));
     }
+
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
@@ -103,7 +104,7 @@ class Connection {
             result: GAME_RESULT,
             reason: reason
         }));
-        gameOver(GAME_RESULT.LOSS, reason);
+        game.gameOver(GAME_RESULT.LOSS, reason);
     }
 
     // When a player offers a draw
