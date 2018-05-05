@@ -251,6 +251,7 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     PowerObject powerObject = PowerObject.ofRarity(rarity);
+    
     game.spawnPowerObject(location, powerObject);
 
     return print();
