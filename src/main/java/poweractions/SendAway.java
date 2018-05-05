@@ -21,6 +21,7 @@ import powerups.PowerObject.Rarity;
 public class SendAway extends PowerAction {
   private final int beyondBoard = 8;
   private List<Integer> columns;
+  private Location endLocation = null;
 
   /**
    * Constructor takes a game object and the location where the PowerAction was
@@ -66,13 +67,21 @@ public class SendAway extends PowerAction {
     while (true) {
       col = columns.remove(0);
       if (game.isEmpty(new Location(row, col))) {
+        endLocation = new Location(row, col);
         break;
       } else if (columns.isEmpty()) {
         return;
       }
     }
 
-    game.executeMove(new Move((Location) input, new Location(row, col)));
+    game.executeMove(new Move((Location) input, endLocation));
+  }
+
+  /**
+   * @return the endLocation
+   */
+  public Location getEndLocation() {
+    return endLocation;
   }
 
   @Override

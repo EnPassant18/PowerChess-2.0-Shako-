@@ -360,7 +360,7 @@ public class Board {
    * @author knorms
    *
    */
-  private static final class EmptySpace implements BoardObject {
+  public static final class EmptySpace implements BoardObject {
     private EmptySpace() {
     }
 
