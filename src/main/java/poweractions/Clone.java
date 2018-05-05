@@ -1,15 +1,16 @@
 package poweractions;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import board.Location;
+import board.*;
 import game.Game;
 import game.Move;
+import game.Color;
 import powerups.PowerObject.Rarity;
+import pieces.Piece;
 
 /**
  * Place a copy of this piece on a random square in your back rank. Rarity:

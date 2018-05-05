@@ -19,6 +19,7 @@ import pieces.Queen;
 import pieces.Rook;
 import powerups.PowerObject;
 import powerups.PowerUp;
+import repl.ChessReplUtils;
 
 /**
  * Board represents the chess board.

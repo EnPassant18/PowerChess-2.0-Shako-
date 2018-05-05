@@ -1,3 +1,5 @@
+import board.Location;
+
 /**
  * Represents a power action that moves a piece.
  * @author Brad
