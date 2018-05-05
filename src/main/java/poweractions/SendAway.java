@@ -1,6 +1,8 @@
 package poweractions;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import board.Location;
 import game.Color;
@@ -17,7 +19,8 @@ import powerups.PowerObject.Rarity;
  *
  */
 public class SendAway extends PowerAction {
-  private final int lastRank = 7;
+  private final int beyondBoard = 8;
+  private List<Integer> columns;
 
   /**
    * Constructor takes a game object and the location where the PowerAction was
@@ -30,6 +33,11 @@ public class SendAway extends PowerAction {
    */
   public SendAway(Game game, Location whereCaptured) {
     super(Rarity.RARE, game, whereCaptured, 4);
+
+    columns = new ArrayList<>();
+    for (int i = 0; i < beyondBoard; i++) {
+      columns.add(i);
+    }
   }
 
   @Override
@@ -49,11 +57,22 @@ public class SendAway extends PowerAction {
 
   @Override
   public void act(Object input) {
-    Random rand = new Random();
-    int col = rand.nextInt(lastRank + 1);
     Piece p = getGame().getPieceAt((Location) input);
-    int row = p.getColor() == Color.WHITE ? 0 : lastRank;
-    getGame().executeMove(new Move(getWhereCaptured(), new Location(row, col)));
+    int row = p.getColor() == Color.WHITE ? 0 : beyondBoard - 1;
+    Game game = getGame();
+
+    Collections.shuffle(columns);
+    int col;
+    while (true) {
+      col = columns.remove(0);
+      if (game.isEmpty(new Location(row, col))) {
+        break;
+      } else if (columns.isEmpty()) {
+        return;
+      }
+    }
+
+    game.executeMove(new Move((Location) input, new Location(row, col)));
   }
 
   @Override
