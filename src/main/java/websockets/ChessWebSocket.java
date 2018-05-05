@@ -85,7 +85,7 @@ public class ChessWebSocket {
    *
    */
   private enum Action {
-    NONE, MOVE, SELECT_POWER, SELECT_SQUARE, SELECT_PIECE, MOVE_THIS
+    NONE, MOVE, SELECT_POWER
   }
 
   /**
@@ -127,46 +127,6 @@ public class ChessWebSocket {
    */
   private enum PieceIds {
     KING, QUEEN, ROOK, BISHOP, KNIGHT, PAWN
-  }
-
-  /**
-   * Enumerates the rarities of PowerObjects.
-   *
-   * @author dwoods
-   *
-   */
-  private enum PowerRarities {
-    COMMON, RARE, LEGENDARY
-  }
-
-  /**
-   * Enumerates all common PowerActions.
-   *
-   * @author dwoods
-   *
-   */
-  private enum CommonPowers {
-    ADJUST, REWIND, SECOND_EFFORT, SHIELD, SWAP
-  }
-
-  /**
-   * Enumerates all rare PowerActions.
-   *
-   * @author dwoods
-   *
-   */
-  private enum RarePowers {
-    BLACK_HOLE, ENERGIZE, EYE_FOR_AN_EYE, SAFETY_NET, SEND_AWAY
-  }
-
-  /**
-   * Enumerates all legendary PowerActions.
-   *
-   * @author dwoods
-   *
-   */
-  private enum LegendaryPowers {
-    ARMAGEDDON, AWAKEN, CLONE, REANIMATE
   }
 
   /**
@@ -249,14 +209,6 @@ public class ChessWebSocket {
           case SELECT_POWER:
             powerSelect(session, received);
             break;
-          case SELECT_SQUARE:
-            // TODO implement select square;
-            break;
-          case SELECT_PIECE:
-            // TODO implement select piece
-            break;
-          case MOVE_THIS:
-            // TODO implement move this
           case NONE:
           default:
             break;
@@ -494,8 +446,7 @@ public class ChessWebSocket {
         updatePart2.addProperty("col", start.getCol());
         updatePart2.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart2.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart2.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+        updatePart2.addProperty("piece", getPieceValue(p));
         updates.add(updatePart2);
       }
 
@@ -509,8 +460,7 @@ public class ChessWebSocket {
       updatePart.addProperty("col", loc.getCol());
       updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
       updatePart.addProperty("color", p.getColor() == Color.WHITE);
-      updatePart.addProperty("piece",
-          PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+      updatePart.addProperty("piece", getPieceValue(p));
       updates.add(updatePart);
     }
 
@@ -577,8 +527,7 @@ public class ChessWebSocket {
         Piece p = ((Piece) obj);
         updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+        updatePart.addProperty("piece", getPieceValue(p));
 
         // if added blackhole to loc
       } else if (obj instanceof BlackHole) {
@@ -590,8 +539,7 @@ public class ChessWebSocket {
         Piece p = game.getPieceAt(loc);
         updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal() + 6);
+        updatePart.addProperty("piece", getPieceValue(p));
       }
 
       updates.add(updatePart);
