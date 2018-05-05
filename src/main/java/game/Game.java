@@ -236,6 +236,20 @@ public class Game {
   }
 
   /**
+   * Returns the Color of the first empty player.
+   *
+   * @return Either black or white depending on status of players.
+   */
+  public Color getEmptyPlayerColor() {
+    if (whitePlayer == null) {
+      return Color.WHITE;
+    } else if (blackPlayer == null) {
+      return Color.BLACK;
+    }
+    return null;
+  }
+
+  /**
    * Returns a Powerobject and its location if one was added.
    *
    * @return map of newly spawned on-board PowerObject and its location.
