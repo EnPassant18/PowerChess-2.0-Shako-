@@ -182,6 +182,29 @@ public final class ChessReplUtils {
     }
 
   }
+  
+  public static Piece charToPiece(Character c) {
+    
+    Color color = Character.isLowerCase(c) ? Color.WHITE : Color.BLACK;
+    c = Character.toLowerCase(c);
+    
+    switch(c) {
+    case 'r':
+      return new Rook(color);
+    case 'n':
+      return new Knight(color);
+    case 'b':
+      return new Bishop(color);
+    case 'q':
+      return new Queen(color);
+    case 'k':
+      return new King(color);
+    case 'p':
+      return new Pawn(color);
+    default:
+        return null;
+    }
+  }
 
   /**
    * Returns true if a string FEN is valid and otherwise returns false.
@@ -193,7 +216,7 @@ public final class ChessReplUtils {
    *          Fen String.
    * @return True if the FEN is valid and false otherwise.
    */
-  public boolean isFenValid(final String fen) {
+  public static boolean isFenValid(final String fen) {
     String[] fenArray = fen.split("\\s+");
 
     if (fenArray.length < 4) {
@@ -210,18 +233,22 @@ public final class ChessReplUtils {
     String enPassantRegex = "[a-h][1-8]|-";
 
     if (!isPiecePlacementString(piecePlacement)) {
+      System.out.println("A");
       return false;
     }
 
     if (!activeColor.matches(activeColorRegex)) {
+      System.out.println("B");
       return false;
     }
 
     if (!castling.matches(castlingRegex)) {
+      System.out.println("C");
       return false;
     }
 
     if (!enPassant.matches(enPassantRegex)) {
+      System.out.println("D");
       return false;
     }
 

@@ -39,6 +39,7 @@ public abstract class PowerAction {
     POWER_ACTIONS.put(Rarity.RARE, "BlackHole");
     POWER_ACTIONS.put(Rarity.RARE, "EyeForEye");
     POWER_ACTIONS.put(Rarity.RARE, "SendAway");
+    POWER_ACTIONS.put(Rarity.LEGENDARY, "Clone");
     POWER_ACTIONS.put(Rarity.LEGENDARY, "Armageddon");
   }
 
@@ -128,6 +129,8 @@ public abstract class PowerAction {
         return new SendAway(game, whereCaptured);
       case "armageddon":
         return new Armageddon(game, whereCaptured);
+      case "clone":
+        return new Clone(game, whereCaptured);
       default:
         return null;
     }

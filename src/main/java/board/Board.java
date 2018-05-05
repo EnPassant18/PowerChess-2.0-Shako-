@@ -47,6 +47,59 @@ public class Board {
     fillRow(Board.SIZE - 1, Color.BLACK);
     fillPawns(Board.SIZE - 2, Color.BLACK);
   }
+  
+  
+  /**
+   * Constructs a board corresponding to a given FEN string.
+   * @param FEN
+   *    FEN String.
+   */
+  public Board(String FEN) {
+    if(!ChessReplUtils.isFenValid(FEN)) {
+      throw new IllegalArgumentException("ERROR: Invalid FEN given to Board constructor.");
+    }
+    
+    String[] fenArray = FEN.split("\\s+");
+    
+    String piecePlacement = fenArray[0];
+    String activeColor = fenArray[1];
+    String castling = fenArray[2];
+    String enPassant = fenArray[3];
+    
+    Character c;
+    Character seperator = '/';
+    
+    spaces = HashMultimap.create();
+    
+    int i = 0;
+    int j = 0;
+    
+    for (int k = 0; k < piecePlacement.length(); k++) {
+      
+      c = piecePlacement.charAt(k);
+      
+      if(c.equals(seperator)) {
+        i++;
+        j = 0;
+      } else if (Character.isLetter(c)) {
+        spaces.put(new Location(i,j), ChessReplUtils.charToPiece(c));
+        j++;
+      } else if (Character.isDigit(c)) {
+        for(int h = 0; h < Character.getNumericValue(c); h++) {
+          spaces.put(new Location(i,j), EMPTY_SPACE);
+          j++;
+        }
+      }
+    }
+    
+    if(!enPassant.equals("-")) {
+      Location loc = ChessReplUtils.parseLocation(enPassant);
+      Color color = loc.getRow() == 3 ? Color.WHITE : Color.BLACK;
+      spaces.put(loc, new GhostPawn(color));
+    }
+    
+  }
+
 
   // TODO implement constructor that takes boardString to use with db
 

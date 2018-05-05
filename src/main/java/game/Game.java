@@ -24,6 +24,7 @@ import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerUp;
 import randutils.RandomCollection;
+import repl.ChessReplUtils;
 
 /**
  * Game represents a game of chess.
@@ -115,6 +116,37 @@ public class Game {
 
     whiteToMove = true;
     gameState = GameState.WAITING_FOR_MOVE;
+  }
+  
+  /**
+   * Constructor for a game starting from a given FEN
+   * @param FEN
+   *    FEN.
+   */
+  public Game(final String FEN) {
+    if(!ChessReplUtils.isFenValid(FEN)) {
+      throw new IllegalArgumentException("ERROR: Invalid FEN given to Game constructor.");
+    }
+    
+    String[] fenArray = FEN.split("\\s+");
+    
+    String piecePlacement = fenArray[0];
+    String activeColor = fenArray[1];
+    String castling = fenArray[2];
+    String enPassant = fenArray[3];
+    
+    board = new Board(FEN);
+    history = new ArrayList<>();
+    gameOver = false;
+    updateTilNextPowerUp();
+    toPromote = null;
+    actionOptions = new ArrayList<>();
+    powerUps = new TreeMap<>((p1, p2) -> {
+      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
+    });
+    gameState = GameState.WAITING_FOR_MOVE;
+    whiteToMove = activeColor.equals("w");
+    
   }
 
   /**

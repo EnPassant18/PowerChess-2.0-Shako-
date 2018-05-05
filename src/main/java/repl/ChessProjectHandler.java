@@ -19,6 +19,7 @@ import poweractions.PowerAction;
 import powerups.PowerObject;
 import powerups.PowerObject.Rarity;
 import powerups.PowerUp;
+import stringutils.StringUtils;
 
 /**
  * Handler for chess project.
@@ -40,6 +41,7 @@ public class ChessProjectHandler extends CommandMap {
 
     // Handles the "new game" command
     add("new", "new game", s -> startNewGame());
+    add("new", "new game %q", s -> startNewGame(s.get(2)));
 
     // Handles the "move" command
     add("move", "move %s %s", s -> move(s.get(1), s.get(2)));
@@ -177,6 +179,18 @@ public class ChessProjectHandler extends CommandMap {
     game.addPlayer(whitePlayer);
     game.addPlayer(blackPlayer);
 
+    return print();
+  }
+  
+  private String startNewGame(final String FEN) {
+    game = new Game(StringUtils.parseQuotedString(FEN));
+    
+    whitePlayer = new CliPlayer(Color.WHITE);
+    blackPlayer = new CliPlayer(Color.BLACK);
+
+    game.addPlayer(whitePlayer);
+    game.addPlayer(blackPlayer);
+    
     return print();
   }
 
