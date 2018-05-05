@@ -26,6 +26,7 @@ import board.Location;
 import game.Color;
 import game.Game;
 import game.Game.GameState;
+import game.Game.TimeControl;
 import game.Move;
 import pieces.Bishop;
 import pieces.King;
@@ -801,6 +802,12 @@ public class ChessWebSocket {
     nextGameId++;
     GAME_ID_MAP.put(gameId, game);
 
+    boolean isPublic = received.get("public").getAsBoolean();
+    game.setPublic(isPublic);
+
+    int timeControlIndex = received.get("timeControl").getAsInt();
+    game.setTimeControl(TimeControl.values()[timeControlIndex]);
+
     boolean colorBool = received.get("color").getAsBoolean();
     Color playerColor = Color.BLACK;
     if (colorBool) {
@@ -871,6 +878,8 @@ public class ChessWebSocket {
         JsonObject responseToOther = new JsonObject();
         responseToOther.addProperty("type", MessageType.JOIN_GAME.ordinal());
         responseToOther.addProperty("name", name);
+        responseToOther.addProperty("timeControl",
+            game.getTimeControl().ordinal());
         Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(0));
         otherName = PLAYER_NAME_MAP.get(playerList.get(0));
         otherSession.getRemote().sendString(GSON.toJson(responseToOther));

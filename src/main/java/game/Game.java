@@ -50,6 +50,9 @@ public class Game {
 
   private Location toPromote;
 
+  private TimeControl timeControl;
+  private boolean isPublic;
+
   private Map<PowerUp, Location> removedLocations;
   private Map<PowerObject, Location> addedPowerObject;
 
@@ -63,6 +66,16 @@ public class Game {
   public enum GameState {
     WAITING_FOR_MOVE, WAITING_FOR_PROMOTE, WAITING_FOR_POWERUP_CHOICE,
     WAITING_FOR_POWERUP_EXEC, GAME_OVER
+  }
+
+  /**
+   * Enumerates options for game time controls.
+   *
+   * @author knorms
+   *
+   */
+  public enum TimeControl {
+    QUICK, STANDARD, SLOW
   }
 
   private GameState gameState;
@@ -679,6 +692,36 @@ public class Game {
    */
   public List<Move> getHistory() {
     return history;
+  }
+
+  /**
+   * @return the timeControl
+   */
+  public TimeControl getTimeControl() {
+    return timeControl;
+  }
+
+  /**
+   * @param timeControl
+   *          the timeControl to set
+   */
+  public void setTimeControl(TimeControl timeControl) {
+    this.timeControl = timeControl;
+  }
+
+  /**
+   * @return the isPublic
+   */
+  public boolean isPublic() {
+    return isPublic;
+  }
+
+  /**
+   * @param pub
+   *          the public to set
+   */
+  public void setPublic(boolean pub) {
+    this.isPublic = pub;
   }
 
 }

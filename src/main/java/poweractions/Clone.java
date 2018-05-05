@@ -2,25 +2,24 @@ package poweractions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import board.*;
-import game.Game;
-import game.Move;
+import board.Board;
+import board.Location;
 import game.Color;
-import powerups.PowerObject.Rarity;
+import game.Game;
 import pieces.Piece;
+import powerups.PowerObject.Rarity;
 
 /**
  * Place a copy of this piece on a random square in your back rank. Rarity:
  * Legendary.
  *
  * @author brad
- * 
+ *
  */
 public class Clone extends PowerAction {
-  
+
   private final static int SIZE = 8;
   private List<Location> vacantSquares;
   private Location endLocation;
@@ -36,18 +35,18 @@ public class Clone extends PowerAction {
    */
   public Clone(Game game, Location whereCaptured) {
     super(Rarity.LEGENDARY, game, whereCaptured, 0);
-    
+
     Board board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
     Color color = capturingPiece.getColor();
     int row = color == Color.WHITE ? 0 : SIZE - 1;
-    
+
     Location loc;
     vacantSquares = new ArrayList<>();
-    
-    for(int j = 0; j < SIZE; j++) {
+
+    for (int j = 0; j < SIZE; j++) {
       loc = new Location(row, j);
-      if(board.isEmpty(loc)) {
+      if (board.isEmpty(loc)) {
         vacantSquares.add(loc);
       }
     }
@@ -66,34 +65,35 @@ public class Clone extends PowerAction {
 
   @Override
   public void act(Object obj) {
-    if(vacantSquares.isEmpty()) {
+    if (vacantSquares.isEmpty()) {
       return;
     }
     endLocation = getRandomLocation();
   }
-  
+
   /**
    * Returns end location.
-   * @return
-   *    End location.
+   *
+   * @return End location.
    */
   public Location getEndLocation() {
     return endLocation;
   }
-  
+
   private Location getRandomLocation() {
-    if(vacantSquares.isEmpty()) {
+    if (vacantSquares.isEmpty()) {
       return null;
     }
-    
+
     int index = ThreadLocalRandom.current().nextInt(0, vacantSquares.size());
-  
-    return vacantSquares.get(index);  
+
+    return vacantSquares.get(index);
   }
 
   @Override
   public String toString() {
-    return "Clone: Place a copy of this piece on a random empty square on your back rank. (If no empty squares, does nothing.)";
+    return "Clone: Place a copy of this piece on a random empty square on your "
+        + "back rank. (If no empty squares, does nothing.)";
   }
 
 }
