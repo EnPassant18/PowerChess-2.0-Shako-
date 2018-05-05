@@ -288,8 +288,6 @@ public class Game {
    * @return Either black or white depending on status of players.
    */
   public Color getEmptyPlayerColor() {
-    System.out.println("white " + whitePlayer);
-    System.out.println("black " + blackPlayer);
     if (whitePlayer == null) {
       return Color.WHITE;
     } else if (blackPlayer == null) {

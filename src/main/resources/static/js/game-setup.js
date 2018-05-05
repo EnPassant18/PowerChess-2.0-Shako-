@@ -7,6 +7,7 @@ $(document).ready(() => {
 
     if (localStorage.create !== undefined) {
         game = new Game(localStorage.create.color, localStorage.create.timeControl);
+        $("#playerName").html(localStorage.create.name);
         connection.createGame(
             localStorage.create.color, localStorage.create.name,
             localStorage.create.timeControl, localStorage.create.isPublic)

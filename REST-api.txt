@@ -69,6 +69,7 @@ Response: {
     type: JOIN_GAME,
     playerId: <Int>,
     color: <WHITE(true)/BLACK(false)>,
+    name: <String> *** Opponent's name ***
     timeControl: QUICK(0)/STANDARD(1)/SLOW(2)
     ********************************************* 
     Server assigns the player an id and color 
