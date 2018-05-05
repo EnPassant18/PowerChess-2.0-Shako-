@@ -60,10 +60,12 @@ public class ChessWebSocket {
   private static final Map<Integer, Game> gameIdMap = new HashMap<>();
   private static final Map<Integer, List<Integer>> gamePlayerMap = new HashMap<>();
   private static final Map<Integer, Session> playerSessionMap = new HashMap<>();
+  private static final Map<Integer, String> playerNameMap = new HashMap<>();
+  private static final Map<Integer, Boolean> playerDrawMap = new HashMap<>();
 
   private static enum MESSAGE_TYPE {
     CREATE_GAME,
-    ADD_PLAYER,
+    JOIN_GAME,
     GAME_OVER,
     REQUEST_DRAW,
     PLAYER_ACTION,
@@ -153,17 +155,23 @@ public class ChessWebSocket {
 	  if(type == MESSAGE_TYPE.CREATE_GAME.ordinal()) {
 		  createGame(session, received);
 	  }
-	  else if(type == MESSAGE_TYPE.ADD_PLAYER.ordinal()) {
+	  else if(type == MESSAGE_TYPE.JOIN_GAME.ordinal()) {
 		  addPlayer(session, received);
 	  }
 	  else if(type == MESSAGE_TYPE.REQUEST_DRAW.ordinal()) {
-		  
+		  requestDraw(session, received);
 	  }
 	  else if(type == MESSAGE_TYPE.PLAYER_ACTION.ordinal()) {
 		  int action = received.get("action").getAsInt();
 		  if(action == ACTION.MOVE.ordinal()) {
 			  makeMove(session, received);
 		  }
+		  else if(action == ACTION.SELECT_POWER.ordinal()) {
+			  powerSelect(session, received);
+		  }
+	  }
+	  else if(type == MESSAGE_TYPE.GAME_OVER.ordinal()) {
+		  gameOver(session, received);
 	  }
 	  else if(type == MESSAGE_TYPE.ERROR.ordinal()) {
 		  
@@ -171,6 +179,89 @@ public class ChessWebSocket {
 	  else {
 		  
 	  }
+  }
+  
+  private void gameOver(Session session, JsonObject received) {
+	  
+  }
+  
+  /**
+   * Called when server receives a REQUEST_DRAW message. If the other player is awaiting draw response,
+   * game will end in draw. Otherwise, server will ask the other player if they'd like to draw as well.
+   * 
+   * @param session
+   * 	The session of the player requesting a draw.
+   * @param received
+   * 	The JsonObject sent by session.
+   * @throws IOException
+   * 	In case the response message couldn't be sent back properly.
+   */
+  private void requestDraw(Session session, JsonObject received) throws IOException {
+	  int playerId = received.get("playerId").getAsInt();
+	  int gameId = received.get("gameId").getAsInt();
+	  List<Integer> playerList = gamePlayerMap.get(gameId);
+	  int otherId = -1;
+	  //Retrieves the id of the other player in the game.
+	  for(int id : playerList) {
+		  if(id != playerId) {
+			  otherId = id;
+			  break;
+		  }
+	  }
+	  //If other player id does not exist. Return an illegal action message.
+	  if(otherId == -1) {
+		  JsonObject response = new JsonObject();
+		  response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
+		  session.getRemote().sendString(GSON.toJson(response));
+		  return;
+	  }
+	  
+	  boolean otherDraw = playerDrawMap.get(otherId);
+	  Session otherSession = playerSessionMap.get(otherId);
+	  //If the other player is awaiting a draw message, end game. Otherwise a
+	  if(otherDraw) {
+		  JsonObject response = new JsonObject();
+		  response.addProperty("type", MESSAGE_TYPE.GAME_OVER.ordinal());
+		  response.addProperty("reason", GAME_END_REASON.DRAW_AGREED.ordinal());
+		  response.addProperty("result", GAME_RESULT.DRAW.ordinal());
+		  
+		  session.getRemote().sendString(GSON.toJson(response));
+		  otherSession.getRemote().sendString(GSON.toJson(response));
+	  }
+	  else {
+		  JsonObject response = new JsonObject();
+		  response.addProperty("type", MESSAGE_TYPE.REQUEST_DRAW.ordinal());
+		  otherSession.getRemote().sendString(GSON.toJson(response));
+	  }
+  }
+  
+  private void powerSelect(Session session, JsonObject received) throws IOException {
+	  boolean selection = received.get("selection").getAsBoolean();
+	  int gameId = received.get("gameId").getAsInt();
+	  int playerId = received.get("playerId").getAsInt();
+	  Game game = gameIdMap.get(gameId);
+	  
+	  List<PowerAction> actionOptions = game.getActionOptions();
+	    PowerAction selected;
+	    try {
+	      int index = 1;
+	      if(selection) {
+	    	  index = 0;
+	      }
+	      selected = actionOptions.get(index - 1);
+	      game.getActivePlayer().setAction(selected);
+	    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+	    	JsonObject response = new JsonObject();
+			response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
+			session.getRemote().sendString(GSON.toJson(response));
+			return;
+	    }
+
+	    game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
+	    if (game.getActionInputFormat() == null) {
+	      game.executePowerAction(null);
+	      game.setGameState(GameState.WAITING_FOR_MOVE);
+	    }
   }
   
   private void makeMove(Session session, JsonObject received) throws IOException {
@@ -191,6 +282,7 @@ public class ChessWebSocket {
 		  session.getRemote().sendString(GSON.toJson(response));
 		  return;
 	  }
+	  playerDrawMap.replace(playerId, false);
 	  Map<PowerUp, Location> powers = game.getRemoved();
 	  JsonArray updates = new JsonArray();
 	  for(PowerUp power : powers.keySet()) {
@@ -275,6 +367,15 @@ public class ChessWebSocket {
 	  }
   }
   
+  /**
+   * Returns the integer value id of the given piece. (NOTE: this is different than the rank of the piece used in
+   * game).
+   * 
+   * @param p
+   * 	The piece to get the id of.
+   * @return
+   * 	The integer id of the piece.
+   */
   private int getPieceValue(Piece p) {
 	  if(p instanceof King) {
 		  return PIECE_IDS.KING.ordinal();
@@ -309,59 +410,113 @@ public class ChessWebSocket {
 	  return move;
   }
   
+  /**
+   * Creates a game, adding in a player with the given color. In addition, stores (gameId -> game), (gameId -> playerId),
+   * (playerId -> session), (playerId -> name), and (playerId -> false) in the corresponding maps.
+   * 
+   * @param session
+   * 	The session of the client creating the game,
+   * @param received
+   * 	The JsonObject sent by session.
+   * @throws IOException
+   * 	In case the response JsonObject doesn't get sent properly.
+   */
   private void createGame(Session session, JsonObject received) throws IOException {
 	  Game game = new Game();
 	  int gameId = nextGameId;
 	  nextGameId++;
 	  gameIdMap.put(gameId, game);
 	  
-	  JsonObject response = new JsonObject();
-	  response.addProperty("type", MESSAGE_TYPE.CREATE_GAME.ordinal());
-	  response.addProperty("gameId", gameId);
-
-	  session.getRemote().sendString(GSON.toJson(response));
-  }
-  
-  private void addPlayer(Session session, JsonObject received) throws IOException {
-	  boolean colorBool = received.get("playerColor").getAsBoolean();
+	  boolean colorBool = received.get("color").getAsBoolean();
 	  Color playerColor = Color.BLACK;
 	  if(colorBool) {
 		  playerColor = Color.WHITE;
 	  }
 	  GuiPlayer player = new GuiPlayer(playerColor);
-	  int gameId = received.get("gameId").getAsInt();
 	  int playerId = nextPlayerId;
 	  nextPlayerId++;
 	  playerSessionMap.put(playerId, session);
+	  String name = received.get("name").getAsString();
+	  playerNameMap.put(playerId, name);
+	  playerDrawMap.put(playerId, false);
 	  
-	  Game game = gameIdMap.get(gameId);
-	  
-	  List<Integer> playerList = gamePlayerMap.get(gameId);
-	  if(playerList == null) {
-		  playerList = new ArrayList<Integer>();
-		  playerList.add(playerId);
-		  gamePlayerMap.put(gameId, playerList);
-	  }
-	  else if(playerList.size() == 1) {
-		  playerList.add(playerId);
-		  gamePlayerMap.replace(gameId, playerList);
-		  
-		  String name = received.get("name").getAsString();
-		  JsonObject responseToOther = new JsonObject();
-		  responseToOther.addProperty("type", MESSAGE_TYPE.ADD_PLAYER.ordinal());
-		  responseToOther.addProperty("name", name);
-		  Session otherSession = playerSessionMap.get(playerList.get(0));
-		  otherSession.getRemote().sendString(GSON.toJson(responseToOther));
-	  }
-	  else {
-		  return;
-	  }
+	  List<Integer> playerList = new ArrayList<>();
+	  playerList.add(playerId);
+	  gamePlayerMap.put(gameId, playerList);
 	  
 	  game.addPlayer(player);
 	  
 	  JsonObject response = new JsonObject();
-	  response.addProperty("type", MESSAGE_TYPE.ADD_PLAYER.ordinal());
+	  response.addProperty("type", MESSAGE_TYPE.CREATE_GAME.ordinal());
+	  response.addProperty("gameId", gameId);
 	  response.addProperty("playerId", playerId);
+
+	  session.getRemote().sendString(GSON.toJson(response));
+  }
+  
+  /**
+   * Adds a player to a currently existing game. Updates gamePlayerMap (gameId -> playerId1, playerId2), adds
+   * (playerId -> session), (playerid -> name), and (playerId -> false) to their respective maps as well.
+   * 
+   * @param session
+   * 	Session of the client trying to join the game.
+   * @param received
+   * 	JsonObject send by session.
+   * @throws IOException
+   * 	If the response JsonObject fails to send properly.
+   */
+  private void addPlayer(Session session, JsonObject received) throws IOException {
+	  int playerId = nextPlayerId;
+	  nextPlayerId++;
+	  int gameId = received.get("gameId").getAsInt();
+	  Game game = gameIdMap.get(gameId);
+	  Color playerColor = game.getEmptyPlayerColor();
+	  //If there is no available player color, then this game cannot accept any more players.
+	  if(playerColor == null) {
+		  JsonObject response = new JsonObject();
+		  response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
+		  session.getRemote().sendString(GSON.toJson(response));
+		  return;
+	  }
+	  GuiPlayer player = new GuiPlayer(playerColor);
+	  
+	  String name = received.get("name").getAsString();
+	  String otherName;
+	  List<Integer> playerList = gamePlayerMap.get(gameId);
+	  //If the list size is 1, then the player can be added to the game normally. Otherwise, there was an error of some sort.
+	  if(playerList.size() == 1) {
+		  playerList.add(playerId);
+		  gamePlayerMap.replace(gameId, playerList);
+		  
+		  JsonObject responseToOther = new JsonObject();
+		  responseToOther.addProperty("type", MESSAGE_TYPE.JOIN_GAME.ordinal());
+		  responseToOther.addProperty("name", name);
+		  Session otherSession = playerSessionMap.get(playerList.get(0));
+		  otherName = playerNameMap.get(playerList.get(0));
+		  otherSession.getRemote().sendString(GSON.toJson(responseToOther));
+	  }
+	  else {
+		  JsonObject response = new JsonObject();
+		  response.addProperty("type", MESSAGE_TYPE.ILLEGAL_ACTION.ordinal());
+		  session.getRemote().sendString(GSON.toJson(response));
+		  return;
+	  }
+	  
+	  playerSessionMap.put(playerId, session);
+	  playerNameMap.put(playerId, name);
+	  playerDrawMap.put(playerId, false);
+	  
+	  game.addPlayer(player);
+	  
+	  JsonObject response = new JsonObject();
+	  response.addProperty("type", MESSAGE_TYPE.JOIN_GAME.ordinal());
+	  response.addProperty("playerId", playerId);
+	  boolean colorBool = true;
+	  if(playerColor == Color.BLACK) {
+		  colorBool = false;
+	  }
+	  response.addProperty("color", colorBool);
+	  response.addProperty("name", otherName);
 	  session.getRemote().sendString(GSON.toJson(response));
   }
 }
