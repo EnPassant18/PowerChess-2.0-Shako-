@@ -119,23 +119,25 @@ public class Game {
   }
 
   /**
-   * Constructor for a game starting from a given FEN
-   * @param FEN
-   *    FEN.
+   * Constructor for a game starting from a given FEN.
+   *
+   * @param fen
+   *          FEN.
    */
-  public Game(final String FEN) {
-    if(!ChessReplUtils.isFenValid(FEN)) {
-      throw new IllegalArgumentException("ERROR: Invalid FEN given to Game constructor.");
+  public Game(final String fen) {
+    if (!ChessReplUtils.isFenValid(fen)) {
+      throw new IllegalArgumentException(
+          "ERROR: Invalid FEN" + " given to Game constructor.");
     }
 
-    String[] fenArray = FEN.split("\\s+");
+    String[] fenArray = fen.split("\\s+");
 
     String piecePlacement = fenArray[0];
     String activeColor = fenArray[1];
     String castling = fenArray[2];
     String enPassant = fenArray[3];
 
-    board = new Board(FEN);
+    board = new Board(fen);
     history = new ArrayList<>();
     gameOver = false;
     updateTilNextPowerUp();

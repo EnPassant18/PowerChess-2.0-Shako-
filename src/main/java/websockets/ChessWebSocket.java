@@ -845,55 +845,69 @@ public class ChessWebSocket {
     int playerId = nextPlayerId;
     nextPlayerId++;
     int gameId = received.get("gameId").getAsInt();
-    Game game = GAME_ID_MAP.get(gameId);
-    Color playerColor = game.getEmptyPlayerColor();
-    // If there is no available player color, then this game cannot accept any
-    // more players.
-    if (playerColor == null) {
+    Color playerColor;
+    try {
+      Game game = GAME_ID_MAP.get(gameId);
+      playerColor = game.getEmptyPlayerColor();
+
+      // If there is no available player color, then this game cannot accept any
+      // more players.
+      if (playerColor == null) {
+        sendError(session);
+        return;
+      }
+      GuiPlayer player = new GuiPlayer(playerColor);
+
+      String name = received.get("name").getAsString();
+      String otherName;
+      List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
+      // If the list size is 1, then the player can be added to the game
+      // normally.
+      // Otherwise, there was an error of some sort.
+      if (playerList.size() == 1) {
+        playerList.add(playerId);
+        GAME_PLAYER_MAP.replace(gameId, playerList);
+
+        JsonObject responseToOther = new JsonObject();
+        responseToOther.addProperty("type", MessageType.JOIN_GAME.ordinal());
+        responseToOther.addProperty("name", name);
+        Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(0));
+        otherName = PLAYER_NAME_MAP.get(playerList.get(0));
+        otherSession.getRemote().sendString(GSON.toJson(responseToOther));
+      } else {
+        JsonObject response = new JsonObject();
+        response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
+        session.getRemote().sendString(GSON.toJson(response));
+        return;
+      }
+
+      PLAYER_SESSION_MAP.put(playerId, session);
+      PLAYER_NAME_MAP.put(playerId, name);
+      PLAYER_DRAW_MAP.put(playerId, false);
+
+      game.addPlayer(player);
+
       JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ERROR.ordinal());
+      response.addProperty("type", MessageType.JOIN_GAME.ordinal());
+      response.addProperty("playerId", playerId);
+      boolean colorBool = true;
+      if (playerColor == Color.BLACK) {
+        colorBool = false;
+      }
+      response.addProperty("color", colorBool);
+      response.addProperty("name", otherName);
       session.getRemote().sendString(GSON.toJson(response));
+
+    } catch (NullPointerException e) {
+      sendError(session);
       return;
     }
-    GuiPlayer player = new GuiPlayer(playerColor);
+  }
 
-    String name = received.get("name").getAsString();
-    String otherName;
-    List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
-    // If the list size is 1, then the player can be added to the game normally.
-    // Otherwise, there was an error of some sort.
-    if (playerList.size() == 1) {
-      playerList.add(playerId);
-      GAME_PLAYER_MAP.replace(gameId, playerList);
-
-      JsonObject responseToOther = new JsonObject();
-      responseToOther.addProperty("type", MessageType.JOIN_GAME.ordinal());
-      responseToOther.addProperty("name", name);
-      Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(0));
-      otherName = PLAYER_NAME_MAP.get(playerList.get(0));
-      otherSession.getRemote().sendString(GSON.toJson(responseToOther));
-    } else {
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
-      return;
-    }
-
-    PLAYER_SESSION_MAP.put(playerId, session);
-    PLAYER_NAME_MAP.put(playerId, name);
-    PLAYER_DRAW_MAP.put(playerId, false);
-
-    game.addPlayer(player);
-
+  private void sendError(Session session) throws IOException {
     JsonObject response = new JsonObject();
-    response.addProperty("type", MessageType.JOIN_GAME.ordinal());
-    response.addProperty("playerId", playerId);
-    boolean colorBool = true;
-    if (playerColor == Color.BLACK) {
-      colorBool = false;
-    }
-    response.addProperty("color", colorBool);
-    response.addProperty("name", otherName);
+    response.addProperty("type", MessageType.ERROR.ordinal());
     session.getRemote().sendString(GSON.toJson(response));
   }
+
 }
