@@ -494,8 +494,7 @@ public class ChessWebSocket {
         updatePart2.addProperty("col", start.getCol());
         updatePart2.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart2.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart2.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+        updatePart2.addProperty("piece", getPieceValue(p));
         updates.add(updatePart2);
       }
 
@@ -509,8 +508,7 @@ public class ChessWebSocket {
       updatePart.addProperty("col", loc.getCol());
       updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
       updatePart.addProperty("color", p.getColor() == Color.WHITE);
-      updatePart.addProperty("piece",
-          PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+      updatePart.addProperty("piece", getPieceValue(p));
       updates.add(updatePart);
     }
 
@@ -577,8 +575,7 @@ public class ChessWebSocket {
         Piece p = ((Piece) obj);
         updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal());
+        updatePart.addProperty("piece", getPieceValue(p));
 
         // if added blackhole to loc
       } else if (obj instanceof BlackHole) {
@@ -590,8 +587,7 @@ public class ChessWebSocket {
         Piece p = game.getPieceAt(loc);
         updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
         updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece",
-            PieceIds.valueOf(p.getClass().getSimpleName()).ordinal() + 6);
+        updatePart.addProperty("piece", getPieceValue(p));
       }
 
       updates.add(updatePart);
