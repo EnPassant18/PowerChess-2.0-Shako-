@@ -25,31 +25,35 @@ class UI {
     }
 
     static drawPieces() {
-        let first, second, seventh, eighth;
+        let first, second, seventh, eighth, kingCol, queenCol;
         if (game.color === COLOR.WHITE) {
             first = 7;
             second = 6;
             seventh = 1;
             eighth = 0;
+            kingCol = 4;
+            queenCol = 3;
         } else if (game.color === COLOR.BLACK) {
             first = 0;
             second = 1;
             seventh = 6;
             eighth = 7;
+            kingCol = 3;
+            queenCol = 4;
         }
         UI.spawn(COLOR.BLACK, PIECE.ROOK, new Square(eighth,0));
         UI.spawn(COLOR.BLACK, PIECE.KNIGHT, new Square(eighth,1));
         UI.spawn(COLOR.BLACK, PIECE.BISHOP, new Square(eighth,2));
-        UI.spawn(COLOR.BLACK, PIECE.QUEEN, new Square(eighth,3));
-        UI.spawn(COLOR.BLACK, PIECE.KING, new Square(eighth,4));
+        UI.spawn(COLOR.BLACK, PIECE.QUEEN, new Square(eighth,queenCol));
+        UI.spawn(COLOR.BLACK, PIECE.KING, new Square(eighth,kingCol));
         UI.spawn(COLOR.BLACK, PIECE.BISHOP, new Square(eighth,5));
         UI.spawn(COLOR.BLACK, PIECE.KNIGHT, new Square(eighth,6));
         UI.spawn(COLOR.BLACK, PIECE.ROOK, new Square(eighth,7));
         UI.spawn(COLOR.WHITE, PIECE.ROOK, new Square(first,0));
         UI.spawn(COLOR.WHITE, PIECE.KNIGHT, new Square(first,1));
         UI.spawn(COLOR.WHITE, PIECE.BISHOP, new Square(first,2));
-        UI.spawn(COLOR.WHITE, PIECE.QUEEN, new Square(first,3));
-        UI.spawn(COLOR.WHITE, PIECE.KING, new Square(first,4));
+        UI.spawn(COLOR.WHITE, PIECE.QUEEN, new Square(first,queenCol));
+        UI.spawn(COLOR.WHITE, PIECE.KING, new Square(first,kingCol));
         UI.spawn(COLOR.WHITE, PIECE.BISHOP, new Square(first,5));
         UI.spawn(COLOR.WHITE, PIECE.KNIGHT, new Square(first,6));
         UI.spawn(COLOR.WHITE, PIECE.ROOK, new Square(first,7));
@@ -94,13 +98,14 @@ class UI {
 
     // Creates a power box on the given square
     static spawnBox(imageUrl, square) {
-        box = $(`<img class="power" src="${imageUrl}" draggable=false />`);
+        const box = $(`<img class="power" src="${imageUrl}" draggable=false />`);
         $("#powers").append(box);
         UI.teleport(box, square);
     }
 
     // Animates the movement of a piece from the given Square to the given Square
     static move(move) {
+        UI.clear(move.to);
         let piece;
         $("#pieces > img").each((index, element) => {
             if (JSON.stringify($(element).offset()) === JSON.stringify({
@@ -122,7 +127,7 @@ class UI {
             const interval = setInterval(() => {
                 if (frame === FRAMES) {
                     clearInterval(interval);
-                    teleport(piece, move.to);
+                    UI.teleport(piece, move.to);
                 } else {
                     piece.offset({
                         left: xStart + frame * xDiff,
@@ -137,17 +142,17 @@ class UI {
     // update: {row:..., col:..., state:..., piece/color/rarity:...}
     static update(update) {
         const square = new Square(update.row, update.col).adjusted();
-        clear(square);
+        UI.clear(square);
         switch (update.state) {
             default: 
                 console.log("Invalid update, unrecognized state: " + update.state);
                 break;
             case ENTITY.NOTHING: break;
             case ENTITY.PIECE:
-                spawn(PIECE_IMAGE[update.color][update.piece], square);
+                UI.spawn(PIECE_IMAGE[update.color][update.piece], square);
                 break;
             case ENTITY.POWER:
-                spawnBox(BOX_IMAGE[update.rarity], square);
+                UI.spawnBox(BOX_IMAGE[update.rarity], square);
                 break;
             case ENTITY.OTHER: break;
         }
@@ -156,7 +161,7 @@ class UI {
     // Performs a list of updates
     static updates(updates) {
         for (let i = 0; i < updates.length; i++) {
-            update(updates[i]);
+            UI.update(updates[i]);
         }
     }
 

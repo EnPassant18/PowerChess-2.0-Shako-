@@ -75,7 +75,7 @@ class Timer {
 }
 
 Timer.TIME_CONTROL = {
-    QUICK: new TimeControl(300, 5),
-    STANDARD: new TimeControl(900, 15),
-    SLOW: new TimeControl(2700, 45)
+    0: new TimeControl(300, 5),
+    1: new TimeControl(900, 15),
+    2: new TimeControl(2700, 45)
 }

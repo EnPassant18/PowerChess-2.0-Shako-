@@ -42,19 +42,28 @@ class Connection {
                 break;
             case MESSAGE.GAME_UPDATE:
                 if (message.move !== undefined) {
-                    move(new Move(message.move.from, message.move.to).adjusted());
+                    UI.move(new Move(
+                        new Square(message.move.from.row, message.move.from.col),
+                        new Square(message.move.to.row, message.move.to.col))
+                        .adjusted());
+                }
+                if (moving !== null) {
+                    UI.clear(moving.toSquare);
+                    UI.teleport(moving.piece, moving.toSquare);
+                    moving = null;
                 }
                 UI.clearPowers();
                 UI.updates(message.updates);
                 game.action = message.action;
                 if (message.action === ACTION.SELECT_POWER) {
                     game.powerPrompt(
-                        POWER_OBJECT[message.options.rarity][message.options.id1],
-                        POWER_OBJECT[message.options.rarity][message.options.id2]
+                        POWER_OBJECT[message.rarity][message.id1],
+                        POWER_OBJECT[message.rarity][message.id2]
                     )
                 }
                 break;
             case MESSAGE.ILLEGAL_ACTION:
+                console.log(moving);
                 if (moving !== null) {
                     UI.teleport(moving.piece, moving.startSquare);
                 }

@@ -69,7 +69,7 @@ Response: {
     type: JOIN_GAME,
     playerId: <Int>,
     color: <WHITE(true)/BLACK(false)>,
-    name: <String> *** Opponent's name ***
+    name: <String> *** Opponent's name ***,
     timeControl: QUICK(0)/STANDARD(1)/SLOW(2)
     ********************************************* 
     Server assigns the player an id and color 
@@ -148,11 +148,11 @@ Response (if the move was legal): {
     ]
     action: <NONE(0)/SELECT_POWER(2)> (what the player has to do next;
         none indicates it is the opponent's turn),
-    options: (if the player captured a power, i.e. action = SELECT_POWER) {
-        rarity: COMMON(0)/RARE(1)/LEGENDARY(2),
-        id1: <id of the first power option>,
-        id2: <id of the second power option>
-    }
+    ****** if the player captured a power, i.e. action = SELECT_POWER ******
+    rarity: COMMON(0)/RARE(1)/LEGENDARY(2),
+    id1: <id of the first power option>,
+    id2: <id of the second power option>
+    
 }
 Response (to other player, if the move was legal): {
     type: GAME_UPDATE,

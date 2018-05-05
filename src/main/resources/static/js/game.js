@@ -1,7 +1,7 @@
 class Game {
     constructor(color, timeControl) {
         this.color = color;
-        this.timer = new Timer(Timer.TIME_CONTROL.timeControl);
+        this.timer = new Timer(Timer.TIME_CONTROL[timeControl]);
         this.power1 = null;
         this.power2 = null;
         this.selected = null;

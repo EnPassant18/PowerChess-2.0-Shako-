@@ -1,4 +1,4 @@
-let moving;
+let moving = null;
 
 // Contains information about the piece being moved
 class Moving {
@@ -51,19 +51,17 @@ function drag(event) {
 
 // When user drops a piece
 function drop(event) {
-    const moveEnd = moving.getSquare();
-    UI.teleport(moving.piece, moveEnd);
+    moving.toSquare = moving.getSquare();
     moving.piece.css("z-index", 2);
     $(document).off("mousemove");
     $(document).off("mouseup");
-    if (JSON.stringify(moving.startSquare) !== JSON.stringify(moveEnd)) {
+    if (JSON.stringify(moving.startSquare) !== JSON.stringify(moving.toSquare)) {
         if (game.selected !== null) {
-            game.powerFollowUp(new Move(moving.startSquare, moveEnd));
+            game.powerFollowUp(new Move(moving.startSquare, moving.toSquare));
         } else {
-            connection.attemptMove(new Move(moving.startSquare, moveEnd)); 
+            connection.attemptMove(new Move(moving.startSquare, moving.toSquare)); 
         }
     }
-    moving = null;
 }
 
 // When user clicks on a square
