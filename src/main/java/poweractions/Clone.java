@@ -1,6 +1,7 @@
 package poweractions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
@@ -19,11 +20,12 @@ import pieces.Piece;
  * @author brad
  * 
  */
-public class Clone extends PowerAction {
+public class Clone extends PowerAction implements PieceMover {
   
   private final static int SIZE = 8;
   private List<Location> vacantSquares;
-  private Location endLocation;
+  private Location startLocation, endLocation;
+  private Board board;
 
   /**
    * Constructor takes a game object and the location where the PowerAction was
@@ -37,10 +39,11 @@ public class Clone extends PowerAction {
   public Clone(Game game, Location whereCaptured) {
     super(Rarity.LEGENDARY, game, whereCaptured, 0);
     
-    Board board = game.getBoard();
+    board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
     Color color = capturingPiece.getColor();
     int row = color == Color.WHITE ? 0 : SIZE - 1;
+    startLocation = whereCaptured;
     
     Location loc;
     vacantSquares = new ArrayList<>();
@@ -70,6 +73,7 @@ public class Clone extends PowerAction {
       return;
     }
     endLocation = getRandomLocation();
+    getGame().executeMove(new Move(startLocation, endLocation));
   }
   
   /**
@@ -86,9 +90,8 @@ public class Clone extends PowerAction {
       return null;
     }
     
-    int index = ThreadLocalRandom.current().nextInt(0, vacantSquares.size());
-  
-    return vacantSquares.get(index);  
+    Collections.shuffle(vacantSquares);
+    return vacantSquares.get(0);  
   }
 
   @Override

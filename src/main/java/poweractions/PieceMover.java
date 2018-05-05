@@ -1,3 +1,5 @@
+package poweractions;
+
 import board.Location;
 
 /**

@@ -52,6 +52,8 @@ public class Game {
 
   private Map<PowerUp, Location> removedLocations;
   private Map<PowerObject, Location> addedPowerObject;
+  
+  private final static String START_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
   /**
    * GameState enumerates the various states of a game (e.g. waiting for a
@@ -104,18 +106,7 @@ public class Game {
    * Constructs new default game.
    */
   public Game() {
-    board = new Board();
-    history = new ArrayList<>();
-    gameOver = false;
-    updateTilNextPowerUp();
-    toPromote = null;
-    actionOptions = new ArrayList<>();
-    powerUps = new TreeMap<>((p1, p2) -> {
-      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
-    });
-
-    whiteToMove = true;
-    gameState = GameState.WAITING_FOR_MOVE;
+    this(START_POSITION_FEN);
   }
   
   /**
@@ -136,6 +127,7 @@ public class Game {
     String enPassant = fenArray[3];
     
     board = new Board(FEN);
+    whiteToMove = activeColor.equals("w");
     history = new ArrayList<>();
     gameOver = false;
     updateTilNextPowerUp();
@@ -145,7 +137,7 @@ public class Game {
       return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
     });
     gameState = GameState.WAITING_FOR_MOVE;
-    whiteToMove = activeColor.equals("w");
+    addedPowerObject = new HashMap<PowerObject, Location>();
     
   }
 
@@ -219,7 +211,6 @@ public class Game {
     tilNextPowerup--;
 
     // after move, check if new PowerObject should spawn
-    addedPowerObject = new HashMap<PowerObject, Location>();
     if (tilNextPowerup == 0) {
       spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
       updateTilNextPowerUp();

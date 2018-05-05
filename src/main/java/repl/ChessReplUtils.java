@@ -233,22 +233,18 @@ public final class ChessReplUtils {
     String enPassantRegex = "[a-h][1-8]|-";
 
     if (!isPiecePlacementString(piecePlacement)) {
-      System.out.println("A");
       return false;
     }
 
     if (!activeColor.matches(activeColorRegex)) {
-      System.out.println("B");
       return false;
     }
 
     if (!castling.matches(castlingRegex)) {
-      System.out.println("C");
       return false;
     }
 
     if (!enPassant.matches(enPassantRegex)) {
-      System.out.println("D");
       return false;
     }
 
