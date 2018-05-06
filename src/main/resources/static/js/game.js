@@ -17,7 +17,7 @@ class Game {
             this.timer.increment(false);
         } else if (this.selected === null) {
             this.timer.increment(true);
-            $("#drawOffered").attr("hidden"); 
+            $("#drawOffered").attr("hidden", "true"); 
         }
         if (this._action === ACTION.MOVE_THIS) {
             this.mustMove = moving.piece;
@@ -38,16 +38,16 @@ class Game {
     // When the user selects a power
     // selection: boolean (false = first)
     powerSelect(selection) {
-        const unselected = selection ? this.power1 : this.power2;
-        const selected = selection ? this.power2 : this.power1;
-        if (selected.hasFollowUp) {
-            this.selected = selected;
-            this.action = selected.followUp;
+        const notSelected = selection ? this.power1 : this.power2;
+        const isSelected = selection ? this.power2 : this.power1;
+        if (isSelected.hasFollowUp) {
+            this.action = isSelected.followUp;
+            this.selected = isSelected;
         }
-        if (unselected.selected) {
-            unselected.selected = false;
+        if (notSelected.selected) {
+            notSelected.selected = false;
         }
-        selected.activate();
+        isSelected.activate();
     }
 
     powerFollowUp(followUpObject) {

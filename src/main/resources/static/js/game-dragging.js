@@ -61,10 +61,17 @@ function drop(event) {
         } else {
             connection.attemptMove(new Move(moving.startSquare, moving.toSquare)); 
         }
+    } else {
+        UI.teleport(moving.piece, moving.startSquare);
+        moving = null;
     }
 }
 
 // When user clicks on a square
 function click(event) {
-
+    if (game.action === ACTION.SELECT_SQUARE) {
+        const row = parseInt(event.target.id.charAt(3));
+        const col = parseInt(event.target.id.charAt(7));
+        game.powerFollowUp(new Square(row, col));
+    }
 }

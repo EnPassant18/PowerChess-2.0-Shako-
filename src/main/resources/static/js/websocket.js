@@ -14,12 +14,12 @@ class Connection {
         }
 
         this.socket.onmessage = event => {
-            $("#error").attr("hidden");
+            $("#error").attr("hidden", "true");
             const message = JSON.parse(event.data);
             console.log(message);
             switch (message.type) {
             default:
-                connectionError("Unexpected or unrecognized message type: " + message.type);
+                this.connectionError("Unexpected or unrecognized message type: " + message.type);
                 break;
             case MESSAGE.CREATE_GAME:
                 this.GAME_ID = message.gameId;
@@ -35,7 +35,7 @@ class Connection {
                 break;
             case MESSAGE.GAME_OVER:
                 // TODO embellish
-                gameOver(message.result, message.reason);
+                game.gameOver(message.result, message.reason);
                 break;
             case MESSAGE.REQUEST_DRAW:
                 $("#drawOffered").removeAttr("hidden");
@@ -47,6 +47,7 @@ class Connection {
                         new Square(message.move.to.row, message.move.to.col))
                         .adjusted());
                 }
+                game.action = message.action;
                 if (moving !== null) {
                     UI.clear(moving.toSquare);
                     UI.teleport(moving.piece, moving.toSquare);
@@ -54,7 +55,6 @@ class Connection {
                 }
                 UI.clearPowers();
                 UI.updates(message.updates);
-                game.action = message.action;
                 if (message.action === ACTION.SELECT_POWER) {
                     game.powerPrompt(
                         POWER_OBJECT[message.rarity][message.id1],

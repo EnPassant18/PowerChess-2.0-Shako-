@@ -1,5 +1,9 @@
 class UI {
 
+    static get boardBox() {
+        return $("#board")[0].getBoundingClientRect();
+    }
+
     static drawBoard() {
         const $board = $("#board");
         $board.css({
@@ -20,8 +24,7 @@ class UI {
             "margin-left": UI.SQUARE_SIZE*8 + UI.GAP_BETWEEN + "px"
         })
         $("#container").css("width", UI.SQUARE_SIZE*12 + UI.GAP_BETWEEN + "px");
-    
-        UI.boardBox = $board[0].getBoundingClientRect();
+
     }
 
     static drawPieces() {
@@ -75,12 +78,13 @@ class UI {
     }
 
     // Removes all pieces and powers from the given square
+    // Except the given piece
     static clear(square) {
         $("#board img").each((index, element) => {
             if (JSON.stringify($(element).offset()) === JSON.stringify({
                 top: UI.boardBox.top + UI.SQUARE_SIZE * square.row,
                 left: UI.boardBox.left + UI.SQUARE_SIZE * square.col
-            })) {
+            }) && $(element)[0] !== moving.piece[0]) {
                 $(element).remove();
             }
         });
@@ -105,7 +109,6 @@ class UI {
 
     // Animates the movement of a piece from the given Square to the given Square
     static move(move) {
-        UI.clear(move.to);
         let piece;
         $("#pieces > img").each((index, element) => {
             if (JSON.stringify($(element).offset()) === JSON.stringify({
@@ -116,8 +119,9 @@ class UI {
             }
         });
         if (piece === undefined) {
-            console.log("No piece on given start square");
+            console.error("No piece on given start square");
         } else {
+            UI.clear(move.to, piece[0]);
             let frame = 1;
             const FRAMES = 100;
             const xStart = piece.offset().left;
