@@ -6,10 +6,11 @@
     <link rel="icon" type="image/png" href="images/favicon.png">
     <script src="js/jquery-3.1.1.js"></script>
     <script src="js/home.js"></script>
-    <script src="js/powers.js"></script>
-    <script src="js/enums.js"></script>
+    <script src="js/home-websocket.js"></script>
+    <script src="js/home-render.js"></script>
   </head>
   <body>
+    <div id="error" class="header" hidden>Connection Error</div>
     <div id="container">
      <div id="left">
        <img id="logo" src="images/logo.png">
@@ -58,7 +59,7 @@
         <th>Color</th>
         <th>Play</th>
       </tr>
-      <tr>
+      <tr id="noGames" hidden>
         <td colspan="4">No available public games</td>
       </tr>
       <tr>

@@ -1,0 +1,27 @@
+Documentation for communcations between server and client: HOME PAGE
+
+Message types:
+ALL_GAMES(0): {
+    type: 0,
+    games: {
+        gameId: {
+            name: <String>,
+            color: <WHITE(true)/BLACK(false)>,
+            timeControl: <QUICK(0)/STANDARD(1)/SLOW(2)
+        },
+        ...
+    }
+}
+
+ADD_GAME(1): {
+    type: 1,
+    gameId: <Int>,
+    name: <String>,
+    color: <WHITE(true)/BLACK(false)>,
+    timeControl: <QUICK(0)/STANDARD(1)/SLOW(2)
+}
+
+REMOVE_GAME(2): {
+    type: 2,
+    gameid: <Int>
+}

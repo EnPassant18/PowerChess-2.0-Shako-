@@ -1,4 +1,5 @@
 class Connection {
+
     constructor(url) {
         try {
             this.socket = new WebSocket(url);
@@ -89,64 +90,4 @@ class Connection {
         }));
     }
 
-    joinGame(id, name) {
-        this.GAME_ID = id;
-        this.socket.send(JSON.stringify({
-            gameId: this.GAME_ID,
-            type: MESSAGE.JOIN_GAME,
-            name: name
-        }));
-    }
-
-    // Called when the user attempts to move
-    attemptMove(move) {
-        this.socket.send(JSON.stringify({
-            gameId: this.GAME_ID,
-            playerId: this.PLAYER_ID,
-            type: MESSAGE.PLAYER_ACTION,
-            action: ACTION.MOVE,
-            move: move.adjusted()
-        }))
-    }
-
-    // Called when the user selects a power
-    // option: boolean (true = first selected)
-    // followUpObject: contains followUp action result
-    usePower(option, followUpObject) {
-        console.log("Use power")
-        let message = {
-            gameId: this.GAME_ID,
-            playerId: this.PLAYER_ID,
-            type: MESSAGE.PLAYER_ACTION,
-            action: ACTION.SELECT_POWER,
-            selection: option
-        }
-        if (followUpObject !== undefined) { 
-            message.followUp = followUpObject.adjusted();
-            console.log(followUpObject);
-        }
-        this.socket.send(JSON.stringify(message));
-    }
-
-    // When a player resigns or loses on time
-    // reason: RESIGNATION (1) / TIME (2)
-    lose(reason) {
-        this.socket.send(JSON.stringify({
-            gameId: this.GAME_ID,
-            playerId: this.PLAYER_ID,
-            type: MESSAGE.GAME_OVER,
-            result: GAME_RESULT,
-            reason: reason
-        }));
-        game.gameOver(GAME_RESULT.LOSS, reason);
-    }
-
-    // When a player offers a draw
-    draw() {
-        this.socket.send(JSON.stringify({
-            gameId: this.GAME_ID,
-            playerId: this.PLAYER_ID,
-            type: MESSAGE.REQUEST_DRAW
-        }));
-    }
 }

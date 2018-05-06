@@ -1,8 +1,10 @@
+let name = "Guest" + Math.trunc(10000*Math.random());
+let games;
+
 $(document).ready(() => {
 
     $("#logo").css("width", $("#form").width() + "px");
 
-    let name = "Guest" + Math.trunc(10000*Math.random());
     $("#welcome").html(`Welcome, ${name}!`);
     $("#submitName").click(() => {
         name = $("#name").val();
