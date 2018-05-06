@@ -49,6 +49,7 @@ class Connection {
                 }
                 game.action = message.action;
                 if (moving !== null) {
+                    game.lastMoved = moving.toSquare;
                     UI.clear(moving.toSquare);
                     UI.teleport(moving.piece, moving.toSquare);
                     moving = null;

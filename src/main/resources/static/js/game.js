@@ -19,11 +19,6 @@ class Game {
             this.timer.increment(true);
             $("#drawOffered").attr("hidden", "true"); 
         }
-        if (this._action === ACTION.MOVE_THIS) {
-            this.mustMove = moving.piece;
-        } else {
-            this.mustMove = null;
-        }
         this._action = newAction;
         this.selected = null;
     }
