@@ -126,6 +126,7 @@ class Connection {
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
+    		console.log("should lose");
         this.socket.send(JSON.stringify({
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,

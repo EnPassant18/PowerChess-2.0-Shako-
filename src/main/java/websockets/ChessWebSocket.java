@@ -245,7 +245,6 @@ public class ChessWebSocket {
       throws IOException {
     int playerId = received.get("playerId").getAsInt();
     int gameId = received.get("gameId").getAsInt();
-    List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
 
     int reason = received.get("reason").getAsInt();
 
@@ -256,14 +255,7 @@ public class ChessWebSocket {
 
     session.getRemote().sendString(GSON.toJson(response));
 
-    int otherId = -1;
-    // Retrieves the id of the other player in the game.
-    for (int id : playerList) {
-      if (id != playerId) {
-        otherId = id;
-        break;
-      }
-    }
+    int otherId = getOtherId(gameId, playerId);
 
     // If other player id exists, then update them too
     if (otherId != -1) {
@@ -291,20 +283,11 @@ public class ChessWebSocket {
       throws IOException {
     int playerId = received.get("playerId").getAsInt();
     int gameId = received.get("gameId").getAsInt();
-    List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
-    int otherId = -1;
-    // Retrieves the id of the other player in the game.
-    for (int id : playerList) {
-      if (id != playerId) {
-        otherId = id;
-        break;
-      }
-    }
+    int otherId = getOtherId(gameId, playerId);
+
     // If other player id does not exist. Return an illegal action message.
     if (otherId == -1) {
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
+      sendIllegalAction(session);
       return;
     }
 
@@ -346,35 +329,40 @@ public class ChessWebSocket {
     Game game = GAME_ID_MAP.get(gameId);
 
     List<PowerAction> actionOptions = game.getActionOptions();
-    PowerAction selected;
     int index = selection ? 1 : 0;
-    selected = actionOptions.get(index);
+    PowerAction selected = actionOptions.get(index);
     game.getActivePlayer().setAction(selected);
-    Location whereCaptured =
-        game.getActivePlayer().getAction().getWhereCaptured();
+    Location whereCaptured = selected.getWhereCaptured();
 
     Collection<BoardObject> preWhereCaptured = game.getObjsAt(whereCaptured);
     Collection<BoardObject> preLoc = null, preStart = null, preEnd = null;
 
     game.setGameState(GameState.WAITING_FOR_POWERUP_EXEC);
-    JsonObject followUp = received.get("followUp").getAsJsonObject();
+    if (!received.has("followUp") && selected.inputFormat() != null) {
+      sendError(session);
+      return;
+    }
+
     Object input = null;
-    if (followUp.has("row")) {
-      int row = followUp.get("row").getAsInt();
-      int col = followUp.get("col").getAsInt();
-      input = new Location(row, col);
-      preLoc = game.getObjsAt((Location) input);
-    } else if (followUp.has("from")) {
-      input = getMove(followUp);
-      preStart = game.getObjsAt(((Move) input).getStart());
-      preEnd = game.getObjsAt(((Move) input).getEnd());
+
+    if (received.has("followUp")) {
+      JsonObject followUp = received.get("followUp").getAsJsonObject();
+      if (followUp.has("row")) {
+        int row = followUp.get("row").getAsInt();
+        int col = followUp.get("col").getAsInt();
+        input = new Location(row, col);
+        preLoc = game.getObjsAt((Location) input);
+      } else if (followUp.has("from")) {
+        input = getMove(followUp);
+        preStart = game.getObjsAt(((Move) input).getStart());
+        preEnd = game.getObjsAt(((Move) input).getEnd());
+      }
     }
 
     // if input not valid, return ILLEGAL_ACTION
     if (!selected.validInput(input)) {
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
+      sendIllegalAction(session);
+      return;
     }
 
     // otherwise execute action and compile GAME_UPDATE
@@ -406,22 +394,12 @@ public class ChessWebSocket {
       // update invulnerability at king locs
       for (Location loc : ((Armageddon) selected).getKingLocations()) {
         Piece p = game.getPieceAt(loc);
-        JsonObject updatePart = new JsonObject();
-        updatePart.addProperty("row", loc.getRow());
-        updatePart.addProperty("col", loc.getCol());
-        updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
-        updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece", PieceIds.KING.ordinal() + 6);
-        updates.add(updatePart);
+        updates.add(createInvulnerableUpdate(loc, p));
       }
 
       // update pawn locs have nothing
       for (Location loc : ((Armageddon) selected).getPawnLocations()) {
-        JsonObject updatePart = new JsonObject();
-        updatePart.addProperty("row", loc.getRow());
-        updatePart.addProperty("col", loc.getCol());
-        updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
-        updates.add(updatePart);
+        updates.add(createEmptyUpdate(loc));
       }
 
       // If Rewind, check game history
@@ -433,21 +411,11 @@ public class ChessWebSocket {
       // if rewind was actually executed, end will be empty
       if (game.isEmpty(end)) {
         // update that former end loc is empty
-        JsonObject updatePart = new JsonObject();
-        updatePart.addProperty("row", end.getRow());
-        updatePart.addProperty("col", end.getCol());
-        updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
-        updates.add(updatePart);
+        updates.add(createEmptyUpdate(end));
 
         // update that piece is back at former start loc
         Piece p = game.getPieceAt(start);
-        JsonObject updatePart2 = new JsonObject();
-        updatePart2.addProperty("row", start.getRow());
-        updatePart2.addProperty("col", start.getCol());
-        updatePart2.addProperty("state", EntityTypes.PIECE.ordinal());
-        updatePart2.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart2.addProperty("piece", getPieceValue(p));
-        updates.add(updatePart2);
+        updates.add(createPieceUpdate(start, p));
       }
 
       // If SendAway, check where sent
@@ -455,28 +423,14 @@ public class ChessWebSocket {
       Location loc = ((PieceMover) selected).getEndLocation();
       Piece p = game.getPieceAt(loc);
       // update that endloc now has a piece
-      JsonObject updatePart = new JsonObject();
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
-      updatePart.addProperty("color", p.getColor() == Color.WHITE);
-      updatePart.addProperty("piece", getPieceValue(p));
-      updates.add(updatePart);
+      updates.add(createPieceUpdate(loc, p));
     }
 
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
     response.add("updates", updates);
 
-    List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
-    int otherId = -1;
-    // Retrieves the id of the other player in the game.
-    for (int id : playerList) {
-      if (id != playerId) {
-        otherId = id;
-        break;
-      }
-    }
+    int otherId = getOtherId(gameId, playerId);
 
     // update active player
     session.getRemote().sendString(GSON.toJson(response));
@@ -510,36 +464,27 @@ public class ChessWebSocket {
 
     // if there was something and now there's nothing
     if (postObjs.isEmpty() && !preObjs.isEmpty()) {
-      JsonObject updatePart = new JsonObject();
-      updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
-      updates.add(updatePart);
+      updates.add(createEmptyUpdate(loc));
     }
 
     postObjs.removeAll(preObjs);
     // if there are new objects on location, add difference updates
     for (BoardObject obj : postObjs) {
       JsonObject updatePart = new JsonObject();
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
 
       // if added piece to loc
       if (obj instanceof Piece) {
         Piece p = ((Piece) obj);
-        updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
-        updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece", getPieceValue(p));
+        updatePart = createPieceUpdate(loc, p);
 
         // if added blackhole to loc
       } else if (obj instanceof BlackHole) {
-        updatePart.addProperty("state", EntityTypes.OTHER.ordinal());
-        updatePart.addProperty("other", OtherEntities.BLACK_HOLE.ordinal());
+        updatePart = createBlackHoleUpdate(loc);
 
         // if added invulnerability to loc
       } else if (obj instanceof Invulnerability) {
         Piece p = game.getPieceAt(loc);
-        updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
-        updatePart.addProperty("color", p.getColor() == Color.WHITE);
-        updatePart.addProperty("piece", getPieceValue(p));
+        updatePart = createInvulnerableUpdate(loc, p);
       }
 
       updates.add(updatePart);
@@ -574,11 +519,8 @@ public class ChessWebSocket {
     try {
       game.turn();
     } catch (IllegalMoveException e) {
-      // If illegal move, send back an illegal action message to the session
-      // owner.
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
+      // If illegal move, send back an illegal action to session owner
+      sendIllegalAction(session);
       return;
     }
 
@@ -618,13 +560,8 @@ public class ChessWebSocket {
     Map<PowerObject, Location> addedPowerUp = game.getPowerObject();
     // If a power up was spawned, add the power up and its location to update
     for (PowerObject power : addedPowerUp.keySet()) {
-      JsonObject updatePart = new JsonObject();
       Location loc = addedPowerUp.get(power);
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      updatePart.addProperty("state", EntityTypes.POWER.ordinal());
-      updatePart.addProperty("rarity", power.getRarity().ordinal());
-      updates.add(updatePart);
+      updates.add(createPowerObjectUpdate(loc, power));
     }
 
     /*
@@ -632,19 +569,9 @@ public class ChessWebSocket {
      * and add that change to updates.
      */
     if (game.getGameState() == GameState.WAITING_FOR_PROMOTE) {
-      JsonObject updatePart = new JsonObject();
       Location loc = game.executePromotionToQueen();
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
-      updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
       Piece p = game.getPieceAt(loc);
-      updatePart.addProperty("piece", PieceIds.QUEEN.ordinal());
-      if (p.getColor() == Color.WHITE) {
-        updatePart.addProperty("color", true);
-      } else {
-        updatePart.addProperty("color", false);
-      }
-      updates.add(updatePart);
+      updates.add(createPieceUpdate(loc, p));
     }
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
@@ -830,9 +757,7 @@ public class ChessWebSocket {
         otherName = PLAYER_NAME_MAP.get(playerList.get(0));
         otherSession.getRemote().sendString(GSON.toJson(responseToOther));
       } else {
-        JsonObject response = new JsonObject();
-        response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
-        session.getRemote().sendString(GSON.toJson(response));
+        sendIllegalAction(session);
         return;
       }
 
@@ -860,10 +785,100 @@ public class ChessWebSocket {
     }
   }
 
+  /**
+   * Send ERROR message to session owner if an error occured.
+   *
+   * @param session
+   *          Session that tried to perform an illegal action.
+   * @throws IOException
+   *           If the response JsonObject fails to send properly.
+   */
   private void sendError(Session session) throws IOException {
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.ERROR.ordinal());
     session.getRemote().sendString(GSON.toJson(response));
+  }
+
+  /**
+   * Send ILLEGAL_ACTION message to session owner.
+   *
+   * @param session
+   *          Session that tried to perform an illegal action.
+   * @throws IOException
+   *           If the response JsonObject fails to send properly.
+   */
+  private void sendIllegalAction(Session session) throws IOException {
+    JsonObject response = new JsonObject();
+    response.addProperty("type", MessageType.ILLEGAL_ACTION.ordinal());
+    session.getRemote().sendString(GSON.toJson(response));
+  }
+
+  /**
+   * Retreive ID of other player in game.
+   *
+   * @param gameId
+   *          Game ID.
+   * @param playerId
+   *          ID of first player.
+   * @return ID of other player or -1 if no other player in game.
+   */
+  private int getOtherId(int gameId, int playerId) {
+    int otherId = -1;
+    try {
+      List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
+      for (int id : playerList) {
+        if (id != playerId) {
+          otherId = id;
+          break;
+        }
+      }
+    } catch (NullPointerException e) {
+      // pass
+    }
+    return otherId;
+  }
+
+  private JsonObject createPieceUpdate(Location loc, Piece p) {
+    JsonObject updatePart = new JsonObject();
+    updatePart.addProperty("row", loc.getRow());
+    updatePart.addProperty("col", loc.getCol());
+    updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
+    updatePart.addProperty("color", p.getColor() == Color.WHITE);
+    updatePart.addProperty("piece", getPieceValue(p));
+    return updatePart;
+  }
+
+  private JsonObject createInvulnerableUpdate(Location loc, Piece p) {
+    JsonObject updatePart = createPieceUpdate(loc, p);
+    updatePart.remove("piece");
+    updatePart.addProperty("piece", getPieceValue(p) + 6);
+    return updatePart;
+  }
+
+  private JsonObject createBlackHoleUpdate(Location loc) {
+    JsonObject updatePart = new JsonObject();
+    updatePart.addProperty("row", loc.getRow());
+    updatePart.addProperty("col", loc.getCol());
+    updatePart.addProperty("state", EntityTypes.OTHER.ordinal());
+    updatePart.addProperty("other", OtherEntities.BLACK_HOLE.ordinal());
+    return updatePart;
+  }
+
+  private JsonObject createPowerObjectUpdate(Location loc, PowerObject power) {
+    JsonObject updatePart = new JsonObject();
+    updatePart.addProperty("row", loc.getRow());
+    updatePart.addProperty("col", loc.getCol());
+    updatePart.addProperty("state", EntityTypes.POWER.ordinal());
+    updatePart.addProperty("rarity", power.getRarity().ordinal());
+    return updatePart;
+  }
+
+  private JsonObject createEmptyUpdate(Location loc) {
+    JsonObject updatePart = new JsonObject();
+    updatePart.addProperty("row", loc.getRow());
+    updatePart.addProperty("col", loc.getCol());
+    updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
+    return updatePart;
   }
 
 }

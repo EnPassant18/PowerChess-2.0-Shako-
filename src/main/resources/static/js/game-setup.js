@@ -18,7 +18,7 @@ $(document).ready(() => {
 
     $("#option1").click(() => game.powerSelect(false));
     $("#option2").click(() => game.powerSelect(true));
-    $("#draw").click(connection.draw);
+    $("#draw").click(() => connection.draw);
     $("#resign").click(() => connection.lose(GAME_END_CAUSE.RESIGNATION));
 });
 
