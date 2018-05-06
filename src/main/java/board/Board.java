@@ -1,7 +1,9 @@
 package board;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
@@ -32,6 +34,9 @@ public class Board {
   public static final int SIZE = 8;
   private static final EmptySpace EMPTY_SPACE = new EmptySpace();
   private static final int LAST_COL = 7;
+  
+  private List<Location> castling;
+  private Location enPassant;
 
   /**
    * Constructs a board of empty spaces.
@@ -228,6 +233,25 @@ public class Board {
   }
 
   /**
+   * Returns a list of the knight's movement if player just castled. Index 0 contains where the knight
+   * was before castling and index 1 contains where the knight moved to. Will return an empty list otherwise.
+   * 
+   * @return List of Locations if player just castled or an empty list otherwise.
+   */
+  public List<Location> getCastling() {
+	  return this.castling;
+  }
+  
+  /**
+   * Returns the location of the pawn captured through en passant if it happened last turn. Otherwise returns null.
+   * 
+   * @return Location of pawn or null.
+   */
+  public Location getEnPassant() {
+	  return this.enPassant;
+  }
+  
+  /**
    * Removes a piece at a given location (if one exists).
    *
    * @param loc
@@ -364,6 +388,8 @@ public class Board {
     }
     startPiece.setMoved();
     Collection<BoardObject> captured;
+    castling = new ArrayList<>();
+    enPassant = null;
     if (startPiece instanceof King && ((King) startPiece).getCastling()) {
       Location rookLocStart;
       Location rookLocEnd;
@@ -385,6 +411,8 @@ public class Board {
       spaces.removeAll(rookLocStart);
       spaces.put(rookLocStart, EMPTY_SPACE);
       ((King) startPiece).resetCastling();
+      castling.add(rookLocStart);
+      castling.add(rookLocEnd);
     } else {
       if (startPiece instanceof Pawn && ((Pawn) startPiece).getGhost()) {
         Piece p = getPieceAt(end);
@@ -399,6 +427,7 @@ public class Board {
             new Location(end.getRow() + direction, end.getCol());
         spaces.removeAll(enemyPawn);
         spaces.put(enemyPawn, EMPTY_SPACE);
+        enPassant = enemyPawn;
       }
       Collection<BoardObject> startObjs = spaces.removeAll(start);
       captured = spaces.removeAll(end);

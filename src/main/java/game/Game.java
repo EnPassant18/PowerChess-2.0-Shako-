@@ -299,6 +299,25 @@ public class Game {
   }
 
   /**
+   * Returns a list of the knight's movement if player just castled. Index 0 contains where the knight
+   * was before castling and index 1 contains where the knight moved to. Will return an empty list otherwise.
+   * 
+   * @return List of Locations if player just castled or an empty list otherwise.
+   */
+  public List<Location> getCastling() {
+	  return board.getCastling();
+  }
+  
+  /**
+   * Returns the location of the pawn captured through en passant if it happened last turn. Otherwise returns null.
+   * 
+   * @return Location of pawn or null.
+   */
+  public Location getEnPassant() {
+	  return board.getEnPassant();
+  }
+  
+  /**
    * Add a PowerUp to the game at the specified location.
    *
    * @param loc

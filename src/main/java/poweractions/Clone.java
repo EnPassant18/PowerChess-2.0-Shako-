@@ -9,6 +9,7 @@ import board.Board;
 import board.Location;
 import game.Color;
 import game.Game;
+import game.Move;
 import pieces.Piece;
 import powerups.PowerObject.Rarity;
 
@@ -19,15 +20,9 @@ import powerups.PowerObject.Rarity;
  * @author brad
  *
  */
-<<<<<<< HEAD
 public class Clone extends PowerAction implements PieceMover {
   
   private final static int SIZE = 8;
-=======
-public class Clone extends PowerAction {
-
-  private static final int SIZE = 8;
->>>>>>> 0f027c21d77716221ac05a1b852d30b8aea103b0
   private List<Location> vacantSquares;
   private Location startLocation, endLocation;
   private Board board;
@@ -43,22 +38,12 @@ public class Clone extends PowerAction {
    */
   public Clone(Game game, Location whereCaptured) {
     super(Rarity.LEGENDARY, game, whereCaptured, 0);
-<<<<<<< HEAD
     
     board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
     Color color = capturingPiece.getColor();
     int row = color == Color.WHITE ? 0 : SIZE - 1;
     startLocation = whereCaptured;
-    
-=======
-
-    Board board = game.getBoard();
-    Piece capturingPiece = board.getPieceAt(whereCaptured);
-    Color color = capturingPiece.getColor();
-    int row = color == Color.WHITE ? 0 : SIZE - 1;
-
->>>>>>> 0f027c21d77716221ac05a1b852d30b8aea103b0
     Location loc;
     vacantSquares = new ArrayList<>();
 
