@@ -113,6 +113,7 @@ class Connection {
     // option: boolean (true = first selected)
     // followUpObject: contains followUp action result
     usePower(option, followUpObject) {
+        console.log("Use power")
         let message = {
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,
@@ -120,7 +121,10 @@ class Connection {
             action: ACTION.SELECT_POWER,
             selection: option
         }
-        if (followUpObject !== undefined) { message.followUp = followUpObject.adjusted() }
+        if (followUpObject !== undefined) { 
+            message.followUp = followUpObject.adjusted();
+            console.log(followUpObject);
+        }
         this.socket.send(JSON.stringify(message));
     }
 
