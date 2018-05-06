@@ -2,6 +2,7 @@ let name = "Guest" + Math.trunc(10000*Math.random());
 let games;
 
 $(document).ready(() => {
+
     connection = new Connection("ws://localhost:4567/home");
 
     $("#logo").css("width", $("#form").width() + "px");
@@ -18,19 +19,22 @@ $(document).ready(() => {
         } else {
             color = $("input[name=color]:checked").val();
         }
-        sessionStorage.create = {
+        sessionStorage.create = JSON.stringify({
             name: name,
             color: color,
             timeControl: $("input[name=time]:checked").val(),
             public: $("input[name=privacy]:checked").val()
-        }
-        window.location = "game url";
+        });
+        delete sessionStorage.join;
+        window.location = "game.html";
     })
 
     $(".play").click(event => {
-        sessionStorage.join = {
+        sessionStorage.join = JSON.stringify({
             name: name,
             id: event.target.parent.id
-        }
+        });
+        delete sessionStorage.create;
+        window.location = "game.html";
     })
 })

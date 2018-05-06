@@ -4,11 +4,12 @@ function render(allGames) {
     for (gameId in allGames) {
         addGame(gameId, allGames[gameId], gameList);
     }
-    if (!areGames) $("#noGames").removeAttr("hidden");
+    areGames();
 }
 
 function removeGame(gameId) {
     $(`#${gameId}`).remove();
+    areGames();
 }
 
 function addGame(gameId, game, gameList) {
@@ -18,7 +19,8 @@ function addGame(gameId, game, gameList) {
             <td>${TIME_CONTROL[gameId[timeControl]]}</td>
             <td>${COLOR[gameId[color]]}</td>
             <td><button class="play">Play</button></td>
-        </tr>`)
+        </tr>`);
+    areGames();
 }
 
 function areGames() {
