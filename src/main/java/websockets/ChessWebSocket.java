@@ -45,6 +45,7 @@ import poweractions.Rewind;
 import powerups.BlackHole;
 import powerups.Invulnerability;
 import powerups.PowerObject;
+import powerups.PowerObject.Rarity;
 import powerups.PowerUp;
 
 /**
@@ -76,7 +77,7 @@ public class ChessWebSocket {
    */
   private enum MessageType {
     CREATE_GAME, JOIN_GAME, GAME_OVER, REQUEST_DRAW, PLAYER_ACTION, GAME_UPDATE,
-    ILLEGAL_ACTION, ERROR, PUBLIC_GAMES
+    ILLEGAL_ACTION, ERROR, SPAWN, GIVE
   }
 
   /**
@@ -220,9 +221,43 @@ public class ChessWebSocket {
         gameOver(session, received);
         break;
 
+      case SPAWN:
+        spawn(session, received);
+        break;
+
+      case GIVE:
+        break;
+
       default:
         break;
 
+    }
+  }
+
+  private void spawn(Session session, JsonObject received) throws IOException {
+    System.out.println("Got spawn request");
+    int gameId = received.get("gameId").getAsInt();
+    int row = received.get("row").getAsInt();
+    int col = received.get("col").getAsInt();
+    int rarityIndex = received.get("rarity").getAsInt();
+
+    try {
+      PowerObject powerObj = PowerObject.ofRarity(Rarity.values()[rarityIndex]);
+      Location loc = new Location(row, col);
+      Game game = GAME_ID_MAP.get(gameId);
+      game.spawnPowerObject(loc, powerObj);
+
+      JsonArray updates = new JsonArray();
+      updates.add(createPowerObjectUpdate(loc, powerObj));
+
+      JsonObject response = new JsonObject();
+      response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
+      response.add("updates", updates);
+
+      session.getRemote().sendString(GSON.toJson(response));
+
+    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+      sendError(session);
     }
 
   }

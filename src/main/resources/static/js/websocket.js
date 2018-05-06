@@ -121,7 +121,7 @@ class Connection {
             action: ACTION.SELECT_POWER,
             selection: option
         }
-        if (followUpObject !== undefined) { 
+        if (followUpObject !== undefined) {
             message.followUp = followUpObject.adjusted();
             console.log(followUpObject);
         }
@@ -149,4 +149,15 @@ class Connection {
             type: MESSAGE.REQUEST_DRAW
         }));
     }
+
+    spawn(row, col, rarity) {
+      this.socket.send(JSON.stringify({
+        gameId: this.GAME_ID,
+        type: MESSAGE.SPAWN,
+        row: row,
+        col: col,
+        rarity: RARITY[rarity]
+      }))
+    }
+
 }
