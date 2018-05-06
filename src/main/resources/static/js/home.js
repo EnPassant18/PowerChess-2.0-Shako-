@@ -25,4 +25,11 @@ $(document).ready(() => {
         }
         window.location = "game url";
     })
+
+    $(".play").click(event => {
+        sessionStorage.join = {
+            name: name,
+            id: event.target.parent.id
+        }
+    })
 })
