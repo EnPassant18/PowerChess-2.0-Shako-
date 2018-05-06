@@ -40,6 +40,7 @@ public class BlackHole extends PowerAction {
   @Override
   public void act(Object input) {
     getGame().addPowerUp((Location) input, new powerups.BlackHole(6));
+    getGame().getBoard().removeEmpty((Location) input);
 
   }
 

@@ -429,8 +429,10 @@ public class ChessWebSocket {
     } else if (selected instanceof PieceMover) {
       Location loc = ((PieceMover) selected).getEndLocation();
       Piece p = game.getPieceAt(loc);
+      System.out.println("selected is piece moveR");
       if (loc != null && p != null) {
         // update that endloc now has a piece
+    	  System.out.println("execute add");
         updates.add(createPieceUpdate(loc, p));
       }
     }
@@ -438,11 +440,17 @@ public class ChessWebSocket {
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
     response.add("updates", updates);
-
-    if (game.getActionOptions().isEmpty()) {
+    
+    List<PowerAction> actions = game.getActionOptions();
+    if (actions.isEmpty()) {
       response.addProperty("action", Action.NONE.ordinal());
     } else {
       response.addProperty("action", Action.SELECT_POWER.ordinal());
+      PowerAction action1 = actions.get(0);
+      response.addProperty("rarity", action1.getRarity().ordinal());
+      response.addProperty("id1", action1.getId());
+      PowerAction action2 = actions.get(1);
+      response.addProperty("id2", action2.getId());
     }
 
     int otherId = getOtherId(gameId, playerId);
@@ -454,10 +462,13 @@ public class ChessWebSocket {
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
       response.remove("action");
-      if (game.getActionOptions().isEmpty()) {
+      if (actions.isEmpty()) {
         response.addProperty("action", Action.MOVE.ordinal());
       } else {
         response.addProperty("action", Action.NONE.ordinal());
+        response.remove("rarity");
+        response.remove("id1");
+        response.remove("id2");
       }
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
@@ -490,6 +501,9 @@ public class ChessWebSocket {
       game.turn();
     } catch (IllegalMoveException e) {
       // If illegal move, send back an illegal action to session owner
+    	System.out.println("game.turn failed");
+    	System.out.println(player.getColor());
+    	System.out.println(move);
       sendIllegalAction(session);
       return;
     }
