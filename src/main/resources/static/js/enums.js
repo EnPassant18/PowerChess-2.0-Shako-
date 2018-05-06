@@ -6,7 +6,9 @@ MESSAGE = {
     PLAYER_ACTION: 4,
     GAME_UPDATE: 5,
     ILLEGAL_ACTION: 6,
-    ERROR: 7
+    ERROR: 7,
+    SPAWN: 8,
+    GIVE: 9
 }
 
 ACTION = {
@@ -28,9 +30,9 @@ PLAYER = {
 }
 
 GAME_END_CAUSE = {
-    MATE: 0, 
+    MATE: 0,
     RESIGNATION: 1,
-    TIME: 2, 
+    TIME: 2,
     DRAW_AGREED: 3
 }
 
