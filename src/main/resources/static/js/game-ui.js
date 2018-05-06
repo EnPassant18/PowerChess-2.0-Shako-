@@ -81,10 +81,8 @@ class UI {
     // Except the given piece
     static clear(square) {
         $("#board img").each((index, element) => {
-            if (JSON.stringify($(element).offset()) === JSON.stringify({
-                top: UI.boardBox.top + UI.SQUARE_SIZE * square.row,
-                left: UI.boardBox.left + UI.SQUARE_SIZE * square.col
-            }) && (moving === null || $(element)[0] !== moving.piece[0])) {
+            if (JSON.stringify(getSquare($(element).offset().left + 5, $(element).offset().top +5)) 
+            === JSON.stringify(square) && (moving === null || $(element)[0] !== moving.piece[0])) {
                 $(element).remove();
             }
         });
@@ -95,6 +93,7 @@ class UI {
         const piece = $(`<img class="piece" src="${PIECE_IMAGE[color][type]}" draggable=false />`);
         $("#pieces").append(piece);
         UI.teleport(piece, square);
+        piece.click(click);
         if (color === game.color) {
             piece.on("mousedown", dragStart);
         }
@@ -107,21 +106,25 @@ class UI {
         UI.teleport(box, square);
     }
 
+    static spawnOther(type, square) {
+        const obj = $(`<img class="other" src="${OTHER_IMAGE[type]}" draggable=false />`);
+        $("#others").append(obj);
+        UI.teleport(obj, square);
+    }
+
     // Animates the movement of a piece from the given Square to the given Square
     static move(move) {
         let piece;
-        $("#pieces > img").each((index, element) => {
-            if (JSON.stringify($(element).offset()) === JSON.stringify({
-                top: UI.boardBox.top + UI.SQUARE_SIZE * move.from.row,
-                left: UI.boardBox.left + UI.SQUARE_SIZE * move.from.col
-            })) {
+        $(".piece").each((index, element) => {
+            if (JSON.stringify(getSquare($(element).offset().left + 5, $(element).offset().top + 5)) 
+            === JSON.stringify(move.from)) {
                 piece = $(element);
             }
         });
         if (piece === undefined) {
             console.error("No piece on given start square");
         } else {
-            UI.clear(move.to, piece[0]);
+            UI.clear(move.to);
             let frame = 1;
             const FRAMES = 100;
             const xStart = piece.offset().left;
@@ -153,12 +156,14 @@ class UI {
                 break;
             case ENTITY.NOTHING: break;
             case ENTITY.PIECE:
-                UI.spawn(PIECE_IMAGE[update.color][update.piece], square);
+                UI.spawn(update.color, update.piece, square);
                 break;
             case ENTITY.POWER:
                 UI.spawnBox(BOX_IMAGE[update.rarity], square);
                 break;
-            case ENTITY.OTHER: break;
+            case ENTITY.OTHER: 
+                UI.spawnOther(update.other, square);
+                break;
         }
     }
 
@@ -194,7 +199,7 @@ class UI {
 
     static clearPowers() {
         $("#log").removeAttr("hidden");
-        $("#selection").attr("hidden");
+        $("#selection").attr("hidden", "true");
         UI.highlightPower(true, false);
         UI.highlightPower(false, false);
     }
