@@ -21,13 +21,12 @@ $(document).ready(() => {
     $("#draw").click(() => connection.draw());
     $("#resign").click(() => connection.lose(GAME_END_CAUSE.RESIGNATION));
     $(".square").click(click);
-    $(".piece").click(click);
 });
 
 function debugCreate() {
     $("#playerName").html("Daniel");
-    game = new Game(true, 0);
-    connection.createGame(true, "Daniel", 0, false);
+    game = new Game(true, 2);
+    connection.createGame(true, "Daniel", 2, false);
 }
 
 function debugJoin(gameId) {

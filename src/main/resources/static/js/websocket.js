@@ -64,7 +64,6 @@ class Connection {
                 }
                 break;
             case MESSAGE.ILLEGAL_ACTION:
-                console.log(moving);
                 if (moving !== null) {
                     UI.teleport(moving.piece, moving.startSquare);
                 }
@@ -131,7 +130,6 @@ class Connection {
     // When a player resigns or loses on time
     // reason: RESIGNATION (1) / TIME (2)
     lose(reason) {
-    		console.log("should lose");
         this.socket.send(JSON.stringify({
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,

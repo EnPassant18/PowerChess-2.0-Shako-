@@ -190,6 +190,7 @@ Response (if the follow up was illegal) {
 Response: {
     type: GAME_UPDATE,
     updates: [...],
+    action: <NONE(0)/SELECT_POWER(2)>,
 }
 Response to other player: {
     type: GAME_UPDATE,

@@ -76,6 +76,12 @@ PIECE_IMAGE = {
         3: "images/pieces/white-bishop.png",
         4: "images/pieces/white-knight.png",
         5: "images/pieces/white-pawn.png",
+        6: "images/invuln-pieces/white-king.png",
+        7: "images/invuln-pieces/white-queen.png",
+        8: "images/invuln-pieces/white-rook.png",
+        9: "images/invuln-pieces/white-bishop.png",
+        10: "images/invuln-pieces/white-knight.png",
+        11: "images/invuln-pieces/white-pawn.png",
     },
     false: {
         0: "images/pieces/black-king.png",
@@ -84,6 +90,12 @@ PIECE_IMAGE = {
         3: "images/pieces/black-bishop.png",
         4: "images/pieces/black-knight.png",
         5: "images/pieces/black-pawn.png",
+        6: "images/invuln-pieces/black-king.png",
+        7: "images/invuln-pieces/black-queen.png",
+        8: "images/invuln-pieces/black-rook.png",
+        9: "images/invuln-pieces/black-bishop.png",
+        10: "images/invuln-pieces/black-knight.png",
+        11: "images/invuln-pieces/black-pawn.png",
     }
 }
 
@@ -131,4 +143,8 @@ POWER_OBJECT = {
         2: new Power("images/powers/Clone.png", ACTION.NONE),
         3: new Power("images/powers/Reanimate.png", ACTION.NONE)
     }
+}
+
+OTHER_IMAGE = {
+    0: "images/other/black-hole.png"
 }

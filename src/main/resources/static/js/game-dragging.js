@@ -6,18 +6,19 @@ class Moving {
         this.piece = piece;
         this.x = x;
         this.y = y;
-        this.startSquare = this.getSquare();
+        this.startSquare = getSquare(x, y);
     }
-    // Returns the square the piece is being dragged over, 
-    // or null if it's outside the board
-    getSquare() {
-        const row = Math.floor((this.y - UI.boardBox.top) / UI.SQUARE_SIZE);
-        const col = Math.floor((this.x - UI.boardBox.left) / UI.SQUARE_SIZE);
-        if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
-            return new Square(row, col);
-        } else {
-            return null;
-        }
+}
+
+// Returns the square the piece is being dragged over, 
+// or null if it's outside the board
+function getSquare(x, y) {
+    const row = Math.floor((y - UI.boardBox.top) / UI.SQUARE_SIZE);
+    const col = Math.floor((x - UI.boardBox.left) / UI.SQUARE_SIZE);
+    if (row >= 0 && row <= 7 && col >= 0 && col <= 7) {
+        return new Square(row, col);
+    } else {
+        return null;
     }
 }
 
@@ -52,7 +53,7 @@ function drag(event) {
 
 // When user drops a piece
 function drop(event) {
-    moving.toSquare = moving.getSquare();
+    moving.toSquare = getSquare(moving.x, moving.y);
     moving.piece.css("z-index", 2);
     $(document).off("mousemove");
     $(document).off("mouseup");
@@ -71,8 +72,6 @@ function drop(event) {
 // When user clicks on a square
 function click(event) {
     if (game.action === ACTION.SELECT_SQUARE) {
-        const row = parseInt(event.target.id.charAt(3));
-        const col = parseInt(event.target.id.charAt(7));
-        game.powerFollowUp(new Square(row, col));
+        game.powerFollowUp(getSquare(event.pageX, event.pageY));
     }
 }
