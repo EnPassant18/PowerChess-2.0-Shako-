@@ -43,7 +43,6 @@ public class HomeWebSocket {
    */
   @OnWebSocketConnect
   public void connected(Session session) throws IOException {
-    System.out.println("Session joined");
     SESSIONS.add(session);
     JsonObject response = ChessWebSocket.getPublicGames();
 

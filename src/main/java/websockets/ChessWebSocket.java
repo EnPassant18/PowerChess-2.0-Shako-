@@ -234,14 +234,24 @@ public class ChessWebSocket {
     }
   }
 
+  /**
+   * Respond to message to intentionally spawn a PowerObject box at a specified
+   * location.
+   *
+   * @param session
+   *          Session.
+   * @param received
+   *          Information recieved.
+   * @throws IOException
+   *           In case the response JsonObject doesn't get sent properly.
+   */
   private void spawn(Session session, JsonObject received) throws IOException {
-    System.out.println("Got spawn request");
-    int gameId = received.get("gameId").getAsInt();
-    int row = received.get("row").getAsInt();
-    int col = received.get("col").getAsInt();
-    int rarityIndex = received.get("rarity").getAsInt();
-
     try {
+      int gameId = received.get("gameId").getAsInt();
+      int row = received.get("row").getAsInt();
+      int col = received.get("col").getAsInt();
+      int rarityIndex = received.get("rarity").getAsInt();
+
       PowerObject powerObj = PowerObject.ofRarity(Rarity.values()[rarityIndex]);
       Location loc = new Location(row, col);
       Game game = GAME_ID_MAP.get(gameId);
@@ -254,12 +264,73 @@ public class ChessWebSocket {
       response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
       response.add("updates", updates);
 
-      session.getRemote().sendString(GSON.toJson(response));
+      Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
+      Session sesh;
+      for (Player player : playerCollection) {
+        sesh = PLAYER_SESSION_MAP.get(player.getId());
+        if (game.getActivePlayer() == player) {
+          response.remove("action");
+          response.addProperty("action", Action.MOVE.ordinal());
+        } else {
+          response.remove("action");
+          response.addProperty("action", Action.NONE.ordinal());
+        }
+        sesh.getRemote().sendString(GSON.toJson(response));
+      }
 
-    } catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+    } catch (IllegalArgumentException | IndexOutOfBoundsException
+        | NullPointerException e) {
       sendError(session);
     }
 
+  }
+
+  /**
+   * Respond to message to intentionally give the active player two specified
+   * powerups.
+   *
+   * @param session
+   *          Session.
+   * @param received
+   *          Information recieved.
+   * @throws IOException
+   *           In case the response JsonObject doesn't get sent properly.
+   */
+  private void give(Session session, JsonObject received) throws IOException {
+    try {
+      int gameId = received.get("gameId").getAsInt();
+      int id1 = received.get("id1").getAsInt();
+      int id2 = received.get("id2").getAsInt();
+      int rarityIndex = received.get("rarity").getAsInt();
+
+      Game game = GAME_ID_MAP.get(gameId);
+
+      JsonObject response = received;
+
+      /*
+       * rarity: COMMON(0)/RARE(1)/LEGENDARY(2), id1: <id of the first power
+       * option>, id2: <id of the second power option>
+       */
+
+      Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
+      Session sesh;
+      for (Player player : playerCollection) {
+        sesh = PLAYER_SESSION_MAP.get(player.getId());
+        if (game.getActivePlayer() == player) {
+          response.remove("action");
+          response.addProperty("action", Action.SELECT_POWER.ordinal());
+        } else {
+          response = new JsonObject();
+          response.remove("action");
+          response.addProperty("action", Action.NONE.ordinal());
+        }
+        sesh.getRemote().sendString(GSON.toJson(response));
+      }
+
+    } catch (IllegalArgumentException | IndexOutOfBoundsException
+        | NullPointerException e) {
+      sendError(session);
+    }
   }
 
   /**
@@ -460,10 +531,8 @@ public class ChessWebSocket {
     } else if (selected instanceof PieceMover) {
       Location loc = ((PieceMover) selected).getEndLocation();
       Piece p = game.getPieceAt(loc);
-      System.out.println("selected is piece moveR");
       if (loc != null && p != null) {
         // update that endloc now has a piece
-    	  System.out.println("execute add");
         updates.add(createPieceUpdate(loc, p));
       }
     }
@@ -471,7 +540,7 @@ public class ChessWebSocket {
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
     response.add("updates", updates);
-    
+
     List<PowerAction> actions = game.getActionOptions();
     if (actions.isEmpty()) {
       response.addProperty("action", Action.NONE.ordinal());
@@ -484,12 +553,11 @@ public class ChessWebSocket {
       response.addProperty("id2", action2.getId());
     }
 
-    int otherId = getOtherId(gameId, playerId);
-
     // update active player
     session.getRemote().sendString(GSON.toJson(response));
 
     // If other player id exists, then update them too
+    int otherId = getOtherId(gameId, playerId);
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
       response.remove("action");
@@ -532,9 +600,6 @@ public class ChessWebSocket {
       game.turn();
     } catch (IllegalMoveException e) {
       // If illegal move, send back an illegal action to session owner
-    	System.out.println("game.turn failed");
-    	System.out.println(player.getColor());
-    	System.out.println(move);
       sendIllegalAction(session);
       return;
     }
@@ -699,7 +764,9 @@ public class ChessWebSocket {
     nextGameId++;
     GAME_ID_MAP.put(gameId, game);
 
+    // FIXME uncomment line belo
     boolean isPublic = received.get("public").getAsBoolean();
+    // boolean isPublic = true;
     game.setPublic(isPublic);
 
     int timeControlIndex = received.get("timeControl").getAsInt();
@@ -732,7 +799,9 @@ public class ChessWebSocket {
 
     session.getRemote().sendString(GSON.toJson(response));
 
-    HomeWebSocket.gameAdded(createGameUpdate(gameId));
+    JsonObject gameUpdate = createGameUpdate(gameId);
+    gameUpdate.addProperty("gameId", gameId);
+    HomeWebSocket.gameAdded(gameUpdate);
   }
 
   /**
