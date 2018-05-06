@@ -333,9 +333,6 @@ public class ChessWebSocket {
     game.getActivePlayer().setAction(selected);
     Location whereCaptured = selected.getWhereCaptured();
 
-    System.out
-        .println("POWERUP SELECTED: " + selected.getClass().getSimpleName());
-
     Collection<BoardObject> preWhereCaptured = game.getObjsAt(whereCaptured);
     Collection<BoardObject> preLoc = null, preStart = null, preEnd = null;
 
@@ -363,13 +360,8 @@ public class ChessWebSocket {
       }
     }
 
-    if (input != null) {
-      System.out.println("INPUT: " + input.toString());
-    }
-
     // if input not valid, return ILLEGAL_ACTION
     if (!selected.validInput(input)) {
-      System.out.println("NOT VALID INPUT!");
       sendIllegalAction(session);
       return;
     }
@@ -830,7 +822,7 @@ public class ChessWebSocket {
       updates.add(createEmptyUpdate(loc));
     }
 
-    postObjs.removeIf(obj -> preObjs.contains(obj));
+    postObjs.removeAll(preObjs);
 
     // if there are new objects on location, add difference updates
     for (BoardObject obj : postObjs) {

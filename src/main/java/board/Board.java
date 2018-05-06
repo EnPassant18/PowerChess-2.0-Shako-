@@ -34,7 +34,7 @@ public class Board {
   public static final int SIZE = 8;
   private static final EmptySpace EMPTY_SPACE = new EmptySpace();
   private static final int LAST_COL = 7;
-  
+
   private List<Location> castling;
   private Location enPassant;
 
@@ -70,8 +70,8 @@ public class Board {
 
     String piecePlacement = fenArray[0];
     String activeColor = fenArray[1];
-    String castling = fenArray[2];
-    String enPassant = fenArray[3];
+    String fenCastling = fenArray[2];
+    String fenEnPassant = fenArray[3];
 
     Character c;
     Character seperator = '/';
@@ -100,14 +100,12 @@ public class Board {
     }
 
     if (!enPassant.equals("-")) {
-      Location loc = ChessReplUtils.parseLocation(enPassant);
+      Location loc = ChessReplUtils.parseLocation(fenEnPassant);
       Color color = loc.getRow() == 3 ? Color.WHITE : Color.BLACK;
       spaces.put(loc, new GhostPawn(color));
     }
 
   }
-
-  // TODO implement constructor that takes boardString to use with db
 
   /**
    * Fills the non-pawn row with the appropriate pieces according to the color
@@ -233,24 +231,27 @@ public class Board {
   }
 
   /**
-   * Returns a list of the knight's movement if player just castled. Index 0 contains where the knight
-   * was before castling and index 1 contains where the knight moved to. Will return an empty list otherwise.
-   * 
-   * @return List of Locations if player just castled or an empty list otherwise.
+   * Returns a list of the knight's movement if player just castled. Index 0
+   * contains where the knight was before castling and index 1 contains where
+   * the knight moved to. Will return an empty list otherwise.
+   *
+   * @return List of Locations if player just castled or an empty list
+   *         otherwise.
    */
   public List<Location> getCastling() {
-	  return this.castling;
+    return this.castling;
   }
-  
+
   /**
-   * Returns the location of the pawn captured through en passant if it happened last turn. Otherwise returns null.
-   * 
+   * Returns the location of the pawn captured through en passant if it happened
+   * last turn. Otherwise returns null.
+   *
    * @return Location of pawn or null.
    */
   public Location getEnPassant() {
-	  return this.enPassant;
+    return this.enPassant;
   }
-  
+
   /**
    * Removes a piece at a given location (if one exists).
    *
@@ -466,7 +467,7 @@ public class Board {
    * @return collection of objects at board location.
    */
   public Collection<BoardObject> getObjsAt(Location loc) {
-    return spaces.get(loc);
+    return new ArrayList<>(spaces.get(loc));
   }
 
   /**
