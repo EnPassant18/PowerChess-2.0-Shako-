@@ -84,7 +84,7 @@ class UI {
             if (JSON.stringify($(element).offset()) === JSON.stringify({
                 top: UI.boardBox.top + UI.SQUARE_SIZE * square.row,
                 left: UI.boardBox.left + UI.SQUARE_SIZE * square.col
-            }) && $(element)[0] !== moving.piece[0]) {
+            }) && (moving === null || $(element)[0] !== moving.piece[0])) {
                 $(element).remove();
             }
         });

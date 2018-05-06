@@ -23,14 +23,15 @@ class Moving {
 
 // When user clicks on a piece (event: MouseEvent)
 function dragStart(event) {
+    wantsToMove = new Moving(
+        $(event.target),
+        event.pageX,
+        event.pageY
+    );
     if (game.action === ACTION.MOVE
         || (game.action === ACTION.MOVE_THIS 
-            && event.target === game.mustMove)) {
-        moving = new Moving(
-            $(event.target),
-            event.pageX,
-            event.pageY
-        );
+            && JSON.stringify(wantsToMove.startSquare) === JSON.stringify(game.lastMoved))) {
+        moving = wantsToMove;
         $(event.target).css("z-index", 3);
         $(document).on("mousemove", drag);
         $(document).on("mouseup", drop);
