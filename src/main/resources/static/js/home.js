@@ -2,6 +2,7 @@ let name = "Guest" + Math.trunc(10000*Math.random());
 let games;
 
 $(document).ready(() => {
+    connection = new Connection("ws://localhost:4567/home");
 
     connection = new Connection("ws://localhost:4567/home");
 

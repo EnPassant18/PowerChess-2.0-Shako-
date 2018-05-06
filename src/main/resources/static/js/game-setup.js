@@ -26,7 +26,7 @@ $(document).ready(() => {
 function debugCreate() {
     $("#playerName").html("Daniel");
     game = new Game(true, 2);
-    connection.createGame(true, "Daniel", 2, false);
+    connection.createGame(true, "Daniel", 2, true);
 }
 
 function debugJoin(gameId) {
