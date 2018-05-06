@@ -3,6 +3,8 @@ let games;
 
 $(document).ready(() => {
 
+    connection = new Connection("ws://localhost:4567/home");
+
     $("#logo").css("width", $("#form").width() + "px");
 
     $("#welcome").html(`Welcome, ${name}!`);
