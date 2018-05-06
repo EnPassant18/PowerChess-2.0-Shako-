@@ -248,19 +248,14 @@ public class ChessWebSocket {
 
     int reason = received.get("reason").getAsInt();
 
-    JsonObject response = new JsonObject();
-    response.addProperty("type", MessageType.GAME_OVER.ordinal());
-    response.addProperty("reason", reason);
-    response.addProperty("result", GameResult.LOSS.ordinal());
-
-    session.getRemote().sendString(GSON.toJson(response));
-
     int otherId = getOtherId(gameId, playerId);
 
     // If other player id exists, then update them too
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
-      response.remove("result");
+      JsonObject response = new JsonObject();
+      response.addProperty("type", MessageType.GAME_OVER.ordinal());
+      response.addProperty("reason", reason);
       response.addProperty("result", GameResult.WIN.ordinal());
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
@@ -291,6 +286,7 @@ public class ChessWebSocket {
       return;
     }
 
+    PLAYER_DRAW_MAP.replace(playerId, true);
     boolean otherDraw = PLAYER_DRAW_MAP.get(otherId);
     Session otherSession = PLAYER_SESSION_MAP.get(otherId);
     // If the other player is awaiting a draw message, end game. Otherwise a
@@ -531,6 +527,40 @@ public class ChessWebSocket {
     // executed (not counting the move itself).
     JsonArray updates = new JsonArray();
 
+    List<Location> castling = game.getCastling();
+    // If the player just castled, add that to updates.
+    if (castling.size() == 2) {
+      JsonObject updatePart1 = new JsonObject();
+      Location loc1 = castling.get(0);
+      updatePart1.addProperty("row", loc1.getRow());
+      updatePart1.addProperty("col", loc1.getCol());
+      updatePart1.addProperty("state", EntityTypes.NOTHING.ordinal());
+      updates.add(updatePart1);
+
+      JsonObject updatePart2 = new JsonObject();
+      Location loc2 = castling.get(1);
+      System.out.println("row " + loc2.getRow() + " col " + loc2.getCol());
+      updatePart2.addProperty("row", loc2.getRow());
+      updatePart2.addProperty("col", loc2.getCol());
+      updatePart2.addProperty("state", EntityTypes.PIECE.ordinal());
+      Piece p = game.getPieceAt(loc2);
+      updatePart2.addProperty("piece", getPieceValue(p));
+      if (p.getColor() == Color.WHITE) {
+        updatePart2.addProperty("color", true);
+      } else {
+        updatePart2.addProperty("color", false);
+      }
+      updates.add(updatePart2);
+    }
+
+    Location enPassant = game.getEnPassant();
+    if (enPassant != null) {
+      JsonObject updatePart = new JsonObject();
+      updatePart.addProperty("row", enPassant.getRow());
+      updatePart.addProperty("col", enPassant.getCol());
+      updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
+      updates.add(updatePart);
+    }
     // If there are any power ups to update (any that ran out after executing
     // this turn)
     for (PowerUp power : powers.keySet()) {

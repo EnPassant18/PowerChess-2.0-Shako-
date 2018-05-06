@@ -20,7 +20,6 @@ import powerups.PowerObject.Rarity;
  *
  */
 public class Clone extends PowerAction implements PieceMover {
-
   private static final int SIZE = 8;
   private List<Location> vacantSquares;
   private Location startLocation, endLocation;
@@ -37,7 +36,6 @@ public class Clone extends PowerAction implements PieceMover {
    */
   public Clone(Game game, Location whereCaptured) {
     super(Rarity.LEGENDARY, game, whereCaptured, 0);
-
     board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
     Color color = capturingPiece.getColor();
