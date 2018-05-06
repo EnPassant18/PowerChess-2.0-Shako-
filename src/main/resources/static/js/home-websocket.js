@@ -14,28 +14,26 @@ class Connection {
             this.connectionError(event);
         }
 
-          this.socket.onmessage = event => {
-              $("#error").attr("hidden", "true");
-              const message = JSON.parse(event.data);
-              console.log(message);
-              switch (message.type) {
-              default:
-                  this.connectionError("Unexpected or unrecognized message type: " + message.type);
-                  break;
-              case MESSAGE.ALL_GAMES:
-
-              case MESSAGE.ADD_GAME:
-                  $("#opponentName").html(message.name);
-                  if (message.playerId !== undefined) {
-                      this.PLAYER_ID = message.playerId;
-                      game = new Game(message.color, message.timeControl);
-                  }
-                  game.start();
-                  break;
-              case MESSAGE.REMOVE_GAME:
-                  // TODO embellish
-                  game.gameOver(message.result, message.reason);
-                  break;
+        this.socket.onmessage = event => {
+            $("#error").attr("hidden", "true");
+            const message = JSON.parse(event.data);
+            console.log(message);
+            switch (message.type) {
+            default:
+                this.connectionError("Unexpected or unrecognized message type: " + message.type);
+                break;
+            case MESSAGE.ALL_GAMES:
+                render(message.games);
+                break;
+            case MESSAGE.ADD_GAME:
+                addGame(
+                    message.gameId, 
+                    {name: message.name, color: message.color, timeControl: message.timeControl},
+                    $("#right"))
+                break;
+            case MESSAGE.REMOVE_GAME:
+                removeGame(message.gameId);
+                break;
           }
       }
   }

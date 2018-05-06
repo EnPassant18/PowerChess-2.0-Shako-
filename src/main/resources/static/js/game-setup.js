@@ -5,15 +5,19 @@ $(document).ready(() => {
     connection = new Connection("ws://localhost:4567/play");
     UI.drawBoard();
 
-    if (localStorage.create !== undefined) {
-        game = new Game(localStorage.create.color, localStorage.create.timeControl);
-        $("#playerName").html(localStorage.create.name);
-        connection.createGame(
-            localStorage.create.color, localStorage.create.name,
-            localStorage.create.timeControl, localStorage.create.isPublic)
-    } else if (localStorage.join !== undefined) {
-        $("#playerName").html(localStorage.create.name);
-        connection.joinGame(localStorage.join.id, localStorage.join.name);
+    if (sessionStorage.create !== undefined) {
+        create = JSON.parse(sessionStorage.create);
+        game = new Game(create.color, create.timeControl);
+        $("#playerName").html(create.name);
+        connection.socket.onopen = () => connection.createGame(
+            create.color, create.name,
+            create.timeControl, create.isPublic);
+    } else if (sessionStorage.join !== undefined) {
+        join = JSON.parse(sessionStorage.join);
+        $("#playerName").html(join.name);
+        connection.socket.onopen = () => connection.joinGame(join.id, join.name);
+    } else {
+        connection.connectionError("No game info");
     }
 
     $("#option1").click(() => game.powerSelect(false));
