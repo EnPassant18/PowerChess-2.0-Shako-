@@ -439,6 +439,12 @@ public class ChessWebSocket {
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
     response.add("updates", updates);
 
+    if (game.getActionOptions().isEmpty()) {
+      response.addProperty("action", Action.NONE.ordinal());
+    } else {
+      response.addProperty("action", Action.SELECT_POWER.ordinal());
+    }
+
     int otherId = getOtherId(gameId, playerId);
 
     // update active player
@@ -447,6 +453,12 @@ public class ChessWebSocket {
     // If other player id exists, then update them too
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
+      response.remove("action");
+      if (game.getActionOptions().isEmpty()) {
+        response.addProperty("action", Action.MOVE.ordinal());
+      } else {
+        response.addProperty("action", Action.NONE.ordinal());
+      }
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
   }
