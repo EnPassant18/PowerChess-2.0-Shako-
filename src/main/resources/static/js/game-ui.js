@@ -113,7 +113,8 @@ class UI {
     }
 
     // Animates the movement of a piece from the given Square to the given Square
-    static move(move) {
+    // Then performs the given updates
+    static move(move, updates) {
         let piece;
         $(".piece").each((index, element) => {
             if (JSON.stringify(getSquare($(element).offset().left + 5, $(element).offset().top + 5)) 
@@ -135,6 +136,8 @@ class UI {
                 if (frame === FRAMES) {
                     clearInterval(interval);
                     UI.teleport(piece, move.to);
+                    console.log("Move done");
+                    UI.updates(updates);
                 } else {
                     piece.offset({
                         left: xStart + frame * xDiff,
@@ -142,7 +145,7 @@ class UI {
                     })
                     frame++;
                 }
-            })
+            }, 3);
         }
     }
 
@@ -169,6 +172,7 @@ class UI {
 
     // Performs a list of updates
     static updates(updates) {
+        console.log(updates);
         for (let i = 0; i < updates.length; i++) {
             UI.update(updates[i]);
         }
