@@ -15,6 +15,8 @@ import poweractions.PowerAction;
  */
 public abstract class Player {
   private final Color color;
+  private String name;
+  private int id;
   private Move move;
   private Piece newPiece; // for promotion
   private PowerAction action;
@@ -30,12 +32,42 @@ public abstract class Player {
   }
 
   /**
+   * Constructs player of the specified color with the given name.
+   *
+   * @param color
+   *          Color of player's pieces.
+   * @param name
+   *          Player name.
+   * @param id
+   *          Player Id.
+   */
+  public Player(Color color, int id, String name) {
+    this(color);
+    this.name = name;
+    this.id = id;
+  }
+
+  /**
    * Get player color.
    *
    * @return player piece color.
    */
   public Color getColor() {
     return color;
+  }
+
+  /**
+   * @return the name
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * @return the id
+   */
+  public int getId() {
+    return id;
   }
 
   /**

@@ -15,6 +15,8 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -60,11 +62,10 @@ public class ChessWebSocket {
   private static int nextPlayerId = 0;
 
   private static final Map<Integer, Game> GAME_ID_MAP = new HashMap<>();
-  private static final Map<Integer, List<Integer>> GAME_PLAYER_MAP =
-      new HashMap<>();
+  private static final Multimap<Integer, Player> GAME_PLAYER_MAP =
+      HashMultimap.create();
   private static final Map<Integer, Session> PLAYER_SESSION_MAP =
       new HashMap<>();
-  private static final Map<Integer, String> PLAYER_NAME_MAP = new HashMap<>();
   private static final Map<Integer, Boolean> PLAYER_DRAW_MAP = new HashMap<>();
 
   /**
@@ -75,7 +76,7 @@ public class ChessWebSocket {
    */
   private enum MessageType {
     CREATE_GAME, JOIN_GAME, GAME_OVER, REQUEST_DRAW, PLAYER_ACTION, GAME_UPDATE,
-    ILLEGAL_ACTION, ERROR
+    ILLEGAL_ACTION, ERROR, PUBLIC_GAMES
   }
 
   /**
@@ -221,6 +222,11 @@ public class ChessWebSocket {
 
       case ERROR:
         // TODO deal with error
+        break;
+
+      case PUBLIC_GAMES:
+        System.out.println("public game?");
+        getPublicGames(session, received);
         break;
 
       default:
@@ -381,7 +387,7 @@ public class ChessWebSocket {
     }
 
     // Check followUp move start and end
-    if (preStart != null) {
+    if (preStart != null && !move.getStart().equals(whereCaptured)) {
       Location startLoc = move.getStart();
       updates.addAll(getDifference(startLoc, preStart, game));
     }
@@ -561,10 +567,10 @@ public class ChessWebSocket {
       otherResponse.addProperty("action", Action.MOVE.ordinal());
     }
     session.getRemote().sendString(GSON.toJson(response));
-    List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
-    for (int i = 0; i < playerList.size(); i++) {
-      if (playerList.get(i) != playerId) {
-        Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(i));
+    Collection<Player> playerList = GAME_PLAYER_MAP.get(gameId);
+    for (Player p : playerList) {
+      if (p.getId() != playerId) {
+        Session otherSession = PLAYER_SESSION_MAP.get(p.getId());
         otherSession.getRemote().sendString(GSON.toJson(otherResponse));
         return;
       }
@@ -647,17 +653,18 @@ public class ChessWebSocket {
     if (colorBool) {
       playerColor = Color.WHITE;
     }
-    GuiPlayer player = new GuiPlayer(playerColor);
+    String name = received.get("name").getAsString();
     int playerId = nextPlayerId;
+    GuiPlayer player = new GuiPlayer(playerColor, playerId, name);
+
     nextPlayerId++;
     PLAYER_SESSION_MAP.put(playerId, session);
-    String name = received.get("name").getAsString();
-    PLAYER_NAME_MAP.put(playerId, name);
+
     PLAYER_DRAW_MAP.put(playerId, false);
 
     List<Integer> playerList = new ArrayList<>();
     playerList.add(playerId);
-    GAME_PLAYER_MAP.put(gameId, playerList);
+    GAME_PLAYER_MAP.put(gameId, player);
 
     game.addPlayer(player);
 
@@ -697,23 +704,24 @@ public class ChessWebSocket {
         sendError(session);
         return;
       }
-      GuiPlayer player = new GuiPlayer(playerColor);
-
       String name = received.get("name").getAsString();
-      String otherName;
-      List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
+      GuiPlayer player = new GuiPlayer(playerColor, playerId, name);
+
+      String existingPlayerName;
+      Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
+      List<Player> playerList = new ArrayList<>(playerCollection);
       // If the list size is 1, then the player can be added to the game
       // normally.
       // Otherwise, there was an error of some sort.
       if (playerList.size() == 1) {
-        playerList.add(playerId);
-        GAME_PLAYER_MAP.replace(gameId, playerList);
+        Player existingPlayer = playerList.get(0);
+        GAME_PLAYER_MAP.put(gameId, player);
 
         JsonObject responseToOther = new JsonObject();
         responseToOther.addProperty("type", MessageType.JOIN_GAME.ordinal());
         responseToOther.addProperty("name", name);
-        Session otherSession = PLAYER_SESSION_MAP.get(playerList.get(0));
-        otherName = PLAYER_NAME_MAP.get(playerList.get(0));
+        Session otherSession = PLAYER_SESSION_MAP.get(existingPlayer.getId());
+        existingPlayerName = existingPlayer.getName();
         otherSession.getRemote().sendString(GSON.toJson(responseToOther));
       } else {
         sendIllegalAction(session);
@@ -721,7 +729,6 @@ public class ChessWebSocket {
       }
 
       PLAYER_SESSION_MAP.put(playerId, session);
-      PLAYER_NAME_MAP.put(playerId, name);
       PLAYER_DRAW_MAP.put(playerId, false);
 
       game.addPlayer(player);
@@ -734,7 +741,7 @@ public class ChessWebSocket {
         colorBool = false;
       }
       response.addProperty("color", colorBool);
-      response.addProperty("name", otherName);
+      response.addProperty("name", existingPlayerName);
       response.addProperty("timeControl", game.getTimeControl().ordinal());
       session.getRemote().sendString(GSON.toJson(response));
 
@@ -784,11 +791,10 @@ public class ChessWebSocket {
   private int getOtherId(int gameId, int playerId) {
     int otherId = -1;
     try {
-      List<Integer> playerList = GAME_PLAYER_MAP.get(gameId);
-      for (int id : playerList) {
-        if (id != playerId) {
-          otherId = id;
-          break;
+      Collection<Player> playerList = GAME_PLAYER_MAP.get(gameId);
+      for (Player player : playerList) {
+        if (player.getId() != playerId) {
+          return player.getId();
         }
       }
     } catch (NullPointerException e) {
@@ -849,6 +855,16 @@ public class ChessWebSocket {
     return updates;
   }
 
+  /**
+   * Create a JsonObject representing a PieceUpdate at specified location to be
+   * placed in a GAME_UPDATE message.
+   *
+   * @param loc
+   *          Location that changed.
+   * @param p
+   *          Piece that was added.
+   * @return JsonObject with PieceUpdate.
+   */
   private JsonObject createPieceUpdate(Location loc, Piece p) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
@@ -859,6 +875,17 @@ public class ChessWebSocket {
     return updatePart;
   }
 
+  /**
+   * Create a JsonObject representing a Invulnerability Update (it's a piece
+   * update where the piece ID has 6 added to it) at specified location to be
+   * placed in a GAME_UPDATE message.
+   *
+   * @param loc
+   *          Location that changed.
+   * @param p
+   *          Piece with invulnerability.
+   * @return JsonObject with Invulnerability Update.
+   */
   private JsonObject createInvulnerableUpdate(Location loc, Piece p) {
     JsonObject updatePart = createPieceUpdate(loc, p);
     updatePart.remove("piece");
@@ -866,6 +893,14 @@ public class ChessWebSocket {
     return updatePart;
   }
 
+  /**
+   * Create a JsonObject representing a Black Hole added at specified location
+   * to be placed in a GAME_UPDATE message.
+   *
+   * @param loc
+   *          Location that changed.
+   * @return JsonObject with Black Hole Update.
+   */
   private JsonObject createBlackHoleUpdate(Location loc) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
@@ -875,6 +910,16 @@ public class ChessWebSocket {
     return updatePart;
   }
 
+  /**
+   * Create a JsonObject representing a Power Object spawn at specified location
+   * to be placed in a GAME_UPDATE message.
+   *
+   * @param loc
+   *          Location that changed.
+   * @param power
+   *          PowerObject that spawned.
+   * @return JsonObject with on-board Power Object.
+   */
   private JsonObject createPowerObjectUpdate(Location loc, PowerObject power) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
@@ -884,6 +929,15 @@ public class ChessWebSocket {
     return updatePart;
   }
 
+  /**
+   * Create a JsonObject representing an empty-space update (i.e. used to have
+   * some object that has been removed) at specified location to be placed in a
+   * GAME_UPDATE message.
+   *
+   * @param loc
+   *          Location that changed.
+   * @return JsonObject empty-space update.
+   */
   private JsonObject createEmptyUpdate(Location loc) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
@@ -892,6 +946,15 @@ public class ChessWebSocket {
     return updatePart;
   }
 
+  /**
+   * Create a JsonObject representing an Game Over Update.
+   *
+   * @param reason
+   *          Reason the game ended (e.g. draw, resign).
+   * @param result
+   *          Result of game ending (win, lose, draw).
+   * @return JsonObject with Game Over Update.
+   */
   private JsonObject createGameOverUpdate(GameEndReason reason,
       GameResult result) {
     JsonObject response = new JsonObject();
@@ -899,6 +962,43 @@ public class ChessWebSocket {
     response.addProperty("reason", reason.ordinal());
     response.addProperty("result", result.ordinal());
     return response;
+  }
+
+  /**
+   * Create a JsonArray of public games including gameId and names of any active
+   * player names.
+   *
+   * @throws IOException
+   *           In case the response JsonObject doesn't get sent properly.
+   */
+  private void getPublicGames(Session session, JsonObject received)
+      throws IOException {
+    JsonArray response = new JsonArray();
+    Game g;
+    Collection<Player> playerList;
+    for (int gameId : GAME_ID_MAP.keySet()) {
+      g = GAME_ID_MAP.get(gameId);
+
+      if (g.isPublic()) {
+        playerList = GAME_PLAYER_MAP.get(gameId);
+        if (playerList.size() != 1) {
+          continue;
+        }
+        JsonObject gameDetails = new JsonObject();
+        gameDetails.addProperty("gameId", gameId);
+        gameDetails.addProperty("timeControl", g.getTimeControl().ordinal());
+
+        JsonObject opponent = new JsonObject();
+        for (Player player : playerList) {
+          opponent.addProperty("name", player.getName());
+          opponent.addProperty("color", player.getColor().ordinal());
+        }
+        gameDetails.add("opponent", opponent);
+        response.add(gameDetails);
+      }
+    }
+
+    session.getRemote().sendString(GSON.toJson(response));
   }
 
 }

@@ -99,7 +99,7 @@ public class Board {
       }
     }
 
-    if (!enPassant.equals("-")) {
+    if (!fenEnPassant.equals("-")) {
       Location loc = ChessReplUtils.parseLocation(fenEnPassant);
       Color color = loc.getRow() == 3 ? Color.WHITE : Color.BLACK;
       spaces.put(loc, new GhostPawn(color));
