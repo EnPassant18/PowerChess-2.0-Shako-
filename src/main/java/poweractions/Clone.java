@@ -35,7 +35,7 @@ public class Clone extends PowerAction implements PieceMover {
    *          Location where PowerAction was captured.
    */
   public Clone(Game game, Location whereCaptured) {
-    super(Rarity.LEGENDARY, game, whereCaptured, 0);
+    super(Rarity.LEGENDARY, game, whereCaptured, 2);
     board = game.getBoard();
     Piece capturingPiece = board.getPieceAt(whereCaptured);
     Color color = capturingPiece.getColor();
@@ -71,6 +71,8 @@ public class Clone extends PowerAction implements PieceMover {
     }
     endLocation = getRandomLocation();
     getGame().executeMove(new Move(startLocation, endLocation));
+    Piece p = board.getPieceAt(endLocation);
+    board.addBoardObject(startLocation, p);
   }
 
   /**
