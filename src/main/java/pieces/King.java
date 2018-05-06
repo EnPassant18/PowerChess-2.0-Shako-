@@ -42,7 +42,6 @@ public class King extends Piece {
       return checkCastleShort(start, end, board);
     }
     if (colDif == CASTLE_DIST && rowDif == 0) {
-      System.out.println("check long");
       return checkCastleLong(start, end, board);
     }
     if (Math.abs(rowDif) > 1 || Math.abs(colDif) > 1) {
