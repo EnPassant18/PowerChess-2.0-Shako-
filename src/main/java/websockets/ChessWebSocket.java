@@ -48,7 +48,7 @@ import powerups.PowerObject;
 import powerups.PowerUp;
 
 /**
- * WebSocket allows server to communicate with client.
+ * WebSocket allows server to communicate with client during games.
  *
  * @author dwoods, knormand
  *
@@ -220,15 +220,6 @@ public class ChessWebSocket {
         gameOver(session, received);
         break;
 
-      case ERROR:
-        // TODO deal with error
-        break;
-
-      case PUBLIC_GAMES:
-        System.out.println("public game?");
-        getPublicGames(session, received);
-        break;
-
       default:
         break;
 
@@ -260,9 +251,13 @@ public class ChessWebSocket {
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
       JsonObject response =
-          createGameOverUpdate(GameEndReason.values()[reason], GameResult.WIN);
+          createGameOverUpdate(GameEndReason.values()[reason], GameResult.WIN,
+              gameId);
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
+
+    GAME_PLAYER_MAP.removeAll(gameId);
+    GAME_ID_MAP.remove(gameId);
 
   }
 
@@ -296,7 +291,8 @@ public class ChessWebSocket {
     // If the other player is awaiting a draw message, end game. Otherwise a
     if (otherDraw) {
       JsonObject response =
-          createGameOverUpdate(GameEndReason.DRAW_AGREED, GameResult.DRAW);
+          createGameOverUpdate(GameEndReason.DRAW_AGREED, GameResult.DRAW,
+              gameId);
 
       session.getRemote().sendString(GSON.toJson(response));
       otherSession.getRemote().sendString(GSON.toJson(response));
@@ -700,6 +696,8 @@ public class ChessWebSocket {
     response.addProperty("playerId", playerId);
 
     session.getRemote().sendString(GSON.toJson(response));
+
+    HomeWebSocket.gameAdded(createGameUpdate(gameId));
   }
 
   /**
@@ -946,7 +944,7 @@ public class ChessWebSocket {
    *          PowerObject that spawned.
    * @return JsonObject with on-board Power Object.
    */
-  private JsonObject createPowerObjectUpdate(Location loc, PowerObject power) {
+  public JsonObject createPowerObjectUpdate(Location loc, PowerObject power) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
     updatePart.addProperty("col", loc.getCol());
@@ -982,49 +980,55 @@ public class ChessWebSocket {
    * @return JsonObject with Game Over Update.
    */
   private JsonObject createGameOverUpdate(GameEndReason reason,
-      GameResult result) {
+      GameResult result, int gameId) {
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_OVER.ordinal());
     response.addProperty("reason", reason.ordinal());
     response.addProperty("result", result.ordinal());
+    HomeWebSocket.gameRemoved(createGameUpdate(gameId));
     return response;
   }
 
   /**
-   * Create a JsonArray of public games including gameId and names of any active
-   * player names.
+   * Create a JsonArray of all public games including gameId, timeControl, and
+   * opponent Name and Color.
    *
+   * @return return JsonArray with all public games and their details.
    * @throws IOException
    *           In case the response JsonObject doesn't get sent properly.
    */
-  private void getPublicGames(Session session, JsonObject received)
-      throws IOException {
-    JsonArray response = new JsonArray();
+  public static JsonObject getPublicGames() throws IOException {
+    JsonObject response = new JsonObject();
     Game g;
-    Collection<Player> playerList;
     for (int gameId : GAME_ID_MAP.keySet()) {
       g = GAME_ID_MAP.get(gameId);
-
       if (g.isPublic()) {
-        playerList = GAME_PLAYER_MAP.get(gameId);
-        if (playerList.size() != 1) {
-          continue;
-        }
-        JsonObject gameDetails = new JsonObject();
-        gameDetails.addProperty("gameId", gameId);
-        gameDetails.addProperty("timeControl", g.getTimeControl().ordinal());
-
-        JsonObject opponent = new JsonObject();
-        for (Player player : playerList) {
-          opponent.addProperty("name", player.getName());
-          opponent.addProperty("color", player.getColor().ordinal());
-        }
-        gameDetails.add("opponent", opponent);
-        response.add(gameDetails);
+        response.add(String.valueOf(gameId), createGameUpdate(gameId));
       }
     }
+    return response;
+  }
 
-    session.getRemote().sendString(GSON.toJson(response));
+  /**
+   * Create a JsonObject representing a Game Update (includes timecontrol, name
+   * and color of existing opponent).
+   *
+   * @param gameId
+   *          Game Id to create update of.
+   * @return JsonObject representing Game Update.
+   */
+  public static JsonObject createGameUpdate(int gameId) {
+    Game game = GAME_ID_MAP.get(gameId);
+    JsonObject gameUpdate = new JsonObject();
+    gameUpdate.addProperty("timeControl", game.getTimeControl().ordinal());
+
+    Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
+    for (Player player : playerCollection) {
+      gameUpdate.addProperty("name", player.getName());
+      gameUpdate.addProperty("color", player.getColor().ordinal());
+    }
+
+    return gameUpdate;
   }
 
 }

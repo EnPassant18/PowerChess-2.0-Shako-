@@ -10,7 +10,7 @@ class Connection {
 
     _setup() {
         this.socket.onerror = event => {
-            connectionError(event);
+            this.connectionError(event);
         }
 
         this.socket.onmessage = event => {
@@ -46,9 +46,7 @@ class Connection {
                     UI.move(new Move(
                         new Square(message.move.from.row, message.move.from.col),
                         new Square(message.move.to.row, message.move.to.col))
-                        .adjusted(), message.updates);
-                } else {
-                    UI.updates(message.updates);
+                        .adjusted());
                 }
                 game.action = message.action;
                 if (moving !== null) {
@@ -58,6 +56,7 @@ class Connection {
                     moving = null;
                 }
                 UI.clearPowers();
+                UI.updates(message.updates);
                 if (message.action === ACTION.SELECT_POWER) {
                     game.powerPrompt(
                         POWER_OBJECT[message.rarity][message.id1],

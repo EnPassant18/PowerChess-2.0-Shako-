@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import com.google.gson.Gson;
+
 import freemarker.template.Configuration;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
@@ -17,6 +19,7 @@ import spark.Response;
 import spark.Spark;
 import spark.template.freemarker.FreeMarkerEngine;
 import websockets.ChessWebSocket;
+import websockets.HomeWebSocket;
 
 /**
  * The Main class of our project. This is where execution begins.
@@ -24,6 +27,7 @@ import websockets.ChessWebSocket;
 public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
+  private static final Gson GSON = new Gson();
 
   /**
    * The initial method called when execution begins.
@@ -89,8 +93,8 @@ public final class Main {
     FreeMarkerEngine freeMarker = createEngine();
 
     Spark.webSocket("/play", ChessWebSocket.class);
+    Spark.webSocket("/home", HomeWebSocket.class);
     Spark.init();
-    // Setup Spark Routes
 
   }
 

@@ -1,8 +1,13 @@
+let name = "Guest" + Math.trunc(10000*Math.random());
+let games;
+
 $(document).ready(() => {
+    connection = new Connection("ws://localhost:4567/home");
+
+    connection = new Connection("ws://localhost:4567/home");
 
     $("#logo").css("width", $("#form").width() + "px");
 
-    let name = "Guest" + Math.trunc(10000*Math.random());
     $("#welcome").html(`Welcome, ${name}!`);
     $("#submitName").click(() => {
         name = $("#name").val();
@@ -22,5 +27,12 @@ $(document).ready(() => {
             public: $("input[name=privacy]:checked").val()
         }
         window.location = "game url";
+    })
+
+    $(".play").click(event => {
+        sessionStorage.join = {
+            name: name,
+            id: event.target.parent.id
+        }
     })
 })

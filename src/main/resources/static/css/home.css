@@ -21,6 +21,14 @@ body {
     width: 300px;
 }
 
+#error {
+    background-color: red;
+    color: white;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0px 10px 0px;
+}
+
 /* Create game and signin form style */
 
 #form, #signIn {
