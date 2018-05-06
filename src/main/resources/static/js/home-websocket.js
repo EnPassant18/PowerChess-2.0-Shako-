@@ -22,11 +22,9 @@ class Connection {
             default:
                 this.connectionError("Unexpected or unrecognized message type: " + message.type);
                 break;
-            case MESSAGE.CREATE_GAME:
-                this.GAME_ID = message.gameId;
-                this.PLAYER_ID = message.playerId;
-                break;
-            case MESSAGE.JOIN_GAME:
+            case MESSAGE.ALL_GAMES:
+                
+            case MESSAGE.ADD_GAME:
                 $("#opponentName").html(message.name);
                 if (message.playerId !== undefined) {
                     this.PLAYER_ID = message.playerId;
@@ -34,42 +32,10 @@ class Connection {
                 }
                 game.start();
                 break;
-            case MESSAGE.GAME_OVER:
+            case MESSAGE.REMOVE_GAME:
                 // TODO embellish
                 game.gameOver(message.result, message.reason);
                 break;
-            case MESSAGE.REQUEST_DRAW:
-                $("#drawOffered").removeAttr("hidden");
-                break;
-            case MESSAGE.GAME_UPDATE:
-                let moveDelay;
-                if (message.move !== undefined) {
-                    UI.move(new Move(
-                        new Square(message.move.from.row, message.move.from.col),
-                        new Square(message.move.to.row, message.move.to.col))
-                        .adjusted());
-                }
-                game.action = message.action;
-                if (moving !== null) {
-                    game.lastMoved = moving.toSquare;
-                    UI.clear(moving.toSquare);
-                    UI.teleport(moving.piece, moving.toSquare);
-                    moving = null;
-                }
-                UI.clearPowers();
-                UI.updates(message.updates);
-                if (message.action === ACTION.SELECT_POWER) {
-                    game.powerPrompt(
-                        POWER_OBJECT[message.rarity][message.id1],
-                        POWER_OBJECT[message.rarity][message.id2]
-                    )
-                }
-                break;
-            case MESSAGE.ILLEGAL_ACTION:
-                if (moving !== null) {
-                    UI.teleport(moving.piece, moving.startSquare);
-                }
-            }
         }
     }
 
@@ -79,15 +45,10 @@ class Connection {
         $("#error").removeAttr("hidden");
         console.log(message);
     }
+}
 
-    createGame(color, name, timeControl, isPublic) {
-        this.socket.send(JSON.stringify({
-            type: MESSAGE.CREATE_GAME,
-            color: color,
-            name: name,
-            timeControl: timeControl,
-            public: isPublic
-        }));
-    }
-
+MESSAGE = {
+    ALL_GAMES: 0,
+    ADD_GAME: 1,
+    REMOVE_GAME: 2
 }
