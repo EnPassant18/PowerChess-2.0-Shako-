@@ -148,7 +148,7 @@ class UI {
         const square = new Square(update.row, update.col).adjusted();
         UI.clear(square);
         switch (update.state) {
-            default: 
+            default:
                 console.log("Invalid update, unrecognized state: " + update.state);
                 break;
             case ENTITY.NOTHING: break;
@@ -189,7 +189,7 @@ class UI {
             element.css("background-color", "rgb(188, 188, 188)");
         } else {
             element.css("background-color", "");
-        } 
+        }
     }
 
     static clearPowers() {
