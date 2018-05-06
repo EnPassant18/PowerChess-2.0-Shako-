@@ -11,9 +11,10 @@ $(document).ready(() => {
         $("#playerName").html(create.name);
         connection.socket.onopen = () => connection.createGame(
             create.color, create.name,
-            create.timeControl, create.isPublic);
+            create.timeControl, create.public);
     } else if (sessionStorage.join !== undefined) {
         join = JSON.parse(sessionStorage.join);
+        console.log(join);
         $("#playerName").html(join.name);
         connection.socket.onopen = () => connection.joinGame(join.id, join.name);
     } else {

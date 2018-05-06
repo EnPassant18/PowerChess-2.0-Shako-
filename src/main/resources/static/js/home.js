@@ -8,7 +8,8 @@ $(document).ready(() => {
     $("#logo").css("width", $("#form").width() + "px");
 
     $("#welcome").html(`Welcome, ${name}!`);
-    $("#submitName").click(() => {
+    $("#signIn").submit(event => {
+        event.preventDefault();
         name = $("#name").val();
         $("#welcome").html(`Welcome, ${name}!`);
     })
@@ -28,13 +29,13 @@ $(document).ready(() => {
         delete sessionStorage.join;
         window.location = "game.html";
     })
-
-    $(".play").click(event => {
-        sessionStorage.join = JSON.stringify({
-            name: name,
-            id: event.target.parent.id
-        });
-        delete sessionStorage.create;
-        window.location = "game.html";
-    })
 })
+
+function joinGame(event) {
+    sessionStorage.join = JSON.stringify({
+        name: name,
+        id: event.target.parentElement.parentElement.id
+    });
+    delete sessionStorage.create;
+    window.location = "game.html";
+}

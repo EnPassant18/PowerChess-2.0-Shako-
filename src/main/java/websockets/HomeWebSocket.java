@@ -45,13 +45,10 @@ public class HomeWebSocket {
   public void connected(Session session) throws IOException {
     System.out.println("Session joined");
     SESSIONS.add(session);
-    JsonObject response = ChessWebSocket.getPublicGames();
-
-    // only send a message if there is at least one public game
-    if (response.size() > 0) {
-      response.addProperty("type", MessageType.ALL_GAMES.ordinal());
-      session.getRemote().sendString(GSON.toJson(response));
-    }
+    JsonObject response = new JsonObject();
+    response.add("games", ChessWebSocket.getPublicGames());
+    response.addProperty("type", MessageType.ALL_GAMES.ordinal());
+    session.getRemote().sendString(GSON.toJson(response));
   }
 
   /**

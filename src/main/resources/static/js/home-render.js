@@ -15,19 +15,20 @@ function removeGame(gameId) {
 function addGame(gameId, game, gameList) {
     gameList.append(
         `<tr id="${gameId}">
-            <td>${gameId}</td>
-            <td>${TIME_CONTROL[gameId[timeControl]]}</td>
-            <td>${COLOR[gameId[color]]}</td>
+            <td>${game.name}</td>
+            <td>${TIME_CONTROL[game.timeControl]}</td>
+            <td>${COLOR[game.color]}</td>
             <td><button class="play">Play</button></td>
         </tr>`);
+    $($(".play")[$(".play").length-1]).click(joinGame);
     areGames();
 }
 
 function areGames() {
-    if ($("tr").length === 1) {
-        $("noGames").removeAttr("hidden");
+    if ($("tr").length === 2) {
+        $("#noGames").removeAttr("hidden");
     } else {
-        $("noGames").attr("hidden", "true");
+        $("#noGames").attr("hidden", "true");
     }
 }
 
@@ -38,6 +39,6 @@ TIME_CONTROL = {
 }
 
 COLOR = {
-    true: "White",
-    false: "Black"
+    1: "White",
+    0: "Black"
 }

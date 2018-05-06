@@ -57,7 +57,8 @@ function drop(event) {
     moving.piece.css("z-index", 2);
     $(document).off("mousemove");
     $(document).off("mouseup");
-    if (JSON.stringify(moving.startSquare) !== JSON.stringify(moving.toSquare)) {
+    if (moving.toSquare !== null 
+        && JSON.stringify(moving.startSquare) !== JSON.stringify(moving.toSquare)) {
         if (game.selected !== null) {
             game.powerFollowUp(new Move(moving.startSquare, moving.toSquare));
         } else {
