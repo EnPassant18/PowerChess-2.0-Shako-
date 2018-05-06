@@ -181,16 +181,16 @@ public class ChessProjectHandler extends CommandMap {
 
     return print();
   }
-  
-  private String startNewGame(final String FEN) {
-    game = new Game(StringUtils.parseQuotedString(FEN));
-    
+
+  private String startNewGame(final String fen) {
+    game = new Game(StringUtils.parseQuotedString(fen));
+
     whitePlayer = new CliPlayer(Color.WHITE);
     blackPlayer = new CliPlayer(Color.BLACK);
 
     game.addPlayer(whitePlayer);
     game.addPlayer(blackPlayer);
-    
+
     return print();
   }
 
@@ -251,7 +251,7 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     PowerObject powerObject = PowerObject.ofRarity(rarity);
-    
+
     game.spawnPowerObject(location, powerObject);
 
     return print();
