@@ -321,10 +321,20 @@ public class ChessWebSocket {
     Game game = GAME_ID_MAP.get(gameId);
 
     List<PowerAction> actionOptions = game.getActionOptions();
-    int index = selection ? 1 : 0;
+    int index = selection ? 0 : 1;
+    if (actionOptions.size() == 0) {
+      sendError(session);
+      return;
+    }
+    if (actionOptions.size() < index - 1) {
+      index--;
+    }
     PowerAction selected = actionOptions.get(index);
     game.getActivePlayer().setAction(selected);
     Location whereCaptured = selected.getWhereCaptured();
+
+    System.out
+        .println("POWERUP SELECTED: " + selected.getClass().getSimpleName());
 
     Collection<BoardObject> preWhereCaptured = game.getObjsAt(whereCaptured);
     Collection<BoardObject> preLoc = null, preStart = null, preEnd = null;
@@ -336,6 +346,7 @@ public class ChessWebSocket {
     }
 
     Object input = null;
+    Move move = null;
 
     if (received.has("followUp")) {
       JsonObject followUp = received.get("followUp").getAsJsonObject();
@@ -345,14 +356,20 @@ public class ChessWebSocket {
         input = new Location(row, col);
         preLoc = game.getObjsAt((Location) input);
       } else if (followUp.has("from")) {
-        input = getMove(followUp);
-        preStart = game.getObjsAt(((Move) input).getStart());
-        preEnd = game.getObjsAt(((Move) input).getEnd());
+        move = getMove(followUp);
+        input = move.getEnd();
+        preStart = game.getObjsAt(move.getStart());
+        preEnd = game.getObjsAt(move.getEnd());
       }
+    }
+
+    if (input != null) {
+      System.out.println("INPUT: " + input.toString());
     }
 
     // if input not valid, return ILLEGAL_ACTION
     if (!selected.validInput(input)) {
+      System.out.println("NOT VALID INPUT!");
       sendIllegalAction(session);
       return;
     }
@@ -373,11 +390,11 @@ public class ChessWebSocket {
 
     // Check followUp move start and end
     if (preStart != null) {
-      Location startLoc = ((Move) input).getStart();
+      Location startLoc = move.getStart();
       updates.addAll(getDifference(startLoc, preStart, game));
     }
     if (preEnd != null) {
-      Location endLoc = ((Move) input).getEnd();
+      Location endLoc = move.getEnd();
       updates.addAll(getDifference(endLoc, preEnd, game));
     }
 
@@ -397,7 +414,7 @@ public class ChessWebSocket {
       // If Rewind, check game history
     } else if (selected instanceof Rewind) {
       List<Move> history = game.getHistory();
-      Move move = history.get(history.size() - 2);
+      move = history.get(history.size() - 2);
       Location start = move.getStart();
       Location end = move.getEnd();
       // if rewind was actually executed, end will be empty
@@ -414,8 +431,10 @@ public class ChessWebSocket {
     } else if (selected instanceof PieceMover) {
       Location loc = ((PieceMover) selected).getEndLocation();
       Piece p = game.getPieceAt(loc);
-      // update that endloc now has a piece
-      updates.add(createPieceUpdate(loc, p));
+      if (loc != null && p != null) {
+        // update that endloc now has a piece
+        updates.add(createPieceUpdate(loc, p));
+      }
     }
 
     JsonObject response = new JsonObject();
@@ -520,6 +539,7 @@ public class ChessWebSocket {
       Piece p = game.getPieceAt(loc);
       updates.add(createPieceUpdate(loc, p));
     }
+
     JsonObject response = new JsonObject();
     response.addProperty("type", MessageType.GAME_UPDATE.ordinal());
     response.add("updates", updates);
@@ -810,7 +830,8 @@ public class ChessWebSocket {
       updates.add(createEmptyUpdate(loc));
     }
 
-    postObjs.removeAll(preObjs);
+    postObjs.removeIf(obj -> preObjs.contains(obj));
+
     // if there are new objects on location, add difference updates
     for (BoardObject obj : postObjs) {
       JsonObject updatePart = new JsonObject();

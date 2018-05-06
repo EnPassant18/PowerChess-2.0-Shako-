@@ -546,6 +546,7 @@ public class Game {
       if (obj instanceof PowerObject) {
         gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
         actionOptions = ((PowerObject) obj).getPowerActions(this, end);
+        addedPowerObject.remove((PowerObject) obj);
 
       } else if (power != null && obj instanceof Piece) {
         // if piece with powerup captures, powerup should be removed
