@@ -59,7 +59,6 @@ public class Armageddon extends PowerAction {
       Piece p = board.getPieceAt(loc);
 
       if (p != null) {
-
         if (p instanceof Pawn) {
           pawnLocations.add(loc);
         } else if (p instanceof King) {

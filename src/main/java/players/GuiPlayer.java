@@ -12,13 +12,17 @@ import game.Color;
 public class GuiPlayer extends Player {
 
   /**
-   * Constructs command line interface player of specified color.
+   * Constructs player of the specified color with the given name.
    *
    * @param color
-   *          Player color.
+   *          Color of player's pieces.
+   * @param name
+   *          Player name.
+   * @param id
+   *          Player Id.
    */
-  public GuiPlayer(Color color) {
-    super(color);
+  public GuiPlayer(Color color, int id, String name) {
+    super(color, id, name);
   }
 
 }
