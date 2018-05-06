@@ -253,10 +253,8 @@ public class ChessWebSocket {
     // If other player id exists, then update them too
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.GAME_OVER.ordinal());
-      response.addProperty("reason", reason);
-      response.addProperty("result", GameResult.WIN.ordinal());
+      JsonObject response =
+          createGameOverUpdate(GameEndReason.values()[reason], GameResult.WIN);
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
 
@@ -291,10 +289,8 @@ public class ChessWebSocket {
     Session otherSession = PLAYER_SESSION_MAP.get(otherId);
     // If the other player is awaiting a draw message, end game. Otherwise a
     if (otherDraw) {
-      JsonObject response = new JsonObject();
-      response.addProperty("type", MessageType.GAME_OVER.ordinal());
-      response.addProperty("reason", GameEndReason.DRAW_AGREED.ordinal());
-      response.addProperty("result", GameResult.DRAW.ordinal());
+      JsonObject response =
+          createGameOverUpdate(GameEndReason.DRAW_AGREED, GameResult.DRAW);
 
       session.getRemote().sendString(GSON.toJson(response));
       otherSession.getRemote().sendString(GSON.toJson(response));
@@ -439,57 +435,6 @@ public class ChessWebSocket {
   }
 
   /**
-   * Get the pre-post difference between objects on a board location and return
-   * a JsonArray representing all the changes.
-   *
-   * @param loc
-   *          Location to check differences at.
-   * @param preObjs
-   *          Objects on space before power action execution.
-   * @param game
-   *          Game that was modified by power action.
-   * @return JsonArray representing all changes at specified location.
-   */
-  private JsonArray getDifference(Location loc, Collection<BoardObject> preObjs,
-      Game game) {
-    JsonArray updates = new JsonArray();
-
-    Collection<BoardObject> postObjs = game.getObjsAt(loc);
-    postObjs.removeIf(obj -> obj instanceof EmptySpace);
-    preObjs.removeIf(obj -> obj instanceof EmptySpace);
-
-    // if there was something and now there's nothing
-    if (postObjs.isEmpty() && !preObjs.isEmpty()) {
-      updates.add(createEmptyUpdate(loc));
-    }
-
-    postObjs.removeAll(preObjs);
-    // if there are new objects on location, add difference updates
-    for (BoardObject obj : postObjs) {
-      JsonObject updatePart = new JsonObject();
-
-      // if added piece to loc
-      if (obj instanceof Piece) {
-        Piece p = ((Piece) obj);
-        updatePart = createPieceUpdate(loc, p);
-
-        // if added blackhole to loc
-      } else if (obj instanceof BlackHole) {
-        updatePart = createBlackHoleUpdate(loc);
-
-        // if added invulnerability to loc
-      } else if (obj instanceof Invulnerability) {
-        Piece p = game.getPieceAt(loc);
-        updatePart = createInvulnerableUpdate(loc, p);
-      }
-
-      updates.add(updatePart);
-    }
-
-    return updates;
-  }
-
-  /**
    * Called when server receives a MOVE action message. Server attempts to make
    * desired move and either replies replies with ILLEGAL_MOVE or updates each
    * player as to the changed board state.
@@ -530,61 +475,33 @@ public class ChessWebSocket {
     List<Location> castling = game.getCastling();
     // If the player just castled, add that to updates.
     if (castling.size() == 2) {
-      JsonObject updatePart1 = new JsonObject();
       Location loc1 = castling.get(0);
-      updatePart1.addProperty("row", loc1.getRow());
-      updatePart1.addProperty("col", loc1.getCol());
-      updatePart1.addProperty("state", EntityTypes.NOTHING.ordinal());
-      updates.add(updatePart1);
+      updates.add(createEmptyUpdate(loc1));
 
-      JsonObject updatePart2 = new JsonObject();
       Location loc2 = castling.get(1);
-      System.out.println("row " + loc2.getRow() + " col " + loc2.getCol());
-      updatePart2.addProperty("row", loc2.getRow());
-      updatePart2.addProperty("col", loc2.getCol());
-      updatePart2.addProperty("state", EntityTypes.PIECE.ordinal());
       Piece p = game.getPieceAt(loc2);
-      updatePart2.addProperty("piece", getPieceValue(p));
-      if (p.getColor() == Color.WHITE) {
-        updatePart2.addProperty("color", true);
-      } else {
-        updatePart2.addProperty("color", false);
-      }
-      updates.add(updatePart2);
+      updates.add(createPieceUpdate(loc2, p));
     }
 
     Location enPassant = game.getEnPassant();
     if (enPassant != null) {
-      JsonObject updatePart = new JsonObject();
-      updatePart.addProperty("row", enPassant.getRow());
-      updatePart.addProperty("col", enPassant.getCol());
-      updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
-      updates.add(updatePart);
+      updates.add(createEmptyUpdate(enPassant));
     }
     // If there are any power ups to update (any that ran out after executing
     // this turn)
     for (PowerUp power : powers.keySet()) {
-      JsonObject updatePart = new JsonObject();
       Location loc = powers.get(power);
-      updatePart.addProperty("row", loc.getRow());
-      updatePart.addProperty("col", loc.getCol());
 
       // If the powerup was a blackhole
       if (power instanceof BlackHole) {
-        updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
+        updates.add(createEmptyUpdate(loc));
 
         // If its invulnerability
       } else if (power instanceof Invulnerability) {
         Piece p = game.getPieceAt(loc);
-        updatePart.addProperty("state", EntityTypes.PIECE.ordinal());
-        updatePart.addProperty("piece", getPieceValue(p));
-        if (p.getColor() == Color.WHITE) {
-          updatePart.addProperty("color", true);
-        } else {
-          updatePart.addProperty("color", false);
-        }
+        updates.add(createPieceUpdate(loc, p));
       }
-      updates.add(updatePart);
+
     }
 
     Map<PowerObject, Location> addedPowerUp = game.getPowerObject();
@@ -868,6 +785,57 @@ public class ChessWebSocket {
     return otherId;
   }
 
+  /**
+   * Get the pre-post difference between objects on a board location and return
+   * a JsonArray representing all the changes.
+   *
+   * @param loc
+   *          Location to check differences at.
+   * @param preObjs
+   *          Objects on space before power action execution.
+   * @param game
+   *          Game that was modified by power action.
+   * @return JsonArray representing all changes at specified location.
+   */
+  private JsonArray getDifference(Location loc, Collection<BoardObject> preObjs,
+      Game game) {
+    JsonArray updates = new JsonArray();
+
+    Collection<BoardObject> postObjs = game.getObjsAt(loc);
+    postObjs.removeIf(obj -> obj instanceof EmptySpace);
+    preObjs.removeIf(obj -> obj instanceof EmptySpace);
+
+    // if there was something and now there's nothing
+    if (postObjs.isEmpty() && !preObjs.isEmpty()) {
+      updates.add(createEmptyUpdate(loc));
+    }
+
+    postObjs.removeAll(preObjs);
+    // if there are new objects on location, add difference updates
+    for (BoardObject obj : postObjs) {
+      JsonObject updatePart = new JsonObject();
+
+      // if added piece to loc
+      if (obj instanceof Piece) {
+        Piece p = ((Piece) obj);
+        updatePart = createPieceUpdate(loc, p);
+
+        // if added blackhole to loc
+      } else if (obj instanceof BlackHole) {
+        updatePart = createBlackHoleUpdate(loc);
+
+        // if added invulnerability to loc
+      } else if (obj instanceof Invulnerability) {
+        Piece p = game.getPieceAt(loc);
+        updatePart = createInvulnerableUpdate(loc, p);
+      }
+
+      updates.add(updatePart);
+    }
+
+    return updates;
+  }
+
   private JsonObject createPieceUpdate(Location loc, Piece p) {
     JsonObject updatePart = new JsonObject();
     updatePart.addProperty("row", loc.getRow());
@@ -909,6 +877,15 @@ public class ChessWebSocket {
     updatePart.addProperty("col", loc.getCol());
     updatePart.addProperty("state", EntityTypes.NOTHING.ordinal());
     return updatePart;
+  }
+
+  private JsonObject createGameOverUpdate(GameEndReason reason,
+      GameResult result) {
+    JsonObject response = new JsonObject();
+    response.addProperty("type", MessageType.GAME_OVER.ordinal());
+    response.addProperty("reason", reason.ordinal());
+    response.addProperty("result", result.ordinal());
+    return response;
   }
 
 }
