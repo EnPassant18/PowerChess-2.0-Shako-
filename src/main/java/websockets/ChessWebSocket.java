@@ -138,7 +138,7 @@ public class ChessWebSocket {
    *
    */
   private enum CommonPowers {
-    ADJUST, REWIND, SECOND_EFFORT, SHIELD, SWAP
+    ADJUST, REWIND, SECONDEFFORT, SHIELD, SWAP
   }
 
   /**
@@ -148,7 +148,7 @@ public class ChessWebSocket {
    *
    */
   private enum RarePowers {
-    BLACK_HOLE, ENERGIZE, EYE_FOR_AN_EYE, SAFETY_NET, SEND_AWAY
+    BLACKHOLE, ENERGIZE, EYEFORANEYE, SAFETYNET, SENDAWAY
   }
 
   /**
@@ -339,6 +339,9 @@ public class ChessWebSocket {
       int row = locObject.get("row").getAsInt();
       int col = locObject.get("col").getAsInt();
       Location whereCaptured = new Location(row, col);
+      Game game = GAME_ID_MAP.get(gameId);
+      assert game.getActivePlayer().getColor() == game.getPieceAt(whereCaptured)
+          .getColor();
 
       String pow1;
       String pow2;
@@ -359,17 +362,14 @@ public class ChessWebSocket {
           throw new AssertionError();
       }
 
-      Game game = GAME_ID_MAP.get(gameId);
       assert game.getActionOptions().isEmpty();
 
       PowerAction action1 =
           PowerAction.stringToAction(pow1, game, whereCaptured);
-      assert action1 != null;
       assert action1.getRarity() == rarity;
 
       PowerAction action2 =
           PowerAction.stringToAction(pow2, game, whereCaptured);
-      assert action2 != null;
       assert action2.getRarity() == rarity;
 
       game.addActionOption(action1);
@@ -377,6 +377,10 @@ public class ChessWebSocket {
       game.setGameState(GameState.WAITING_FOR_POWERUP_CHOICE);
 
       JsonObject response = received;
+      received.remove("type");
+      received.addProperty("type", MessageType.GAME_UPDATE.ordinal());
+      received.add("updates", new JsonArray());
+
       Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
       Session sesh;
       for (Player player : playerCollection) {
@@ -384,23 +388,21 @@ public class ChessWebSocket {
         if (game.getActivePlayer() == player) {
           response.remove("action");
           response.addProperty("action", Action.SELECT_POWER.ordinal());
+          sesh.getRemote().sendString(GSON.toJson(response));
         } else {
-          response = new JsonObject();
-          response.remove("action");
-          response.addProperty("action", Action.NONE.ordinal());
+          JsonObject otherResponse = new JsonObject();
+          otherResponse.addProperty("type", MessageType.GAME_UPDATE.ordinal());
+          otherResponse.add("updates", new JsonArray());
+          otherResponse.addProperty("action", Action.NONE.ordinal());
+          sesh.getRemote().sendString(GSON.toJson(otherResponse));
         }
-        sesh.getRemote().sendString(GSON.toJson(response));
       }
 
     } catch (IllegalArgumentException | AssertionError
-        | IndexOutOfBoundsException e) {
+        | IndexOutOfBoundsException | NullPointerException e) {
       sendError(session);
       return;
     }
-    /*
-     * rarity: COMMON(0)/RARE(1)/LEGENDARY(2), id1: <id of the first power
-     * option>, id2: <id of the second power option>
-     */
 
   }
 
@@ -503,9 +505,7 @@ public class ChessWebSocket {
       sendError(session);
       return;
     }
-    if (actionOptions.size() < index - 1) {
-      index--;
-    }
+
     PowerAction selected = actionOptions.get(index);
     game.getActivePlayer().setAction(selected);
     Location whereCaptured = selected.getWhereCaptured();
@@ -640,6 +640,17 @@ public class ChessWebSocket {
       }
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
+
+    if (game.getGameOverStatus()) {
+      response =
+          createGameOverUpdate(GameEndReason.MATE, GameResult.WIN, gameId);
+      session.getRemote().sendString(GSON.toJson(response));
+
+      response.remove("result");
+      response.addProperty("result", GameResult.LOSS.ordinal());
+      Session otherSession = PLAYER_SESSION_MAP.get(otherId);
+      otherSession.getRemote().sendString(GSON.toJson(response));
+    }
   }
 
   /**
@@ -757,12 +768,29 @@ public class ChessWebSocket {
       response.addProperty("action", Action.NONE.ordinal());
       otherResponse.addProperty("action", Action.MOVE.ordinal());
     }
+
+    if (game.getGameOverStatus()) {
+      response = new JsonObject();
+      response.addProperty("type", MessageType.GAME_OVER.ordinal());
+      response.addProperty("reason", GameEndReason.MATE.ordinal());
+      response.addProperty("result", GameResult.WIN.ordinal());
+
+      session.getRemote().sendString(GSON.toJson(response));
+    }
+
     session.getRemote().sendString(GSON.toJson(response));
     Collection<Player> playerList = GAME_PLAYER_MAP.get(gameId);
+    Session otherSession;
     for (Player p : playerList) {
       if (p.getId() != playerId) {
-        Session otherSession = PLAYER_SESSION_MAP.get(p.getId());
+        otherSession = PLAYER_SESSION_MAP.get(p.getId());
         otherSession.getRemote().sendString(GSON.toJson(otherResponse));
+
+        if (game.getGameOverStatus()) {
+          response.remove("result");
+          response.addProperty("result", GameResult.LOSS.ordinal());
+          otherSession.getRemote().sendString(GSON.toJson(response));
+        }
         return;
       }
     }
