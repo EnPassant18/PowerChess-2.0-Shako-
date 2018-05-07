@@ -27,11 +27,11 @@ body {
     position: absolute;
 }
 
-.white {
+.light {
     background-color: #F0D9B5;
 }
 
-.black {
+.dark {
     background-color: #B58863;
 }
 
@@ -47,13 +47,13 @@ body {
     z-index: 2;
 }
 
-.piece:hover {
+.mypiece:hover {
     cursor: grab;
     cursor: -moz-grab;
     cursor: -webkit-grab;
 }
 
-.piece:active {
+.mypiece:active {
     cursor: grabbing;
     cursor: -moz-grabbing;
     cursor: -webkit-grabbing;
@@ -226,6 +226,7 @@ td {
     background-color: rgb(241, 241, 241);;
     border-color: rgb(188, 188, 188);
     font-size: 15px;
+    color: rgb(95, 95, 95);
 }
 
 .popup button {

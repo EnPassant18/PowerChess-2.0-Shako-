@@ -42,6 +42,7 @@ class Connection {
                 game.gameOver(message.result, message.reason);
                 break;
             case MESSAGE.REQUEST_DRAW:
+                drawSound.play();
                 $("#drawOffered").removeAttr("hidden");
                 break;
             case MESSAGE.GAME_UPDATE:
@@ -52,6 +53,7 @@ class Connection {
                     UI.clear(moving.toSquare);
                     UI.teleport(moving.piece, moving.toSquare);
                     moving = null;
+                    moveSound.play();
                 }
                 if (message.move !== undefined) {
                     UI.move(new Move(
@@ -118,7 +120,6 @@ class Connection {
     // option: boolean (true = first selected)
     // followUpObject: contains followUp action result
     usePower(option, followUpObject) {
-        console.log("Use power")
         let message = {
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,
@@ -128,7 +129,6 @@ class Connection {
         }
         if (followUpObject !== undefined) {
             message.followUp = followUpObject.adjusted();
-            console.log(followUpObject);
         }
         this.socket.send(JSON.stringify(message));
     }
@@ -148,6 +148,7 @@ class Connection {
 
     // When a player offers a draw
     draw() {
+        drawSound.play();
         this.socket.send(JSON.stringify({
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,

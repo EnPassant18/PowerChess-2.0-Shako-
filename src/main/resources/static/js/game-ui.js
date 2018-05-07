@@ -12,7 +12,7 @@ class UI {
         });
         for (let i = 0; i < 8; i++) {
             for (let j = 0; j < 8; j++) {
-                const color = (i + j) % 2 === 1 ? "black" : "white";
+                const color = (i + j) % 2 === 1 ? "dark" : "light";
                 $board.append(`<div id="row${i}col${j}" class="square ${color}"
                 style="width:${UI.SQUARE_SIZE}px; height:${UI.SQUARE_SIZE}px;
                 top:${UI.SQUARE_SIZE*i}px; left:${UI.SQUARE_SIZE*j}px"></div>`);
@@ -90,7 +90,8 @@ class UI {
 
     // Creates a piece on the given square
     static spawn(color, type, square) {
-        const piece = $(`<img class="piece" src="${PIECE_IMAGE[color][type]}" draggable=false />`);
+        const isMyPiece = color === game.color ? " mypiece" : "";
+        const piece = $(`<img class="piece${isMyPiece}" src="${PIECE_IMAGE[color][type]}" draggable=false />`);
         $("#pieces").append(piece);
         UI.teleport(piece, square);
         piece.click(click);
@@ -136,6 +137,7 @@ class UI {
                 if (frame === FRAMES) {
                     clearInterval(interval);
                     UI.teleport(piece, move.to);
+                    moveSound.play();
                     if (updates !== undefined) UI.updates(updates);
                 } else {
                     piece.offset({
@@ -171,8 +173,11 @@ class UI {
 
     // Performs a list of updates
     static updates(updates) {
-        for (let i = 0; i < updates.length; i++) {
-            UI.update(updates[i]);
+        if (updates.length > 0) {
+            updateSound.play();
+            for (let i = 0; i < updates.length; i++) {
+                UI.update(updates[i]);
+            }
         }
     }
 

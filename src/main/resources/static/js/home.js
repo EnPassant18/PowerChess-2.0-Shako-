@@ -8,29 +8,11 @@ $(document).ready(() => {
 
     if (localStorage.name === undefined) localStorage.name = "Guest" + Math.trunc(10000*Math.random());
     $("#welcome").html(`Welcome, ${localStorage.name}!`);
-    $("#signIn").submit(event => {
-        event.preventDefault();
+    $("#submitName").click(event => {
         localStorage.name = $("#name").val();
         $("#welcome").html(`Welcome, ${localStorage.name}!`);
-    })
-
-    /*
-    $("#submitCreate").click(() => {
-        if ($("input[name=color]:checked").val() === "Random") {
-            color = Math.random() > 0.5;
-        } else {
-            color = $("input[name=color]:checked").val();
-        }
-        sessionStorage.create = JSON.stringify({
-            name: name,
-            color: color,
-            timeControl: $("input[name=time]:checked").val(),
-            public: $("input[name=privacy]:checked").val()
-        });
-        delete sessionStorage.join;
-        window.location = "game.html";
-    })
-    */
+    });
+    $("#signIn").submit(event => event.preventDefault());
 })
 
 function joinGame(event) {

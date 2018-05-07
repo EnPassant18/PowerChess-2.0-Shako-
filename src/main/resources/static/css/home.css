@@ -15,7 +15,6 @@ body {
 #left {
     position: relative;
     float: left;
-    margin-right: 30px;
 }
 
 #logo {
@@ -104,6 +103,8 @@ input[type="text"] {
     border-collapse: collapse;
     overflow: hidden;
     border-style: hidden;
+    position: relative;
+    left: 30px;
 }
 
 #right th, td {

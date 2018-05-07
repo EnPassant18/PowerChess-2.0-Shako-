@@ -26,6 +26,10 @@ class Game {
             $("#playerClock").css("font-weight","Bold");
             $("#opponentClock").css("font-weight","");
         }
+        if (newAction === ACTION.SELECT_POWER
+            || (this._action === ACTION.NONE && newAction === ACTION.NONE)) {
+            powerSound.play();
+        }
         this._action = newAction;
         this.selected = null;
     }
@@ -57,12 +61,14 @@ class Game {
     }
 
     start() {
+        startEndSound.play();
         this.timer.start();
         this.color ? $("#playerClock").css("font-weight","Bold") : $("#opponentClock").css("font-weight","Bold");
     }
 
     // Displays a popup when the game ends
     gameOver(result, reason) {
+        startEndSound.play();
         this._action = ACTION.NONE;
         this.timer.stop();
         $("#darkVeil").removeAttr("hidden");
