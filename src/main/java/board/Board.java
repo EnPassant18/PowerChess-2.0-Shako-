@@ -353,6 +353,27 @@ public class Board {
   }
 
   /**
+   * Check whether the board still contains at least one King of the specified
+   * color.
+   *
+   * @param color
+   *          Color.
+   * @return True if yes, otherwise false.
+   */
+  public boolean hasKingOfColor(Color color) {
+
+    Collection<BoardObject> objects = spaces.values();
+    for (BoardObject b : objects) {
+      if (b instanceof King) {
+        if (((King) b).getColor() == color) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * Check whether given board location is empty.
    *
    * @param loc
