@@ -553,7 +553,9 @@ public class Game {
         power.setTurnsRemaining(0);
 
       } else if (obj instanceof King) {
-        gameOver = true;
+    	if(!board.hasKingOfColor(((King) obj).getColor())) {
+    		gameOver = true;
+    	}
       }
     }
 

@@ -689,12 +689,29 @@ public class ChessWebSocket {
       response.addProperty("action", Action.NONE.ordinal());
       otherResponse.addProperty("action", Action.MOVE.ordinal());
     }
+    
+    if(game.getGameOverStatus()) {
+    	response = new JsonObject();
+        response.addProperty("type", MessageType.GAME_OVER.ordinal());
+        response.addProperty("reason", GameEndReason.MATE.ordinal());
+        response.addProperty("result", GameResult.WIN.ordinal());
+        
+        session.getRemote().sendString(GSON.toJson(response));
+    }
+    
     session.getRemote().sendString(GSON.toJson(response));
     Collection<Player> playerList = GAME_PLAYER_MAP.get(gameId);
+    Session otherSession;
     for (Player p : playerList) {
       if (p.getId() != playerId) {
-        Session otherSession = PLAYER_SESSION_MAP.get(p.getId());
+        otherSession = PLAYER_SESSION_MAP.get(p.getId());
         otherSession.getRemote().sendString(GSON.toJson(otherResponse));
+        
+        if(game.getGameOverStatus()) {
+        	response.remove("result");
+        	response.addProperty("result", GameResult.LOSS.ordinal());
+        	otherSession.getRemote().sendString(GSON.toJson(response));
+        }
         return;
       }
     }

@@ -352,6 +352,19 @@ public class Board {
     spaces.putAll(loc2, coll1);
   }
 
+  public boolean hasKingOfColor(Color color) {
+	  
+	  Collection<BoardObject> objects = spaces.values();
+	  for(BoardObject b : objects) {
+		  if(b instanceof King) {
+			  if(((King) b).getColor() == color) {
+				  return true;
+			  }
+		  }
+	  }
+	  return false;
+  }
+  
   /**
    * Check whether given board location is empty.
    *
@@ -362,20 +375,6 @@ public class Board {
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
     List<BoardObject> objsArr = new ArrayList(objs);
-    if (objs.size() != 1) {
-      System.out.println("not 1");
-      System.out.println(objs.size());
-      System.out.println(spaces.get(loc));
-    } else if (objs.contains(EMPTY_SPACE)) {
-      System.out.println("empty");
-    } else if (objsArr.get(0) instanceof GhostPawn) {
-      System.out.println("ghost");
-    } else if (objsArr.get(0) instanceof BlackHole) {
-      System.out.println("invuln");
-    } else {
-      System.out.println(spaces.get(loc).getClass());
-      System.out.println("wtf");
-    }
     boolean bool1 = objsArr.size() == 2 && (objsArr.get(0) instanceof GhostPawn || objsArr.get(1) instanceof GhostPawn);
     boolean bool2 = objsArr.size() == 1 && (objs.contains(EMPTY_SPACE) || objsArr.get(0) instanceof BlackHole);
     return bool1 || bool2;
