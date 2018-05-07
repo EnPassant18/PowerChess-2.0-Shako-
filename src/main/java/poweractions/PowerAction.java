@@ -37,7 +37,7 @@ public abstract class PowerAction {
     POWER_ACTIONS.put(Rarity.COMMON, "Swap");
     POWER_ACTIONS.put(Rarity.COMMON, "Rewind");
     POWER_ACTIONS.put(Rarity.RARE, "BlackHole");
-    POWER_ACTIONS.put(Rarity.RARE, "EyeForEye");
+    POWER_ACTIONS.put(Rarity.RARE, "EyeForAnEye");
     POWER_ACTIONS.put(Rarity.RARE, "SendAway");
     POWER_ACTIONS.put(Rarity.LEGENDARY, "Clone");
     POWER_ACTIONS.put(Rarity.LEGENDARY, "Armageddon");
@@ -119,7 +119,7 @@ public abstract class PowerAction {
         return new Shield(game, whereCaptured);
       case "blackhole":
         return new BlackHole(game, whereCaptured);
-      case "eyeforeye":
+      case "eyeforaneye":
         return new EyeForEye(game, whereCaptured);
       case "swap":
         return new Swap(game, whereCaptured);

@@ -290,12 +290,28 @@ public class Game {
   }
 
   /**
-   * Returns a Powerobject and its location if one was added.
+   * Returns a Map of newly spawned Powerobject(s) and their location(s) if one
+   * was added.
    *
    * @return map of newly spawned on-board PowerObject and its location.
    */
   public Map<PowerObject, Location> getPowerObject() {
     return this.addedPowerObject;
+  }
+
+  /**
+   * Remove a Powerobject from the list of recently added objects if it has
+   * already been acknowledged by the front end.
+   *
+   * @param powerObj
+   *          Power Object to remove from list.
+   */
+  public void removePowerObjectUpdate(PowerObject powerObj) {
+    try {
+      addedPowerObject.remove(powerObj);
+    } catch (NullPointerException e) {
+      return;
+    }
   }
 
   /**
@@ -546,7 +562,11 @@ public class Game {
       if (obj instanceof PowerObject) {
         gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
         actionOptions = ((PowerObject) obj).getPowerActions(this, end);
-        addedPowerObject.remove((PowerObject) obj);
+        try {
+          addedPowerObject.remove((PowerObject) obj);
+        } catch (ClassCastException | NullPointerException e) {
+          return;
+        }
 
       } else if (power != null && obj instanceof Piece) {
         // if piece with powerup captures, powerup should be removed
@@ -567,6 +587,16 @@ public class Game {
    */
   public List<PowerAction> getActionOptions() {
     return actionOptions;
+  }
+
+  /**
+   * Add an action option to the game.
+   *
+   * @param action
+   *          PowerAction to add to option set.
+   */
+  public void addActionOption(PowerAction action) {
+    actionOptions.add(action);
   }
 
   /**

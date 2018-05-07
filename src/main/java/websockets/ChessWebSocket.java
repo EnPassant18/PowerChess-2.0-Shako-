@@ -132,6 +132,36 @@ public class ChessWebSocket {
   }
 
   /**
+   * Enumerates common powers.
+   *
+   * @author dwoods, knorms
+   *
+   */
+  private enum CommonPowers {
+    ADJUST, REWIND, SECOND_EFFORT, SHIELD, SWAP
+  }
+
+  /**
+   * Enumerates rare powers.
+   *
+   * @author dwoods, knorms
+   *
+   */
+  private enum RarePowers {
+    BLACK_HOLE, ENERGIZE, EYE_FOR_AN_EYE, SAFETY_NET, SEND_AWAY
+  }
+
+  /**
+   * Enumerates legendary powers.
+   *
+   * @author dwoods, knorms
+   *
+   */
+  private enum LegendaryPowers {
+    ARMAGEDDON, AWAKEN, CLONE, REANIMATE
+  }
+
+  /**
    * Enumerates all other entities that could appear on the board.
    *
    * @author knorms
@@ -226,6 +256,7 @@ public class ChessWebSocket {
         break;
 
       case GIVE:
+        give(session, received);
         break;
 
       default:
@@ -302,17 +333,50 @@ public class ChessWebSocket {
       int id1 = received.get("id1").getAsInt();
       int id2 = received.get("id2").getAsInt();
       int rarityIndex = received.get("rarity").getAsInt();
+      Rarity rarity = Rarity.values()[rarityIndex];
+
+      JsonObject locObject = received.get("whereCaptured").getAsJsonObject();
+      int row = locObject.get("row").getAsInt();
+      int col = locObject.get("col").getAsInt();
+      Location whereCaptured = new Location(row, col);
+
+      String pow1;
+      String pow2;
+      switch (rarityIndex) {
+        case 0:
+          pow1 = CommonPowers.values()[id1].toString();
+          pow2 = CommonPowers.values()[id2].toString();
+          break;
+        case 1:
+          pow1 = RarePowers.values()[id1].toString();
+          pow2 = RarePowers.values()[id2].toString();
+          break;
+        case 2:
+          pow1 = LegendaryPowers.values()[id1].toString();
+          pow2 = LegendaryPowers.values()[id2].toString();
+          break;
+        default:
+          throw new AssertionError();
+      }
 
       Game game = GAME_ID_MAP.get(gameId);
-      // TODO finish checking that ids are right! and update game state
+      assert game.getActionOptions().isEmpty();
+
+      PowerAction action1 =
+          PowerAction.stringToAction(pow1, game, whereCaptured);
+      assert action1 != null;
+      assert action1.getRarity() == rarity;
+
+      PowerAction action2 =
+          PowerAction.stringToAction(pow2, game, whereCaptured);
+      assert action2 != null;
+      assert action2.getRarity() == rarity;
+
+      game.addActionOption(action1);
+      game.addActionOption(action2);
+      game.setGameState(GameState.WAITING_FOR_POWERUP_CHOICE);
 
       JsonObject response = received;
-
-      /*
-       * rarity: COMMON(0)/RARE(1)/LEGENDARY(2), id1: <id of the first power
-       * option>, id2: <id of the second power option>
-       */
-
       Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
       Session sesh;
       for (Player player : playerCollection) {
@@ -328,10 +392,16 @@ public class ChessWebSocket {
         sesh.getRemote().sendString(GSON.toJson(response));
       }
 
-    } catch (IllegalArgumentException | IndexOutOfBoundsException
-        | NullPointerException e) {
+    } catch (IllegalArgumentException | AssertionError
+        | IndexOutOfBoundsException e) {
       sendError(session);
+      return;
     }
+    /*
+     * rarity: COMMON(0)/RARE(1)/LEGENDARY(2), id1: <id of the first power
+     * option>, id2: <id of the second power option>
+     */
+
   }
 
   /**
@@ -349,12 +419,10 @@ public class ChessWebSocket {
       throws IOException {
     int playerId = received.get("playerId").getAsInt();
     int gameId = received.get("gameId").getAsInt();
-
     int reason = received.get("reason").getAsInt();
 
-    int otherId = getOtherId(gameId, playerId);
-
     // If other player id exists, then update them too
+    int otherId = getOtherId(gameId, playerId);
     if (otherId != -1) {
       Session otherSession = PLAYER_SESSION_MAP.get(otherId);
       JsonObject response =
@@ -765,9 +833,7 @@ public class ChessWebSocket {
     nextGameId++;
     GAME_ID_MAP.put(gameId, game);
 
-    // FIXME uncomment line belo
     boolean isPublic = received.get("public").getAsBoolean();
-    // boolean isPublic = true;
     game.setPublic(isPublic);
 
     int timeControlIndex = received.get("timeControl").getAsInt();
@@ -827,8 +893,7 @@ public class ChessWebSocket {
       Game game = GAME_ID_MAP.get(gameId);
       playerColor = game.getEmptyPlayerColor();
 
-      // If there is no available player color, then this game cannot accept any
-      // more players.
+      // If there is no available player color, then game is full
       if (playerColor == null) {
         sendError(session);
         return;
@@ -839,9 +904,7 @@ public class ChessWebSocket {
       String existingPlayerName;
       Collection<Player> playerCollection = GAME_PLAYER_MAP.get(gameId);
       List<Player> playerList = new ArrayList<>(playerCollection);
-      // If the list size is 1, then the player can be added to the game
-      // normally.
-      // Otherwise, there was an error of some sort.
+      // If the list size is 1, then player can be added to the game
       if (playerList.size() == 1) {
         Player existingPlayer = playerList.get(0);
         GAME_PLAYER_MAP.put(gameId, player);
@@ -852,6 +915,7 @@ public class ChessWebSocket {
         Session otherSession = PLAYER_SESSION_MAP.get(existingPlayer.getId());
         existingPlayerName = existingPlayer.getName();
         otherSession.getRemote().sendString(GSON.toJson(responseToOther));
+
       } else {
         sendIllegalAction(session);
         return;
@@ -1111,7 +1175,9 @@ public class ChessWebSocket {
     for (int gameId : GAME_ID_MAP.keySet()) {
       g = GAME_ID_MAP.get(gameId);
       if (g.isPublic()) {
-        response.add(String.valueOf(gameId), createGameUpdate(gameId));
+        if (GAME_PLAYER_MAP.get(gameId).size() == 1) {
+          response.add(String.valueOf(gameId), createGameUpdate(gameId));
+        }
       }
     }
     return response;
