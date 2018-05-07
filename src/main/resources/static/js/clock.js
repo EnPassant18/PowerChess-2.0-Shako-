@@ -17,23 +17,39 @@ class Timer {
         this._display(PLAYER.OPPONENT);
     }
 
-    start() {
-        this._timer = setInterval(() => {
-            if (game.action === ACTION.NONE) {
-                this._theirTime = Math.max(0, this._theirTime - 0.01);
+    start(myMove) {
+        this.switch(myMove);
+        this._loop = setInterval(() => {
+            if (!this.myMove) {
+                this._theirTime = Math.max(0, this.moveStartTimeLeft + this.moveStartTime - this._getTime());
                 this._display(PLAYER.OPPONENT);
             } else {
-                this._myTime -= 0.01;
+                this._myTime = this.moveStartTimeLeft + this.moveStartTime - this._getTime();
                 this._display(PLAYER.PLAYER);
                 if (this._myTime <= 0) {
                     connection.lose(GAME_END_CAUSE.TIME);
                 }
             }
-        }, 10);
+        }, 25);
     }
 
     stop() {
-        clearInterval(this._timer);
+        clearInterval(this._loop);
+        $("#playerClock").css("font-weight","");
+        $("#opponentClock").css("font-weight","");
+    }
+
+    switch(myMove) {
+        this.myMove = myMove;
+        this.moveStartTime = this._getTime();
+        this.moveStartTimeLeft = myMove ? this._myTime : this._theirTime;
+        if (myMove) {
+            $("#playerClock").css("font-weight","Bold");
+            $("#opponentClock").css("font-weight","");
+        } else {
+            $("#playerClock").css("font-weight","");
+            $("#opponentClock").css("font-weight","Bold");
+        }
     }
 
     increment(player) {
@@ -71,6 +87,10 @@ class Timer {
         } else {
             return `${minutes}:${Math.trunc(seconds)}`;
         }
+    }
+
+    _getTime() {
+        return new Date().getTime() / 1000;
     }
 }
 

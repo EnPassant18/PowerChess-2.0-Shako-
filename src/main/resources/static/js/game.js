@@ -19,13 +19,7 @@ class Game {
             this.timer.increment(true);
             $("#drawOffered").attr("hidden", "true"); 
         }
-        if (newAction === ACTION.NONE) {
-            $("#playerClock").css("font-weight","");
-            $("#opponentClock").css("font-weight","Bold");
-        } else {
-            $("#playerClock").css("font-weight","Bold");
-            $("#opponentClock").css("font-weight","");
-        }
+        this.timer.switch(newAction !== ACTION.NONE);
         if (newAction === ACTION.SELECT_POWER
             || (this._action === ACTION.NONE && newAction === ACTION.NONE)) {
             powerSound.play();
@@ -62,12 +56,17 @@ class Game {
 
     start() {
         startEndSound.play();
-        this.timer.start();
-        this.color ? $("#playerClock").css("font-weight","Bold") : $("#opponentClock").css("font-weight","Bold");
+        this.timer.start(this.color);
     }
 
     // Displays a popup when the game ends
     gameOver(result, reason) {
+        if (moving !== null) {
+            UI.clear(moving.toSquare);
+            UI.teleport(moving.piece, moving.toSquare);
+            moving = null;
+            moveSound.play();
+        }
         startEndSound.play();
         this._action = ACTION.NONE;
         this.timer.stop();
