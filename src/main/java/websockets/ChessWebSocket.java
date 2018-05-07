@@ -138,7 +138,7 @@ public class ChessWebSocket {
    *
    */
   private enum CommonPowers {
-    ADJUST, REWIND, SECOND_EFFORT, SHIELD, SWAP
+    ADJUST, REWIND, SECONDEFFORT, SHIELD, SWAP
   }
 
   /**
@@ -148,7 +148,7 @@ public class ChessWebSocket {
    *
    */
   private enum RarePowers {
-    BLACK_HOLE, ENERGIZE, EYE_FOR_AN_EYE, SAFETY_NET, SEND_AWAY
+    BLACKHOLE, ENERGIZE, EYEFORANEYE, SAFETYNET, SENDAWAY
   }
 
   /**
@@ -366,12 +366,10 @@ public class ChessWebSocket {
 
       PowerAction action1 =
           PowerAction.stringToAction(pow1, game, whereCaptured);
-      assert action1 != null;
       assert action1.getRarity() == rarity;
 
       PowerAction action2 =
           PowerAction.stringToAction(pow2, game, whereCaptured);
-      assert action2 != null;
       assert action2.getRarity() == rarity;
 
       game.addActionOption(action1);
