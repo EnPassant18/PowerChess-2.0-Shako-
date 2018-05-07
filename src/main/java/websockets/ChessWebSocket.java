@@ -640,6 +640,20 @@ public class ChessWebSocket {
       }
       otherSession.getRemote().sendString(GSON.toJson(response));
     }
+    
+    if(game.getGameOverStatus()) {
+    	response = new JsonObject();
+        response.addProperty("type", MessageType.GAME_OVER.ordinal());
+        response.addProperty("reason", GameEndReason.MATE.ordinal());
+        response.addProperty("result", GameResult.WIN.ordinal());
+        
+        session.getRemote().sendString(GSON.toJson(response));
+        
+        response.remove("result");
+        response.addProperty("result", GameResult.LOSS.ordinal());
+        Session otherSession = PLAYER_SESSION_MAP.get(otherId);
+        otherSession.getRemote().sendString(GSON.toJson(response));
+    }
   }
 
   /**
