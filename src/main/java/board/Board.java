@@ -361,7 +361,7 @@ public class Board {
    */
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
-    List<BoardObject> objsArr = new ArrayList(objs);
+    List<BoardObject> objsArr = new ArrayList<>(objs);
     if (objs.size() != 1) {
       System.out.println("not 1");
       System.out.println(objs.size());
@@ -376,8 +376,12 @@ public class Board {
       System.out.println(spaces.get(loc).getClass());
       System.out.println("wtf");
     }
-    boolean bool1 = objsArr.size() == 2 && (objsArr.get(0) instanceof GhostPawn || objsArr.get(1) instanceof GhostPawn);
-    boolean bool2 = objsArr.size() == 1 && (objs.contains(EMPTY_SPACE) || objsArr.get(0) instanceof BlackHole);
+    boolean bool1 =
+        objsArr.size() == 2 && (objsArr.get(0) instanceof GhostPawn
+            || objsArr.get(1) instanceof GhostPawn);
+    boolean bool2 =
+        objsArr.size() == 1 && (objs.contains(EMPTY_SPACE)
+            || objsArr.get(0) instanceof BlackHole);
     return bool1 || bool2;
   }
 

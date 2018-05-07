@@ -161,4 +161,23 @@ class Connection {
       }))
     }
 
+    give(row, col, pow1, pow2, rarity) {
+      let r = RARITY[rarity];
+      console.log(POWER[r])
+      console.log(POWER[r][pow1])
+
+      this.socket.send(JSON.stringify({
+        gameId: this.GAME_ID,
+        type: MESSAGE.GIVE,
+        id1: POWER[r][pow1],
+        id2: POWER[r][pow2],
+        whereCaptured:
+          {
+            row: row,
+            col: col,
+          },
+        rarity: r
+      }))
+    }
+
 }
