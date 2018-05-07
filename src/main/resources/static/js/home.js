@@ -1,4 +1,3 @@
-let name = "Guest" + Math.trunc(10000*Math.random());
 let games;
 
 $(document).ready(() => {
@@ -7,13 +6,15 @@ $(document).ready(() => {
 
     $("#logo").css("width", $("#form").width() + "px");
 
-    $("#welcome").html(`Welcome, ${name}!`);
+    if (localStorage.name === undefined) localStorage.name = "Guest" + Math.trunc(10000*Math.random());
+    $("#welcome").html(`Welcome, ${localStorage.name}!`);
     $("#signIn").submit(event => {
         event.preventDefault();
-        name = $("#name").val();
-        $("#welcome").html(`Welcome, ${name}!`);
+        localStorage.name = $("#name").val();
+        $("#welcome").html(`Welcome, ${localStorage.name}!`);
     })
 
+    /*
     $("#submitCreate").click(() => {
         if ($("input[name=color]:checked").val() === "Random") {
             color = Math.random() > 0.5;
@@ -29,13 +30,10 @@ $(document).ready(() => {
         delete sessionStorage.join;
         window.location = "game.html";
     })
+    */
 })
 
 function joinGame(event) {
-    sessionStorage.join = JSON.stringify({
-        name: name,
-        id: event.target.parentElement.parentElement.id
-    });
     delete sessionStorage.create;
-    window.location = "game.html";
+    window.location = `game.html?id=${event.target.parentElement.parentElement.id}`;
 }
