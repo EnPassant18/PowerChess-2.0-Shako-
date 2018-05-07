@@ -598,11 +598,11 @@ public class Game {
    *          Object that is the required input to execute the PowerAction.
    */
   public void executePowerAction(Object input) {
-	actionOptions.clear();
+    actionOptions.clear();
     getActivePlayer().executeAction(input);
     gameState = GameState.WAITING_FOR_MOVE;
-    if(actionOptions.isEmpty()) {
-    	whiteToMove = !whiteToMove;
+    if (actionOptions.isEmpty()) {
+      whiteToMove = !whiteToMove;
     }
   }
 

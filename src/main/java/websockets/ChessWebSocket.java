@@ -304,6 +304,7 @@ public class ChessWebSocket {
       int rarityIndex = received.get("rarity").getAsInt();
 
       Game game = GAME_ID_MAP.get(gameId);
+      // TODO finish checking that ids are right! and update game state
 
       JsonObject response = received;
 
@@ -873,10 +874,14 @@ public class ChessWebSocket {
       response.addProperty("timeControl", game.getTimeControl().ordinal());
       session.getRemote().sendString(GSON.toJson(response));
 
+      if (game.isPublic()) {
+        HomeWebSocket.gameRemoved(gameId);
+      }
     } catch (NullPointerException e) {
       sendError(session);
       return;
     }
+
   }
 
   /**
@@ -1089,7 +1094,6 @@ public class ChessWebSocket {
     response.addProperty("type", MessageType.GAME_OVER.ordinal());
     response.addProperty("reason", reason.ordinal());
     response.addProperty("result", result.ordinal());
-    HomeWebSocket.gameRemoved(createGameUpdate(gameId));
     return response;
   }
 

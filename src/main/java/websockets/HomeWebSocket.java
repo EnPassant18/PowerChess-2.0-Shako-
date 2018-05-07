@@ -87,13 +87,15 @@ public class HomeWebSocket {
   /**
    * Update all clients on homepage that public game was removed.
    *
-   * @param gameUpdate
-   *          Game Removal Update to send.
+   * @param gameId
+   *          ID of game the now has two players
    */
-  public static void gameRemoved(JsonObject gameUpdate) {
-    gameUpdate.addProperty("type", MessageType.ADD_GAME.ordinal());
+  public static void gameRemoved(int gameId) {
+    JsonObject gameUpdate = new JsonObject();
+    gameUpdate.addProperty("type", MessageType.REMOVE_GAME.ordinal());
+    gameUpdate.addProperty("gameId", gameId);
 
-    String toSend = GSON.toJson("jsonMessage");
+    String toSend = GSON.toJson(gameUpdate);
     SESSIONS.forEach(session -> {
       try {
         session.getRemote().sendString(toSend);
