@@ -19,6 +19,13 @@ class Game {
             this.timer.increment(true);
             $("#drawOffered").attr("hidden", "true"); 
         }
+        if (newAction === ACTION.NONE) {
+            $("#playerClock").css("font-weight","");
+            $("#opponentClock").css("font-weight","Bold");
+        } else {
+            $("#playerClock").css("font-weight","Bold");
+            $("#opponentClock").css("font-weight","");
+        }
         this._action = newAction;
         this.selected = null;
     }
@@ -51,18 +58,27 @@ class Game {
 
     start() {
         this.timer.start();
+        this.color ? $("#playerClock").css("font-weight","Bold") : $("#opponentClock").css("font-weight","Bold");
     }
 
     // Displays a popup when the game ends
     gameOver(result, reason) {
         this._action = ACTION.NONE;
         this.timer.stop();
-        $("#draw").off("click");
-        $("#resign").off("click");
+        $("#darkVeil").removeAttr("hidden");
+        $("#gameOver").removeAttr("hidden");
+        let resultMsg, reasonMsg;
         switch (result) {
-            case GAME_RESULT.WIN: alert("You win"); break;
-            case GAME_RESULT.LOSS: alert("You lose"); break;
-            case GAME_RESULT.DRAW: alert("Game drawn"); break;
+            case GAME_RESULT.WIN: resultMsg = "You won"; break;
+            case GAME_RESULT.LOSS: resultMsg = "You lost"; break;
+            case GAME_RESULT.DRAW: resultMsg = "Game drawn"; break;
         }
+        switch (reason) {
+            case GAME_END_CAUSE.MATE: reasonMsg = " by mate"; break;
+            case GAME_END_CAUSE.RESIGNATION: reasonMsg = " by resignation"; break;
+            case GAME_END_CAUSE.TIME: reasonMsg = " on time"; break;
+            case GAME_END_CAUSE.DRAW_AGREED: reasonMsg = " by agreement"; break;
+        }
+        $("#gameOverMessage").html(resultMsg + reasonMsg);
     }
 }

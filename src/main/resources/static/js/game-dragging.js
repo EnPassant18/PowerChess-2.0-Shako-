@@ -36,6 +36,10 @@ function dragStart(event) {
         $(event.target).css("z-index", 3);
         $(document).on("mousemove", drag);
         $(document).on("mouseup", drop);
+        moving.piece.offset({
+            top: (moving.y - 37.5),
+            left: (moving.x - 37.5)
+        });
     }
 }
 

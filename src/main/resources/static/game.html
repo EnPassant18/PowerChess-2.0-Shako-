@@ -18,6 +18,22 @@
   <body>
     <div id="drawOffered" class="header" hidden>Draw Offered</div>
     <div id="error" class="header" hidden>Connection Error</div>
+    <div id="darkVeil" hidden></div>
+    <div id="invite" class="popup" hidden>
+      <div id="inviteInstructions">Your opponent can join this game using the following link:</div>
+      <br>
+      <textarea id="inviteLink"></textarea>
+      <br>
+      <br>
+      <button id="copyLink">Copy to Clipboard</button>
+    </div>
+    <div id="gameOver" class="popup" hidden>
+      <div id="gameOverMessage"></div>
+      <br>
+      <form method="GET" action="home.html">
+          <button>Return Home</button>
+      </form>
+    </div>
     <div id="container">
       <div id="board">
         <div id="pieces"></div>
@@ -27,7 +43,7 @@
       <div id="sidebar">
         <div id="opponent">
           <div id="opponentName" class="name">Opponent</div>
-          <div id="opponentClock" class="clock">10:00</div>
+          <div id="opponentClock" class="clock">00:00</div>
         </div>
         <div id="log"></div>
         <div id="selection" hidden>
@@ -39,7 +55,7 @@
             <button id="resign">Resign</button>
         </div>
         <div id="player">
-          <div id="playerClock" class="clock">10:00</div>
+          <div id="playerClock" class="clock">00:00</div>
           <div id="playerName" class="name">Player</div>
         </div>
       </div>

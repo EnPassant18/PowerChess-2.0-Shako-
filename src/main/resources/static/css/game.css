@@ -176,3 +176,76 @@ td {
     background-color: red;
     color: white;
 }
+
+/* Popup style */
+
+.popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: auto;
+    margin-top: -100px;
+    padding: 30px;
+    border-radius: 3px;
+    background-color: rgb(241, 241, 241);
+    z-index: 100;
+    text-align: center;
+}
+
+#invite {
+    width: 300px;
+    margin-left: -150px;
+}
+
+#gameOver {
+    width: 200px;
+    margin-left: -100px;
+}
+
+#darkVeil {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: 0.3;
+    background-color: #393939;
+    z-index: 99;
+}
+
+#inviteInstructions {
+    font-size: 20px;
+    color: rgb(95, 95, 95);
+}
+
+#inviteLink {
+    word-wrap: break-word;
+    width: 250px;
+    height: 50px;
+    border-radius: 3px;
+    background-color: rgb(241, 241, 241);;
+    border-color: rgb(188, 188, 188);
+    font-size: 15px;
+}
+
+.popup button {
+    font-size: 20px;
+    border-radius: 3px;
+    height: auto;
+    width: auto;
+    padding-top: 10px; 
+    padding-bottom: 10px;
+    background-color: rgb(255, 96, 96);
+    color: white;
+    box-shadow: 0px 1px 2px rgb(95, 95, 95);
+}
+
+.popup button:hover {
+    background-color: rgb(178, 60, 60);
+    cursor: grab;
+}
+
+#gameOverMessage {
+    font-size: 25px;
+    color: rgb(95, 95, 95);
+}

@@ -32,6 +32,10 @@ $(document).ready(() => {
     $("#draw").click(() => connection.draw());
     $("#resign").click(() => connection.lose(GAME_END_CAUSE.RESIGNATION));
     $(".square").click(click);
+    $("#copyLink").click(() => {
+        $("#inviteLink")[0].select();
+        document.execCommand("copy");
+    })
 });
 
 function debugCreate() {

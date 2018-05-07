@@ -171,7 +171,6 @@ class UI {
 
     // Performs a list of updates
     static updates(updates) {
-        console.log(updates);
         for (let i = 0; i < updates.length; i++) {
             UI.update(updates[i]);
         }

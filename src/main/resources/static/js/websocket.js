@@ -22,10 +22,15 @@ class Connection {
                 this.connectionError("Unexpected or unrecognized message type: " + message.type);
                 break;
             case MESSAGE.CREATE_GAME:
+                $("#darkVeil").removeAttr("hidden");
+                $("#invite").removeAttr("hidden");
+                $("#inviteLink").html("file:///Users/Thymathgeek/Documents/Brown/CS%20320/final/src/main/resources/static/game.html?id=" + message.gameId);
                 this.GAME_ID = message.gameId;
                 this.PLAYER_ID = message.playerId;
                 break;
             case MESSAGE.JOIN_GAME:
+                $("#darkVeil").attr("hidden", "true");
+                $("#invite").attr("hidden", "true");
                 $("#opponentName").html(message.name);
                 if (message.playerId !== undefined) {
                     this.PLAYER_ID = message.playerId;
@@ -34,7 +39,6 @@ class Connection {
                 game.start();
                 break;
             case MESSAGE.GAME_OVER:
-                // TODO embellish
                 game.gameOver(message.result, message.reason);
                 break;
             case MESSAGE.REQUEST_DRAW:
@@ -42,6 +46,13 @@ class Connection {
                 break;
             case MESSAGE.GAME_UPDATE:
                 let moveDelay;
+                game.action = message.action;
+                if (moving !== null) {
+                    game.lastMoved = moving.toSquare;
+                    UI.clear(moving.toSquare);
+                    UI.teleport(moving.piece, moving.toSquare);
+                    moving = null;
+                }
                 if (message.move !== undefined) {
                     UI.move(new Move(
                         new Square(message.move.from.row, message.move.from.col),
@@ -49,13 +60,6 @@ class Connection {
                         .adjusted(), message.updates);
                 } else {
                     UI.updates(message.updates);
-                }
-                game.action = message.action;
-                if (moving !== null) {
-                    game.lastMoved = moving.toSquare;
-                    UI.clear(moving.toSquare);
-                    UI.teleport(moving.piece, moving.toSquare);
-                    moving = null;
                 }
                 UI.clearPowers();
                 if (message.action === ACTION.SELECT_POWER) {
