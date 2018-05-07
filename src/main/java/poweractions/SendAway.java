@@ -18,7 +18,7 @@ import powerups.PowerObject.Rarity;
  * @author knorms
  *
  */
-public class SendAway extends PowerAction implements PieceMover{
+public class SendAway extends PowerAction implements PieceMover {
   private final int beyondBoard = 8;
   private List<Integer> columns;
   private Location endLocation = null;

@@ -20,7 +20,6 @@ import pieces.Piece;
 import pieces.Queen;
 import pieces.Rook;
 import powerups.BlackHole;
-import powerups.Invulnerability;
 import powerups.PowerObject;
 import powerups.PowerUp;
 import repl.ChessReplUtils;
@@ -261,11 +260,9 @@ public class Board {
    *          Location to remove the piece from.
    */
   public void removePieceAt(final Location loc) {
-    for (BoardObject obj : spaces.get(loc)) {
-      if (obj instanceof Piece) {
-        spaces.remove(loc, obj);
-      }
-    }
+    Piece p = getPieceAt(loc);
+    spaces.remove(loc, p);
+
     if (spaces.get(loc).isEmpty()) {
       spaces.put(loc, EMPTY_SPACE);
     }
@@ -330,15 +327,15 @@ public class Board {
   }
 
   /**
-   * Removes the empty space at loc
-   * 
+   * Removes the empty space at loc.
+   *
    * @param loc
-   * 	Location to remove empty space at.
+   *          Location to remove empty space at.
    */
   public void removeEmpty(Location loc) {
-	  spaces.remove(loc, EMPTY_SPACE);
+    spaces.remove(loc, EMPTY_SPACE);
   }
-  
+
   /**
    * Swap the contents of two board locations.
    *
@@ -364,26 +361,23 @@ public class Board {
    */
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
-    if(objs.size() != 1) {
-    	System.out.println("not 1");
-    	System.out.println(objs.size());
-    	System.out.println(spaces.get(loc));
-    }
-    else if(objs.contains(EMPTY_SPACE)) {
-    	System.out.println("empty");
-    }
-    else if(spaces.get(loc) instanceof GhostPawn) {
-    	System.out.println("ghost");
-    }
-    else if(spaces.get(loc) instanceof BlackHole) {
-    	System.out.println("invuln");
-    }
-    else {
-    	System.out.println(spaces.get(loc).getClass());
-    	System.out.println("wtf");
+    if (objs.size() != 1) {
+      System.out.println("not 1");
+      System.out.println(objs.size());
+      System.out.println(spaces.get(loc));
+    } else if (objs.contains(EMPTY_SPACE)) {
+      System.out.println("empty");
+    } else if (spaces.get(loc) instanceof GhostPawn) {
+      System.out.println("ghost");
+    } else if (spaces.get(loc) instanceof BlackHole) {
+      System.out.println("invuln");
+    } else {
+      System.out.println(spaces.get(loc).getClass());
+      System.out.println("wtf");
     }
     return objs.size() == 1
-        && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn || spaces.get(loc) instanceof BlackHole);
+        && (objs.contains(EMPTY_SPACE) || spaces.get(loc) instanceof GhostPawn
+            || spaces.get(loc) instanceof BlackHole);
   }
 
   /**
