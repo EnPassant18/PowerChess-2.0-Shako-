@@ -1,9 +1,13 @@
 package poweractions;
 
+import java.util.Map;
+
 import board.Location;
 import game.Game;
 import pieces.Piece;
+import powerups.Invulnerability;
 import powerups.PowerObject.Rarity;
+import powerups.PowerUp;
 
 /**
  * Eye for an Eye allows a player to destroy the piece that captured the
@@ -39,7 +43,16 @@ public class EyeForEye extends PowerAction {
   @Override
   public boolean validInput(Object input) {
     try {
-      Piece p = getGame().getPieceAt((Location) input);
+      Location loc = (Location) input;
+      Piece p = getGame().getPieceAt(loc);
+      Map<PowerUp, Location> onBoardPowers = getGame().getOnBoardPowers();
+      for (PowerUp power : onBoardPowers.keySet()) {
+        if (power instanceof Invulnerability
+            && onBoardPowers.get(power).equals(loc)) {
+          return false;
+        }
+      }
+
       return capturingPiece.getColor() != p.getColor()
           && capturingPiece.getRank() >= p.getRank();
     } catch (ClassCastException | NullPointerException e) {

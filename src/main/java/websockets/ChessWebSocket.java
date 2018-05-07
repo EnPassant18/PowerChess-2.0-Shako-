@@ -505,9 +505,7 @@ public class ChessWebSocket {
       sendError(session);
       return;
     }
-    if (actionOptions.size() < index - 1) {
-      index--;
-    }
+
     PowerAction selected = actionOptions.get(index);
     game.getActivePlayer().setAction(selected);
     Location whereCaptured = selected.getWhereCaptured();
@@ -644,11 +642,8 @@ public class ChessWebSocket {
     }
 
     if (game.getGameOverStatus()) {
-      response = new JsonObject();
-      response.addProperty("type", MessageType.GAME_OVER.ordinal());
-      response.addProperty("reason", GameEndReason.MATE.ordinal());
-      response.addProperty("result", GameResult.WIN.ordinal());
-
+      response =
+          createGameOverUpdate(GameEndReason.MATE, GameResult.WIN, gameId);
       session.getRemote().sendString(GSON.toJson(response));
 
       response.remove("result");
