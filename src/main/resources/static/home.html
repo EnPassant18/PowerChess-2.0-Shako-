@@ -18,14 +18,14 @@
        <form id="signIn">
         <div id="welcome">Welcome, Guest!</div>
         <br>
-        <input type="text" name="name" id="name" placeholder="Your name">
+        <input type="text" name="name" id="name" placeholder="Change name">
         &nbsp
-        <button type="button" id="submitName">Submit</button>
+        <button type="submit" id="submitName">Submit</button>
        </form>
        <br>
        <div id="form">
           <div id="header">Create Game</div>
-          <form>
+          <form action="game.html" method="GET">
             <input type="radio" name="time" value="0" id="Quick" hidden>
             <label for="Quick">Quick</label>
             <input type="radio" name="time" value="1" id="Standard" hidden checked>
@@ -48,7 +48,7 @@
             <label for="Public">Public</label>
             <br>
             <br>
-            <button type="button" id="submitCreate">Play</button>
+            <button type="submit" id="submitCreate">Play</button>
           </form>
        </div>
      </div>

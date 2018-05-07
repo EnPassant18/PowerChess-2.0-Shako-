@@ -5,20 +5,26 @@ $(document).ready(() => {
     connection = new Connection("ws://localhost:4567/play");
     UI.drawBoard();
 
-    if (sessionStorage.create !== undefined) {
-        create = JSON.parse(sessionStorage.create);
-        game = new Game(create.color, create.timeControl);
-        $("#playerName").html(create.name);
-        connection.socket.onopen = () => connection.createGame(
-            create.color, create.name,
-            create.timeControl, create.public);
-    } else if (sessionStorage.join !== undefined) {
-        join = JSON.parse(sessionStorage.join);
-        console.log(join);
-        $("#playerName").html(join.name);
-        connection.socket.onopen = () => connection.joinGame(join.id, join.name);
+    let name;
+    if (localStorage.name) {
+        name = localStorage.name;
+    } else if (getUrlVar("name")) {
+        name = getUrlVar("name");
     } else {
-        connection.connectionError("No game info");
+        name = "Guest" + Math.trunc(10000 * Math.random());
+    }
+    $("#playerName").html(name);
+
+    if ((time = getUrlVar("time")) 
+    && (color = getUrlVar("color")) 
+    && (privacy = getUrlVar("privacy"))) {
+        if (color === "Random") color = (Math.random() > 0.5);
+        game = new Game(color, time);
+        connection.socket.onopen = () => connection.createGame(color, name, time, privacy);
+    } else if (id = getUrlVar("id")) {
+        connection.socket.onopen = () => connection.joinGame(id, name);
+    } else {
+        window.location = "home.html";
     }
 
     $("#option1").click(() => game.powerSelect(false));
@@ -37,4 +43,14 @@ function debugCreate() {
 function debugJoin(gameId) {
     $("#playerName").html("Katie");
     connection.joinGame(gameId, "Katie");
+}
+
+function getUrlVar(variable) {
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
 }
