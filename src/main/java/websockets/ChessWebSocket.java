@@ -68,6 +68,7 @@ public class ChessWebSocket {
   private static final Map<Integer, Session> PLAYER_SESSION_MAP =
       new HashMap<>();
   private static final Map<Integer, Boolean> PLAYER_DRAW_MAP = new HashMap<>();
+  private static final Map<Session, Integer> SESSION_GAME_MAP = new HashMap<>();
 
   /**
    * Enumerates allowable websocket message types.
@@ -197,6 +198,19 @@ public class ChessWebSocket {
   @OnWebSocketClose
   public void closed(Session session, int statusCode, String reason) {
     SESSIONS.remove(session);
+    try {
+      int gameId = SESSION_GAME_MAP.get(session);
+
+      // if only one player ever joined game, them remove game
+      if (GAME_PLAYER_MAP.get(gameId).size() == 1) {
+        Game game = GAME_ID_MAP.remove(gameId);
+        GAME_PLAYER_MAP.removeAll(game);
+        SESSION_GAME_MAP.remove(session);
+        HomeWebSocket.gameRemoved(gameId);
+      }
+    } catch (NullPointerException e) {
+      // pass
+    }
   }
 
   /**
@@ -860,6 +874,7 @@ public class ChessWebSocket {
     int gameId = nextGameId;
     nextGameId++;
     GAME_ID_MAP.put(gameId, game);
+    SESSION_GAME_MAP.put(session, gameId);
 
     boolean isPublic = received.get("public").getAsBoolean();
     game.setPublic(isPublic);
@@ -894,9 +909,11 @@ public class ChessWebSocket {
 
     session.getRemote().sendString(GSON.toJson(response));
 
-    JsonObject gameUpdate = createGameUpdate(gameId);
-    gameUpdate.addProperty("gameId", gameId);
-    HomeWebSocket.gameAdded(gameUpdate);
+    if (game.isPublic()) {
+      JsonObject gameUpdate = createGameUpdate(gameId);
+      gameUpdate.addProperty("gameId", gameId);
+      HomeWebSocket.gameAdded(gameUpdate);
+    }
   }
 
   /**
