@@ -323,10 +323,12 @@ public class ChessProjectHandler extends CommandMap {
     }
 
     StringBuffer footer = new StringBuffer();
-    Map<PowerUp, Location> powers = game.getOnBoardPowers();
-    for (PowerUp power : powers.keySet()) {
-      footer.append(String.format("%s has %s for %d more turns%n",
-          powers.get(power), power, power.getTurnsRemaining()));
+    Map<Location, PowerUp> powers = game.getOnBoardPowers();
+    PowerUp power;
+    for (Location loc : powers.keySet()) {
+      power = powers.get(loc);
+      footer.append(String.format("%s has %s for %d more turns%n", loc, power,
+          power.getTurnsRemaining()));
     }
 
     return printBoardState(header, footer.toString());

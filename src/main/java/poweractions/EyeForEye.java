@@ -43,12 +43,12 @@ public class EyeForEye extends PowerAction {
   @Override
   public boolean validInput(Object input) {
     try {
-      Location loc = (Location) input;
-      Piece p = getGame().getPieceAt(loc);
-      Map<PowerUp, Location> onBoardPowers = getGame().getOnBoardPowers();
-      for (PowerUp power : onBoardPowers.keySet()) {
-        if (power instanceof Invulnerability
-            && onBoardPowers.get(power).equals(loc)) {
+      Location inputLoc = (Location) input;
+      Piece p = getGame().getPieceAt(inputLoc);
+      Map<Location, PowerUp> onBoardPowers = getGame().getOnBoardPowers();
+      for (Location powerLoc : onBoardPowers.keySet()) {
+        if (powerLoc.equals(inputLoc)
+            && onBoardPowers.get(powerLoc) instanceof Invulnerability) {
           return false;
         }
       }

@@ -1,23 +1,17 @@
 package main;
 
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import com.google.gson.Gson;
-
-import freemarker.template.Configuration;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import repl.ChessProjectHandler;
-// import projects.ChessProjectHandler;
 import repl.Repl;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
+import spark.Route;
 import spark.Spark;
-import spark.template.freemarker.FreeMarkerEngine;
 import websockets.ChessWebSocket;
 import websockets.HomeWebSocket;
 
@@ -27,7 +21,6 @@ import websockets.HomeWebSocket;
 public final class Main {
 
   private static final int DEFAULT_PORT = 4567;
-  private static final Gson GSON = new Gson();
 
   /**
    * The initial method called when execution begins.
@@ -67,33 +60,28 @@ public final class Main {
     Repl repl = new Repl();
 
     repl.add(chessProjectHandler);
-
     repl.run();
 
   }
 
-  private static FreeMarkerEngine createEngine() {
-    Configuration config = new Configuration();
-    File templates = new File("src/main/resources/spark/template/freemarker");
-    try {
-      config.setDirectoryForTemplateLoading(templates);
-    } catch (IOException ioe) {
-      System.out.printf("ERROR: Unable use %s for template loading.%n",
-          templates);
-      System.exit(1);
-    }
-    return new FreeMarkerEngine(config);
-  }
-
+  @SuppressWarnings("unchecked")
   private void runSparkServer(int port) {
     Spark.port(port);
     Spark.externalStaticFileLocation("src/main/resources/static");
     Spark.exception(Exception.class, new ExceptionPrinter());
 
-    FreeMarkerEngine freeMarker = createEngine();
-
     Spark.webSocket("/play", ChessWebSocket.class);
     Spark.webSocket("/home", HomeWebSocket.class);
+
+    Spark.get("/", new Route() {
+
+      @Override
+      public Object handle(Request req, Response res) throws Exception {
+        res.redirect("home.html");
+        return null;
+      }
+
+    });
     Spark.init();
 
   }
@@ -103,6 +91,7 @@ public final class Main {
    *
    * @author jj
    */
+  @SuppressWarnings("rawtypes")
   private static class ExceptionPrinter implements ExceptionHandler {
     @Override
     public void handle(Exception e, Request req, Response res) {
