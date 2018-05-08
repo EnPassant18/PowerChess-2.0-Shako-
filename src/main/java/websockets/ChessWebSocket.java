@@ -608,6 +608,7 @@ public class ChessWebSocket {
         // update that piece is back at former start loc
         Piece p = game.getPieceAt(start);
         updates.add(createPieceUpdate(start, p));
+
       }
 
       // If SendAway, check where sent
@@ -1109,6 +1110,9 @@ public class ChessWebSocket {
    */
   private JsonObject createPieceUpdate(Location loc, Piece p) {
     JsonObject updatePart = new JsonObject();
+    if (p == null) {
+      return updatePart;
+    }
     updatePart.addProperty("row", loc.getRow());
     updatePart.addProperty("col", loc.getCol());
     updatePart.addProperty("state", EntityTypes.PIECE.ordinal());

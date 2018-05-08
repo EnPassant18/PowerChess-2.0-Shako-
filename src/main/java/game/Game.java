@@ -762,4 +762,20 @@ public class Game {
     this.isPublic = pub;
   }
 
+  /**
+   * Swap board contents at start and end locations.
+   *
+   * @param start
+   *          Start location.
+   * @param end
+   *          End location.
+   */
+  public void swap(Location start, Location end) {
+    if (powerUpsOnBoard.containsKey(start)) {
+      PowerUp powerUp = powerUpsOnBoard.remove(start);
+      powerUpsOnBoard.put(end, powerUp);
+    }
+    board.swap(start, end);
+  }
+
 }

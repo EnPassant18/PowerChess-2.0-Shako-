@@ -48,7 +48,7 @@ public class Rewind extends PowerAction {
     Location end = move.getEnd();
 
     if (getGame().getBoard().isEmpty(start)) {
-      getGame().getBoard().swap(start, end);
+      getGame().swap(start, end);
     }
 
   }
