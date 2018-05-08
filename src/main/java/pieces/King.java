@@ -1,5 +1,7 @@
 package pieces;
 
+import powerups.BlackHole;
+import powerups.PowerUp;
 import board.Board;
 import board.Location;
 import game.Color;
@@ -64,8 +66,13 @@ public class King extends Piece {
     Location check3 = new Location(check2.getRow(), check2.getCol() - 1);
     if (board.isEmpty(check1) && board.isEmpty(check2)
         && board.isEmpty(check3)) {
-      castling = true;
-      return true;
+    	System.out.println("is empty");
+    	PowerUp p1 = board.getPowerUpAt(check1);
+    	PowerUp p2 = board.getPowerUpAt(check2);
+    	if((p1 == null || !(p1 instanceof BlackHole)) && (p2 == null || !(p2 instanceof BlackHole))) {
+    		castling = true;
+    		return true;
+    	}
     }
     return false;
   }
@@ -81,8 +88,13 @@ public class King extends Piece {
     Location check1 = new Location(start.getRow(), start.getCol() + 1);
     Location check2 = new Location(check1.getRow(), check1.getCol() + 1);
     if (board.isEmpty(check1) && board.isEmpty(check2)) {
-      castling = true;
-      return true;
+    	PowerUp p1 = board.getPowerUpAt(check1);
+    	PowerUp p2 = board.getPowerUpAt(check2);
+    	System.out.println("is empty");
+      if((p1 == null || !(p1 instanceof BlackHole)) && (p2 == null || !(p2 instanceof BlackHole))) {
+    	  castling = true;
+    	  return true;
+      }
     }
     return false;
   }
