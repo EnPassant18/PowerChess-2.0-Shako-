@@ -24,7 +24,7 @@ class Connection {
             case MESSAGE.CREATE_GAME:
                 $("#darkVeil").removeAttr("hidden");
                 $("#invite").removeAttr("hidden");
-                $("#inviteLink").html("file:///Users/Thymathgeek/Documents/Brown/CS%20320/final/src/main/resources/static/game.html?id=" + message.gameId);
+                $("#inviteLink").html("sako.localtunnel.me/game.html?id=" + message.gameId);
                 this.GAME_ID = message.gameId;
                 this.PLAYER_ID = message.playerId;
                 break;
