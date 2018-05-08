@@ -1,5 +1,6 @@
 class Connection {
     constructor(url) {
+        this.url = url;
         try {
             this.socket = new WebSocket(url);
             this._setup();
@@ -9,6 +10,12 @@ class Connection {
     }
 
     _setup() {
+        this.socket.onopen = () => {
+            this.ping = setInterval(() => {
+                this.socket.send("");
+            }, 300);
+        }
+
         this.socket.onerror = event => {
             this.connectionError(event);
         }
@@ -107,6 +114,13 @@ class Connection {
 
     // Called when the user attempts to move
     attemptMove(move) {
+        console.log({
+            gameId: this.GAME_ID,
+            playerId: this.PLAYER_ID,
+            type: MESSAGE.PLAYER_ACTION,
+            action: ACTION.MOVE,
+            move: move.adjusted()
+        });
         this.socket.send(JSON.stringify({
             gameId: this.GAME_ID,
             playerId: this.PLAYER_ID,
