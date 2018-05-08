@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -44,7 +43,13 @@ public class Game {
 
   private int tilNextPowerup;
   private List<PowerAction> actionOptions;
-  private Map<PowerUp, Location> powerUps;
+
+  // on board powerups, sorted by turns remaining
+  private Map<Location, PowerUp> powerUpsOnBoard;
+
+  private Map<Location, PowerUp> removedLocations;
+  private Map<PowerObject, Location> addedPowerObject;
+
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
 
@@ -52,9 +57,6 @@ public class Game {
 
   private TimeControl timeControl;
   private boolean isPublic;
-
-  private Map<PowerUp, Location> removedLocations;
-  private Map<PowerObject, Location> addedPowerObject;
 
   private static final String START_POSITION_FEN =
       "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -150,9 +152,7 @@ public class Game {
     updateTilNextPowerUp();
     toPromote = null;
     actionOptions = new ArrayList<>();
-    powerUps = new TreeMap<>((p1, p2) -> {
-      return Integer.compare(p1.getTurnsRemaining(), p2.getTurnsRemaining());
-    });
+    powerUpsOnBoard = new HashMap<>();
     gameState = GameState.WAITING_FOR_MOVE;
     addedPowerObject = new HashMap<PowerObject, Location>();
 
@@ -252,18 +252,18 @@ public class Game {
     }
 
     // decrement lifetime of PowerUp
-    removedLocations = new HashMap<PowerUp, Location>();
-    List<PowerUp> toRemove = new ArrayList<>();
-    powerUps.keySet().forEach((power) -> {
+    removedLocations = new HashMap<Location, PowerUp>();
+    powerUpsOnBoard.forEach((loc, power) -> {
       power.decrementTurns();
+
       if (power.toRemove()) {
-        removedLocations.put(power, powerUps.get(power));
-        toRemove.add(power);
+        removedLocations.put(loc, power);
       }
     });
-    for (PowerUp power : toRemove) {
-      removePowerUp(power);
-    }
+
+    removedLocations.forEach((loc, power) -> {
+      removePowerUp(loc, power);
+    });
   }
 
   /**
@@ -271,8 +271,8 @@ public class Game {
    *
    * @return list of power ups.
    */
-  public Map<PowerUp, Location> getRemoved() {
-    return this.removedLocations;
+  public Map<Location, PowerUp> getRemoved() {
+    return ImmutableMap.copyOf(removedLocations);
   }
 
   /**
@@ -345,20 +345,21 @@ public class Game {
    *          PowerUp to add.
    */
   public void addPowerUp(Location loc, PowerUp power) {
-    powerUps.put(power, loc);
+    powerUpsOnBoard.put(loc, power);
     board.addBoardObject(loc, power);
   }
 
   /**
    * Removes powerup from board and from list of on-board powerups held by Game.
    *
+   * @param loc
+   *          Location of powerup to remove.
    * @param power
    *          Power to remove.
    */
-  private void removePowerUp(PowerUp power) {
-    Location loc = powerUps.get(power);
+  private void removePowerUp(Location loc, PowerUp power) {
     board.removePowerUp(loc, power);
-    powerUps.remove(power);
+    powerUpsOnBoard.remove(loc);
   }
 
   /**
@@ -366,8 +367,8 @@ public class Game {
    *
    * @return map of on-board powerups to their location.
    */
-  public Map<PowerUp, Location> getOnBoardPowers() {
-    return ImmutableMap.copyOf(powerUps);
+  public Map<Location, PowerUp> getOnBoardPowers() {
+    return ImmutableMap.copyOf(powerUpsOnBoard);
   }
 
   /**
@@ -555,7 +556,7 @@ public class Game {
     // update powerup location with move
     PowerUp power = board.getPowerUpAt(end);
     if (power != null) {
-      powerUps.put(power, end);
+      powerUpsOnBoard.put(end, power);
     }
 
     for (BoardObject obj : captured) {

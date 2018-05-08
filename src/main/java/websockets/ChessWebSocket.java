@@ -699,7 +699,7 @@ public class ChessWebSocket {
     }
 
     PLAYER_DRAW_MAP.replace(playerId, false);
-    Map<PowerUp, Location> powers = game.getRemoved();
+    Map<Location, PowerUp> removedPowers = game.getRemoved();
 
     // updates is a list of all changes in the board state after the turn gets
     // executed (not counting the move itself).
@@ -722,8 +722,8 @@ public class ChessWebSocket {
     }
     // If there are any power ups to update (any that ran out after executing
     // this turn)
-    for (PowerUp power : powers.keySet()) {
-      Location loc = powers.get(power);
+    for (Location loc : removedPowers.keySet()) {
+      PowerUp power = removedPowers.get(loc);
 
       // If the powerup was a blackhole
       if (power instanceof BlackHole) {

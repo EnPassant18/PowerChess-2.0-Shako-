@@ -320,7 +320,6 @@ public class Board {
    */
   public void removePowerUp(Location loc, PowerUp power) {
     spaces.remove(loc, power);
-    System.out.println(spaces.get(loc));
     if (!spaces.get(loc).isEmpty()) {
       spaces.put(loc, EMPTY_SPACE);
     }
@@ -383,20 +382,6 @@ public class Board {
   public boolean isEmpty(Location loc) {
     Collection<BoardObject> objs = spaces.get(loc);
     List<BoardObject> objsArr = new ArrayList<>(objs);
-    if (objs.size() != 1) {
-      System.out.println("not 1");
-      System.out.println(objs.size());
-      System.out.println(spaces.get(loc));
-    } else if (objs.contains(EMPTY_SPACE)) {
-      System.out.println("empty");
-    } else if (objsArr.get(0) instanceof GhostPawn) {
-      System.out.println("ghost");
-    } else if (objsArr.get(0) instanceof BlackHole) {
-      System.out.println("invuln");
-    } else {
-      System.out.println(spaces.get(loc).getClass());
-      System.out.println("wtf");
-    }
     boolean bool1 =
         objsArr.size() == 2 && (objsArr.get(0) instanceof GhostPawn
             || objsArr.get(1) instanceof GhostPawn);
