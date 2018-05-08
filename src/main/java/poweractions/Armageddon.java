@@ -73,7 +73,7 @@ public class Armageddon extends PowerAction {
     }
 
     for (Location loc : kingLocations) {
-      getGame().addPowerUp(loc, new Invulnerability(2));
+      getGame().addPowerUp(loc, new Invulnerability(4));
     }
   }
 

@@ -2,7 +2,7 @@ let games;
 
 $(document).ready(() => {
 
-    connection = new Connection("ws://localhost:4567/home");
+    connection = new Connection("ws://sako.localtunnel.me/home");
 
     $("#logo").css("width", $("#form").width() + "px");
 

@@ -2,7 +2,7 @@ let game;
 
 $(document).ready(() => {
 
-    connection = new Connection("ws://localhost:4567/play");
+    connection = new Connection("ws://sako.localtunnel.me/play");
     UI.drawBoard();
 
     let name;

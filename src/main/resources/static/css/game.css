@@ -74,6 +74,15 @@ body {
     text-align: center;
 }
 
+#player {
+    position: absolute;
+    bottom: 0;
+}
+
+#opponent {
+    border-bottom: 1px solid rgb(188, 188, 188);
+}
+
 .name {
     font-size: 30px;
     background-color: rgb(226, 226, 226);
@@ -92,6 +101,7 @@ body {
     left: 0;
     right: 0;
     height: 40px;
+    border-top: 1px solid rgb(188, 188, 188);
     border-bottom: 1px solid rgb(188, 188, 188);
 }
 
@@ -116,12 +126,6 @@ button:hover {
 
 /* log & selection style */
 
-#log, #selection {
-    border-top: 1px solid rgb(188, 188, 188);
-    border-bottom: 1px solid rgb(188, 188, 188);
-    height: calc(100% - 293px);
-}
-
 #log {
     overflow: auto;
 }
@@ -133,11 +137,6 @@ table {
 td {
     color: rgb(56, 56, 56);
     font-size: 20px;
-}
-
-#selection {
-    overflow: hidden;
-    position: relative;
 }
 
 .option {
@@ -155,8 +154,8 @@ td {
 }
 
 #option2 {
-    position: absolute;
-    bottom: 20px;
+    position: relative;
+    top: 10px;
 }
 
 /* header style */
@@ -220,8 +219,8 @@ td {
 
 #inviteLink {
     word-wrap: break-word;
-    width: 250px;
-    height: 50px;
+    width: auto;
+    height: auto;
     border-radius: 3px;
     background-color: rgb(241, 241, 241);;
     border-color: rgb(188, 188, 188);
