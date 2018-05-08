@@ -48,7 +48,7 @@ public class Game {
   private Map<Location, PowerUp> powerUpsOnBoard;
 
   private Map<Location, PowerUp> removedLocations;
-  private Map<PowerObject, Location> addedPowerObject;
+  private Map<Location, PowerObject> spawnedPowerObject;
 
   private Random rand = new java.util.Random();
   private final int lastRow = 7;
@@ -154,7 +154,7 @@ public class Game {
     actionOptions = new ArrayList<>();
     powerUpsOnBoard = new HashMap<>();
     gameState = GameState.WAITING_FOR_MOVE;
-    addedPowerObject = new HashMap<PowerObject, Location>();
+    spawnedPowerObject = new HashMap<Location, PowerObject>();
 
   }
 
@@ -227,6 +227,10 @@ public class Game {
     executeMove(move);
     tilNextPowerup--;
 
+    if (!spawnedPowerObject.isEmpty()) {
+      spawnedPowerObject.clear();
+    }
+
     // after move, check if new PowerObject should spawn
     if (tilNextPowerup == 0) {
       spawnPowerObject(getSpawnLoc(), PowerObject.createRandPowerObject());
@@ -295,23 +299,8 @@ public class Game {
    *
    * @return map of newly spawned on-board PowerObject and its location.
    */
-  public Map<PowerObject, Location> getPowerObject() {
-    return this.addedPowerObject;
-  }
-
-  /**
-   * Remove a Powerobject from the list of recently added objects if it has
-   * already been acknowledged by the front end.
-   *
-   * @param powerObj
-   *          Power Object to remove from list.
-   */
-  public void removePowerObjectUpdate(PowerObject powerObj) {
-    try {
-      addedPowerObject.remove(powerObj);
-    } catch (NullPointerException e) {
-      return;
-    }
+  public Map<Location, PowerObject> getSpawnedPowerObject() {
+    return spawnedPowerObject;
   }
 
   /**
@@ -415,7 +404,7 @@ public class Game {
    */
   public void spawnPowerObject(Location loc, PowerObject powerObj) {
     board.addBoardObject(loc, powerObj);
-    addedPowerObject.put(powerObj, loc);
+    spawnedPowerObject.put(loc, powerObj);
   }
 
   /**
@@ -564,7 +553,7 @@ public class Game {
         gameState = GameState.WAITING_FOR_POWERUP_CHOICE;
         actionOptions = ((PowerObject) obj).getPowerActions(this, end);
         try {
-          addedPowerObject.remove((PowerObject) obj);
+          spawnedPowerObject.remove((PowerObject) obj);
         } catch (ClassCastException | NullPointerException e) {
           return;
         }

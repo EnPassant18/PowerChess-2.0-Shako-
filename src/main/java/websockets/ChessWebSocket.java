@@ -737,11 +737,11 @@ public class ChessWebSocket {
 
     }
 
-    Map<PowerObject, Location> addedPowerUp = game.getPowerObject();
+    Map<Location, PowerObject> addedPowerUp = game.getSpawnedPowerObject();
     // If a power up was spawned, add the power up and its location to update
-    for (PowerObject power : addedPowerUp.keySet()) {
-      Location loc = addedPowerUp.get(power);
-      updates.add(createPowerObjectUpdate(loc, power));
+    for (Location loc : addedPowerUp.keySet()) {
+      PowerObject powerObj = addedPowerUp.get(loc);
+      updates.add(createPowerObjectUpdate(loc, powerObj));
     }
 
     /*

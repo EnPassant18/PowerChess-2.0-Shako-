@@ -21,9 +21,9 @@ public class PowerObject implements BoardObject {
   private Rarity rarity;
 
   private static RandomCollection<Rarity> rarities;
-  private static final int COMMON_FREQ = 60;
-  private static final int RARE_FREQ = 30;
-  private static final int LEGENDARY_FREQ = 10;
+  private static final int COMMON_FREQ = 70;
+  private static final int RARE_FREQ = 25;
+  private static final int LEGENDARY_FREQ = 5;
 
   static {
     rarities = new RandomCollection<>();
