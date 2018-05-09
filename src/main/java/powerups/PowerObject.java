@@ -103,7 +103,7 @@ public class PowerObject implements BoardObject {
 
   @Override
   public boolean canBeJumped() {
-    return false;
+    return true;
   }
 
 }
